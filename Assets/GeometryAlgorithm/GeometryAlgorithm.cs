@@ -6,8 +6,7 @@ using UnityEngine;
 
 namespace Geometry_Algorithm
 {
-   
-    public class GeometryAlgorithm
+    public partial class GeometryAlgorithm
     {
         float esp = 0.00001f;
         public void SetESP(float esp)
@@ -35,7 +34,8 @@ namespace Geometry_Algorithm
         }
 
         /// <summary>
-        /// 判断点pt是否在多边形中, point必须在多边形的同一平面中
+        /// 判断点pointMustInPloyPlane是否在多边形中, 
+        /// pointMustInPloyPlane必须在多边形的同一平面中,但不一定在多边形中
         /// </summary>
         /// <param name="polySides">多边形中所有点共面</param>
         /// <param name="pointMustInPloyPlane"></param>
@@ -51,6 +51,7 @@ namespace Geometry_Algorithm
             Vector3 n = polySidesList[0][0].startpos - pt;
             int crossPtCount = 0;
             Vector3 crossPt;
+            PolySide polySide2 = new PolySide();
 
             for (int j = 0; j < polySidesList.Count; j++)
             {
@@ -61,11 +62,14 @@ namespace Geometry_Algorithm
 
                 for (int i = 0; i < polySides.Length; i++)
                 {
-                    PolySide polySide2 = new PolySide() { startpos = pt, dir = n, step = 1000000 };
+                    polySide2.startpos = pt;
+                    polySide2.dir = n;
+                    polySide2.step = 1000000;
                     crossPtCount += SolvePolySideCrossPoint(polySides[i], polySide2, polyFaceNormal, true, out crossPt);
                 }
             }
 
+            //判断是偶数个交点，还是奇数个交点
             if (crossPtCount % 2 == 0)
                 return false;
 
@@ -129,7 +133,7 @@ namespace Geometry_Algorithm
             bool isCmpSideEndPoint, out Vector3 crossPt)
         {           
             //m为新的平面的法向，要求m和 polySide1.dir互相垂直,同时m不能与poly的法向平行  
-            //既有m确认的平面不能是poly的平面
+            //既由m确认的平面不能是poly的平面
             Vector3 m = Vector3.Cross(polySide1.dir, polyFaceNormal);       
             bool isHavCrossPt = SolveCrossPoint(polySide2.startpos, polySide2.dir, polySide1.startpos, m, out crossPt);
             
@@ -224,15 +228,15 @@ namespace Geometry_Algorithm
                 return (step > 0) ? 1 : -1;
             }
 
-            if (!IsZero(vec1.y))
-            {
-                step = vec1.y / vec2.y;
-                return (step > 0) ? 1 : -1;
-            }
-
             if (!IsZero(vec1.z))
             {
                 step = vec1.z / vec2.z;
+                return (step > 0) ? 1 : -1;
+            }
+
+            if (!IsZero(vec1.y))
+            {
+                step = vec1.y / vec2.y;
                 return (step > 0) ? 1 : -1;
             }
 

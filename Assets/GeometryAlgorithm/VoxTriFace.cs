@@ -267,7 +267,7 @@ namespace Geometry_Algorithm
                     {
                         for (int i = 0; i < rect.Length; i++)
                         {
-                            if (geoAlgo.IsInsidePoly(polyProjectionFloor, rect[i]))
+                            if (geoAlgo.IsInsidePoly2D(polyProjectionFloor, rect[i]))
                                 edgePloyPts.Add(rect[i]);
                         }
                     }
@@ -277,7 +277,7 @@ namespace Geometry_Algorithm
 
                     for (int i = 0; i < preCellRectSides.Length; i++)
                         preCellRectSides[i].startpos = rect[i];
-                    Vector3[] pts = geoAlgo.SolvePolySidesCrossPoints(preCellRectSides, polyProjectionFloor.sidesList[0], floorGridNormal);
+                    Vector3[] pts = geoAlgo.SolvePolySidesCrossPoints2D(preCellRectSides, polyProjectionFloor.sidesList[0]);
                     
                     for (int i = 0; i < pts.Length; i++)
                         edgePloyPts.Add(pts[i]);
