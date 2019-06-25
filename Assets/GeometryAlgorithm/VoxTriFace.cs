@@ -277,6 +277,7 @@ namespace Geometry_Algorithm
 
                     for (int i = 0; i < preCellRectSides.Length; i++)
                         preCellRectSides[i].startpos = rect[i];
+
                     Vector3[] pts = geoAlgo.SolvePolySidesCrossPoints2D(preCellRectSides, polyProjectionFloor.sidesList[0]);
                     
                     for (int i = 0; i < pts.Length; i++)

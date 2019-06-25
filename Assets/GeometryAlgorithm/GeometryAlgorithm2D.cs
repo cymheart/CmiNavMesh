@@ -13,6 +13,12 @@ namespace Geometry_Algorithm
             return v1.x * v2.z - v1.z * v2.x;
         }
 
+        public float Dot2D(Vector3 v1, Vector3 v2)
+        {
+            return v1.x * v2.x + v1.z * v2.z;
+        }
+
+
 
         public bool IsInsidePoly2D(Poly poly, Vector3 pt, PloySideType checkSideType = PloySideType.Allside)
         {
@@ -103,7 +109,7 @@ namespace Geometry_Algorithm
         public int SolvePolySideCrossPoint2D(PolySide polySide1, PolySide polySide2, bool isCmpSideEndPoint, out Vector3 crossPt)
         {
             Vector3 m = new Vector3(polySide1.dir.z, 0, -polySide1.dir.x);
-            bool isHavCrossPt = SolveCrossPoint(polySide2.startpos, polySide2.dir, polySide1.startpos, m, out crossPt);
+            bool isHavCrossPt = SolveCrossPoint2D(polySide2.startpos, polySide2.dir, polySide1.startpos, m, out crossPt);
 
             //两条边互相平行
             if (!isHavCrossPt)
@@ -147,6 +153,33 @@ namespace Geometry_Algorithm
                 return 0;
 
             return 1;
+        }
+
+        /// <summary>
+        ///  求解射线(p, n)与平面(o, m)的交点d
+        ///  一条向量直线: d = p + t * n  1式（n为射线方向，p为起始点， t为长度， d为目标点）
+        ///  平面的点积方程表示:   (d - o).m = 0    2式
+        ///  (d为平面上任意一点， o为平面上已知的一个点， d-o表示由o点指向d点的向量， m为此平面朝向向量，
+        ///  这两个向量互相垂直时，向量点积为0)
+        ///  联立1式和2式方程， 可解出射线和平面相交时，t的量值
+        ///  (p + t*n - o).m = 0
+        ///  p.m + t*n.m - o.m = 0
+        ///  t*n.m = o.m - p.m
+        ///  t = (o - p).m / n.m
+        ///  t代入1式可求出d
+        /// </summary>
+        public bool SolveCrossPoint2D(Vector3 p, Vector3 n, Vector3 o, Vector3 m, out Vector3 pt)
+        {
+            float value = Dot2D(n, m);
+            if (IsZero(value))
+            {
+                pt = Vector3.zero;
+                return false;
+            }
+
+            float t = Dot2D(o - p, m) / value;
+            pt = p + t * n;
+            return true;
         }
     }
 }
