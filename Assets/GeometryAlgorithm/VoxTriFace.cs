@@ -317,8 +317,7 @@ namespace Geometry_Algorithm
             voxBoxList.Add(voxBox);
         }
 
-
-       
+   
         public void CreateVoxBoxViewer()
         {
             voxViewer.CreateVoxs(voxBoxList.ToArray(), voxSpace);

@@ -31,6 +31,9 @@ namespace Geometry_Algorithm
             int crossPtCount = 0;
             Vector3 crossPt;
             PolySide polySide2 = new PolySide();
+            polySide2.startpos = pt;
+            polySide2.dir = n;
+            polySide2.step = 1000000;
 
             for (int j = 0; j < polySidesList.Count; j++)
             {
@@ -41,9 +44,6 @@ namespace Geometry_Algorithm
 
                 for (int i = 0; i < polySides.Length; i++)
                 {
-                    polySide2.startpos = pt;
-                    polySide2.dir = n;
-                    polySide2.step = 1000000;
                     crossPtCount += SolvePolySideCrossPoint2D(polySides[i], polySide2, true, out crossPt);
                 }
             }

@@ -174,6 +174,7 @@ namespace Geometry_Algorithm
         /// </summary>
         public Range[] projRange;
 
+
         public Poly Copy()
         {
             Poly poly = new Poly();
@@ -186,7 +187,6 @@ namespace Geometry_Algorithm
                 {
                     polySides[j] = sidesList[i][j].Copy();
                 }
-
                 poly.sidesList.Add(polySides);
             }
 

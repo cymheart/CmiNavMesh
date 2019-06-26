@@ -66,6 +66,7 @@
     <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithmTypes.cs" />
     <Compile Include="Assets\GeometryAlgorithm\Poly.cs" />
     <Compile Include="Assets\GeometryAlgorithm\PolyBoolean.cs" />
+    <Compile Include="Assets\GeometryAlgorithm\PolySplitTriangles.cs" />
     <Compile Include="Assets\GeometryAlgorithm\TestMeshBox.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxBox.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxHeightFieldInfo.cs" />

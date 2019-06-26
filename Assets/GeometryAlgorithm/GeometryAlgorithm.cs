@@ -52,6 +52,9 @@ namespace Geometry_Algorithm
             int crossPtCount = 0;
             Vector3 crossPt;
             PolySide polySide2 = new PolySide();
+            polySide2.startpos = pt;
+            polySide2.dir = n;
+            polySide2.step = 1000000;
 
             for (int j = 0; j < polySidesList.Count; j++)
             {
@@ -61,10 +64,7 @@ namespace Geometry_Algorithm
                 polySides = polySidesList[j];
 
                 for (int i = 0; i < polySides.Length; i++)
-                {
-                    polySide2.startpos = pt;
-                    polySide2.dir = n;
-                    polySide2.step = 1000000;
+                {    
                     crossPtCount += SolvePolySideCrossPoint(polySides[i], polySide2, polyFaceNormal, true, out crossPt);
                 }
             }
@@ -212,7 +212,7 @@ namespace Geometry_Algorithm
 
 
         /// <summary>
-        /// 比较两平行向量方向是否相同
+        /// 比较两平行向量方向
         /// 1:方向相同
         /// -1：方向相反
         /// 0: 没有方向
@@ -241,6 +241,41 @@ namespace Geometry_Algorithm
             }
 
             step = -1;
+            return 0;
+        }
+
+
+        /// <summary>
+        /// 比较两平行向量方向
+        /// 1:方向相同
+        /// -1：方向相反
+        /// 0: 没有方向
+        /// </summary>
+        /// <param name="vec1"></param>
+        /// <param name="vec2"></param>
+        /// <returns></returns>
+        public int CmpParallelVecDir(Vector3 vec1, Vector3 vec2)
+        {
+            float step;
+
+            if (!IsZero(vec1.x))
+            {
+                step = vec1.x / vec2.x;
+                return (step > 0) ? 1 : -1;
+            }
+
+            if (!IsZero(vec1.z))
+            {
+                step = vec1.z / vec2.z;
+                return (step > 0) ? 1 : -1;
+            }
+
+            if (!IsZero(vec1.y))
+            {
+                step = vec1.y / vec2.y;
+                return (step > 0) ? 1 : -1;
+            }
+
             return 0;
         }
 
