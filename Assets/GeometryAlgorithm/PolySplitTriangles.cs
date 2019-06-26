@@ -40,7 +40,7 @@ namespace Geometry_Algorithm
                     Vector3 bc = abc[2].Value - abc[1].Value;
 
                     dir = Vector3.Cross(ab, bc);
-                    int ret = geoAlgor.CmpParallelVecDir(dir, poly.faceNormal);
+                    int ret = geoAlgor.CmpParallelVecDir(dir, polyFaceNormal);
                     if (ret == -1)
                         continue;
 
