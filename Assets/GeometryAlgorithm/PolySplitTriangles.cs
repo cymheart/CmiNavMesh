@@ -17,16 +17,19 @@ namespace Geometry_Algorithm
 
         public List<Vector3[]> Split(Poly poly)
         {
-            PolySide[] sides = poly.sidesList[0];
+            LinkedList<Vector3> polyVertList = CreatePolyVertToList(poly);
+            return Split(polyVertList, poly.faceNormal);
+        }
+
+        public List<Vector3[]> Split(LinkedList<Vector3> polyVertList, Vector3 polyFaceNormal)
+        {
             Vector3 dir;
             LinkedListNode<Vector3>[] abc;
-            LinkedList<Vector3> polyVertList;
             List<Vector3[]> triVertexList = new List<Vector3[]>();
 
             //合法的三角形分割列表
             LinkedList<LinkedListNode<Vector3>[]> legalTriNodeList = new LinkedList<LinkedListNode<Vector3>[]>();
 
-            polyVertList = CreatePolyVertToList(poly);
 
             while (polyVertList.Count > 0)
             {
