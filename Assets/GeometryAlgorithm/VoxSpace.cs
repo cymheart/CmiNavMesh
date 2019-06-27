@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LinearAlgebra;
+using Mathd;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +10,7 @@ namespace Geometry_Algorithm
 {
     public class VoxSpace
     {
-        public Vector3 boundSize;
+        public Vector3d boundSize;
         public float cellSize = 0.1f;
         public float cellHeight = 0.01f;
 
@@ -29,8 +31,8 @@ namespace Geometry_Algorithm
         ///  pab_x.z   pab_y.z   pab_z.z
         ///  vab.x     vab.y     vab.z        
         /// </summary>
-        public Matrix4x4 worldToVoxSpace = Matrix4x4.identity;
-        public Matrix4x4 voxSpaceToWorld = Matrix4x4.identity;
+        public Matrix worldToVoxSpace = Matrix.Eye(4);
+        public Matrix voxSpaceToWorld = Matrix.Eye(4);
 
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace Geometry_Algorithm
         /// <param name="xIdxCell"></param>
         /// <param name="zIdxCell"></param>
         /// <returns></returns>
-        public Vector3[] GetFloorGridCellRect(int xIdxCell, int zIdxCell)
+        public Vector3d[] GetFloorGridCellRect(int xIdxCell, int zIdxCell)
         {
             float xStart = xIdxCell * cellSize;
             float xEnd = xStart + cellSize;
@@ -47,12 +49,12 @@ namespace Geometry_Algorithm
             float zStart = zIdxCell * cellSize;
             float zEnd = zStart + cellSize;
 
-            Vector3[] rect = new Vector3[]
+            Vector3d[] rect = new Vector3d[]
             {
-                new Vector3(xStart, 0, zStart),
-                new Vector3(xStart,0, zEnd),
-                new Vector3(xEnd,0, zEnd),
-                new Vector3(xEnd,0, zStart),
+                new Vector3d(xStart, 0, zStart),
+                new Vector3d(xStart,0, zEnd),
+                new Vector3d(xEnd,0, zEnd),
+                new Vector3d(xEnd,0, zStart),
             };
 
             return rect;
@@ -65,11 +67,11 @@ namespace Geometry_Algorithm
         /// <param name="xIdxCell"></param>
         /// <param name="zIdxCell"></param>
         /// <returns></returns>
-        public Vector3 GetFloorGridCellRectCenterPos(int xIdxCell, int zIdxCell)
+        public Vector3d GetFloorGridCellRectCenterPos(int xIdxCell, int zIdxCell)
         {
             float xStart = xIdxCell * cellSize;
             float zStart = zIdxCell * cellSize;
-            return new Vector3((xStart + cellSize + xStart) / 2, 0, (zStart + cellSize + zStart) / 2);
+            return new Vector3d((xStart + cellSize + xStart) / 2, 0, (zStart + cellSize + zStart) / 2);
         }
 
 
@@ -79,15 +81,15 @@ namespace Geometry_Algorithm
         /// <param name="minHeightPos"></param>
         /// <param name="maxHeightPos"></param>
         /// <returns></returns>
-        public int[] GetWallGridCellIdxRange(float minHeightPos, float maxHeightPos)
+        public int[] GetWallGridCellIdxRange(double minHeightPos, double maxHeightPos)
         {
             int end;
-            float n = minHeightPos / cellHeight;
-            int start = (int)Mathf.Floor(n);
+            double n = minHeightPos / cellHeight;
+            int start = (int)Math.Floor(n);
 
             //yendCell
             n = maxHeightPos / cellHeight;
-            end = (int)(Mathf.Ceil((float)n));
+            end = (int)(Math.Ceiling(n));
             if (start == end) { end++; }
 
             return new int[] { start, end };

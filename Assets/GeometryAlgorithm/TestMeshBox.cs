@@ -1,4 +1,6 @@
 ﻿using Geometry_Algorithm;
+using LinearAlgebra.VectorAlgebra;
+using Mathd;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,11 +23,16 @@ public class TestMeshBox : MonoBehaviour {
         vects[1] = vectors[idxs[1]];
         vects[2] = vectors[idxs[2]];
 
-        Vector3[] vectxs = new Vector3[3];
+        Vector[] vectxs = new Vector[3];
 
-        vectxs[0] = mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
-        vectxs[1] = mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
-        vectxs[2] = mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
+        Vector3 v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
+        vectxs[0] = new Vector(new double[] { v.x, v.y, v.z }, VectorType.Column);
+
+        v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
+        vectxs[1] = new Vector(new double[] { v.x, v.y, v.z }, VectorType.Column);
+
+        v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
+        vectxs[2] = new Vector(new double[] { v.x, v.y, v.z }, VectorType.Column);
 
         VoxSpace voxSpace = new VoxSpace();
 

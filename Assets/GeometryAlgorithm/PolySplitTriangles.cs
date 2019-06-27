@@ -1,8 +1,5 @@
-﻿using System;
+﻿using Mathd;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace Geometry_Algorithm
 {
@@ -15,42 +12,43 @@ namespace Geometry_Algorithm
             this.geoAlgor = geoAlgor;
         }
 
-        public List<Vector3[]> Split(Poly poly)
+        public List<Vector3d[]> Split(Poly poly)
         {
-            LinkedList<Vector3> polyVertList = CreatePolyVertToList(poly);
+            LinkedList<Vector3d> polyVertList = CreatePolyVertToList(poly);
             return Split(polyVertList, poly.faceNormal);
         }
 
-        public List<Vector3[]> Split(LinkedList<Vector3> polyVertList, Vector3 polyFaceNormal)
+        public List<Vector3d[]> Split(LinkedList<Vector3d> polyVertList, Vector3d polyFaceNormal)
         {
-            Vector3 dir;
-            LinkedListNode<Vector3>[] abc;
-            List<Vector3[]> triVertexList = new List<Vector3[]>();
+            Vector3d dir;
+            LinkedListNode<Vector3d>[] abc;
+            List<Vector3d[]> triVertexList = new List<Vector3d[]>();
 
             //合法的三角形分割列表
-            LinkedList<LinkedListNode<Vector3>[]> legalTriNodeList = new LinkedList<LinkedListNode<Vector3>[]>();
+            LinkedList<LinkedListNode<Vector3d>[]> legalTriNodeList = new LinkedList<LinkedListNode<Vector3d>[]>();
 
 
             while (polyVertList.Count > 0)
             {
                 for (var node = polyVertList.First; node != null; node = node.Next)
                 {
+                    //获取一个耳三角形
                     abc = GetTriNodes(polyVertList, node);
-                    Vector3 ab = abc[1].Value - abc[0].Value;
-                    Vector3 bc = abc[2].Value - abc[1].Value;
 
-                    dir = Vector3.Cross(ab, bc);
+                    Vector3d ab = abc[1].Value - abc[0].Value;
+                    Vector3d bc = abc[2].Value - abc[1].Value;
+                    dir = Vector3d.Cross(ab, bc);
                     int ret = geoAlgor.CmpParallelVecDir(dir, polyFaceNormal);
                     if (ret == -1)
                         continue;
 
-                    Vector3 ac = abc[2].Value - abc[0].Value;
-                    Vector3 ba = abc[0].Value - abc[1].Value;
-                    Vector3 ca = abc[0].Value - abc[2].Value;
-                    Vector3 cb = abc[1].Value - abc[2].Value;
-                    Vector3 aCross = Vector3.Cross(ab, ac);
-                    Vector3 bCross = Vector3.Cross(bc, ba);
-                    Vector3 cCross = Vector3.Cross(ca, cb);
+                    Vector3d ac = abc[2].Value - abc[0].Value;
+                    Vector3d ba = abc[0].Value - abc[1].Value;
+                    Vector3d ca = abc[0].Value - abc[2].Value;
+                    Vector3d cb = abc[1].Value - abc[2].Value;
+                    Vector3d aCross = Vector3d.Cross(ab, ac);
+                    Vector3d bCross = Vector3d.Cross(bc, ba);
+                    Vector3d cCross = Vector3d.Cross(ca, cb);
 
                     //
                     bool isInTri = false;
@@ -59,7 +57,7 @@ namespace Geometry_Algorithm
                         if (node2 == abc[0] || node2 == abc[1] || node2 == abc[2])
                             continue;
 
-                        Vector3 pt = node2.Value;
+                        Vector3d pt = node2.Value;
                         isInTri |= TestPointInTri(pt, abc[0].Value, abc[1].Value, abc[2].Value, aCross, bCross, cCross);
                     }
 
@@ -71,11 +69,11 @@ namespace Geometry_Algorithm
                 }
 
 
-                LinkedListNode<Vector3>[] nodes = GetLimitShortSideTri(legalTriNodeList);
+                LinkedListNode<Vector3d>[] nodes = GetLimitShortSideTri(legalTriNodeList);
                 if (nodes != null)
                 {
                     polyVertList.Remove(nodes[1]);
-                    Vector3[] vertexs = new Vector3[3];
+                    Vector3d[] vertexs = new Vector3d[3];
                     vertexs[0] = nodes[0].Value;
                     vertexs[1] = nodes[1].Value;
                     vertexs[2] = nodes[2].Value;
@@ -88,16 +86,16 @@ namespace Geometry_Algorithm
             return triVertexList;
         }
 
-        LinkedListNode<Vector3>[] GetLimitShortSideTri(LinkedList<LinkedListNode<Vector3>[]> triList)
+        LinkedListNode<Vector3d>[] GetLimitShortSideTri(LinkedList<LinkedListNode<Vector3d>[]> triList)
         {
-            LinkedListNode<Vector3>[] triNodes;
-            LinkedListNode<Vector3>[] minSideTriNodes = null;
-            float minSideLen = 999999;
+            LinkedListNode<Vector3d>[] triNodes;
+            LinkedListNode<Vector3d>[] minSideTriNodes = null;
+            double minSideLen = 999999;
 
             for (var node = triList.First; node != null; node = node.Next)
             {
                 triNodes = node.Value;
-                Vector3 ca = triNodes[0].Value - triNodes[2].Value;
+                Vector3d ca = triNodes[0].Value - triNodes[2].Value;
                 if (ca.sqrMagnitude < minSideLen)
                 {
                     minSideLen = ca.sqrMagnitude;
@@ -109,11 +107,11 @@ namespace Geometry_Algorithm
         }
 
 
-        LinkedList<Vector3> CreatePolyVertToList(Poly poly)
+        LinkedList<Vector3d> CreatePolyVertToList(Poly poly)
         {
-            LinkedList<Vector3> polyVertList = new LinkedList<Vector3>();
+            LinkedList<Vector3d> polyVertList = new LinkedList<Vector3d>();
 
-            Vector3[] triPts = poly.vertexsList[0];
+            Vector3d[] triPts = poly.vertexsList[0];
             for (int i = 0; i < triPts.Length; i++)
             {
                 polyVertList.AddLast(triPts[i]);
@@ -123,9 +121,9 @@ namespace Geometry_Algorithm
         }
 
 
-        LinkedListNode<Vector3>[] GetTriNodes(LinkedList<Vector3> polyVertList, LinkedListNode<Vector3> firstNode)
+        LinkedListNode<Vector3d>[] GetTriNodes(LinkedList<Vector3d> polyVertList, LinkedListNode<Vector3d> firstNode)
         {
-            LinkedListNode<Vector3>[] triNodes = new LinkedListNode<Vector3>[3];
+            LinkedListNode<Vector3d>[] triNodes = new LinkedListNode<Vector3d>[3];
 
             triNodes[0] = firstNode;
 
@@ -152,27 +150,27 @@ namespace Geometry_Algorithm
         }
 
 
-        bool TestPointInTri(Vector3 pt, 
-            Vector3 triPtA, Vector3 triPtB, Vector3 triPtC,
-            Vector3 aCross, Vector3 bCross, Vector3 cCross)
+        bool TestPointInTri(Vector3d pt, 
+            Vector3d triPtA, Vector3d triPtB, Vector3d triPtC,
+            Vector3d aCross, Vector3d bCross, Vector3d cCross)
         {
-            Vector3 ab = triPtB - triPtA;
-            Vector3 ad = pt - triPtA;
-            Vector3 s2 = Vector3.Cross(ab, ad); 
+            Vector3d ab = triPtB - triPtA;
+            Vector3d ad = pt - triPtA;
+            Vector3d s2 = Vector3d.Cross(ab, ad); 
             int ret = geoAlgor.CmpParallelVecDir(aCross, s2);
             if (ret == -1)
                 return false;
 
-            Vector3 bc = triPtC - triPtB;
-            Vector3 bd = pt - triPtB;
-            s2 = Vector3.Cross(bc, bd);
+            Vector3d bc = triPtC - triPtB;
+            Vector3d bd = pt - triPtB;
+            s2 = Vector3d.Cross(bc, bd);
             ret = geoAlgor.CmpParallelVecDir(bCross, s2);
             if (ret == -1)
                 return false;
 
-            Vector3 ca = triPtA - triPtC;
-            Vector3 cd = pt - triPtC;
-            s2 = Vector3.Cross(ca, cd);
+            Vector3d ca = triPtA - triPtC;
+            Vector3d cd = pt - triPtC;
+            s2 = Vector3d.Cross(ca, cd);
             ret = geoAlgor.CmpParallelVecDir(cCross, s2);
             if (ret == -1)
                 return false;

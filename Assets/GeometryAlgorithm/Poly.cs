@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mathd;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,12 +17,12 @@ namespace Geometry_Algorithm
         /// <summary>
         /// 交点
         /// </summary>
-        public Vector3 pt;
+        public Vector3d pt;
 
         /// <summary>
         /// 在自身边方向上的距离
         /// </summary>
-        public float dist;
+        public double dist;
 
         public int inoutType;
 
@@ -42,6 +43,7 @@ namespace Geometry_Algorithm
 
         public CrossPointInfo Copy()
         {
+            
             CrossPointInfo info = new CrossPointInfo();
             info.isUsed = isUsed;
             info.type = type;
@@ -106,22 +108,22 @@ namespace Geometry_Algorithm
         /// <summary>
         /// 边的起始点
         /// </summary>
-        public Vector3 startpos;
+        public Vector3d startpos;
 
         /// <summary>
         /// 边的方向
         /// </summary>
-        public Vector3 dir;
+        public Vector3d dir;
 
         /// <summary>
         /// 边的长度
         /// </summary>
-        public float step;
+        public double step;
 
         /// <summary>
         /// 边对应的垂直方向
         /// </summary>
-        public Vector3 vertDir;
+        public Vector3d vertDir;
 
         /// <summary>
         /// 和其它多边形的交点信息列表
@@ -156,7 +158,7 @@ namespace Geometry_Algorithm
         /// <summary>
         /// 多边形朝向
         /// </summary>
-        public Vector3 faceNormal;
+        public Vector3d faceNormal;
 
         /// <summary>
         /// 边列表, 支持内中空多边形， 
@@ -167,7 +169,7 @@ namespace Geometry_Algorithm
         /// <summary>
         /// 顶点列表，和边列表对应
         /// </summary>
-        public List<Vector3[]> vertexsList = new List<Vector3[]>();
+        public List<Vector3d[]> vertexsList = new List<Vector3d[]>();
 
         /// <summary>
         /// 多边形自身的外边投影轴的投影范围
@@ -192,7 +194,7 @@ namespace Geometry_Algorithm
 
             for (int i = 0; i < sidesList.Count; i++)
             {
-                Vector3[] verts = new Vector3[vertexsList[i].Length];
+                Vector3d[] verts = new Vector3d[vertexsList[i].Length];
                 for (int j = 0; j < sidesList[i].Length; j++)
                 {
                     verts[j] = vertexsList[i][j];
@@ -203,7 +205,7 @@ namespace Geometry_Algorithm
             return poly;
         }
 
-   
+ 
         /// <summary>
         /// 获取一个未使用的交点信息
         /// </summary>

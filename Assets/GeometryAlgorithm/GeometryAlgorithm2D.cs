@@ -1,35 +1,33 @@
-﻿using System;
+﻿using Mathd;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+
 
 namespace Geometry_Algorithm
 {
     public partial class GeometryAlgorithm
     {
-        public float Cross2D(Vector3 v1, Vector3 v2)
+        public double Cross2D(Vector3d v1, Vector3d v2)
         {
             return v1.x * v2.z - v1.z * v2.x;
         }
 
-        public float Dot2D(Vector3 v1, Vector3 v2)
+        public double Dot2D(Vector3d v1, Vector3d v2)
         {
             return v1.x * v2.x + v1.z * v2.z;
         }
 
 
 
-        public bool IsInsidePoly2D(Poly poly, Vector3 pt, PloySideType checkSideType = PloySideType.Allside)
+        public bool IsInsidePoly2D(Poly poly, Vector3d pt, PloySideType checkSideType = PloySideType.Allside)
         {
             PolySide[] polySides;
             List<PolySide[]> polySidesList = poly.sidesList;
-            Vector3 polyFaceNormal = poly.faceNormal;
+            Vector3d polyFaceNormal = poly.faceNormal;
 
             //判断从点引出的平行于sides[0]方向的正向射线是否与其它边相交
-            Vector3 n = polySidesList[0][0].startpos - pt;
+            Vector3d n = polySidesList[0][0].startpos - pt;
             int crossPtCount = 0;
-            Vector3 crossPt;
+            Vector3d crossPt;
             PolySide polySide2 = new PolySide();
             polySide2.startpos = pt;
             polySide2.dir = n;
@@ -63,10 +61,10 @@ namespace Geometry_Algorithm
         /// <param name="polySidesB">多边形B的边集</param>
         /// <param name="polyFaceNormal">多边形面向法线</param>
         /// <returns></returns>
-        public Vector3[] SolvePolySidesCrossPoints2D(PolySide[] polySidesA, PolySide[] polySidesB)
+        public Vector3d[] SolvePolySidesCrossPoints2D(PolySide[] polySidesA, PolySide[] polySidesB)
         {
-            List<Vector3> pts = new List<Vector3>();
-            Vector3 crossPt;
+            List<Vector3d> pts = new List<Vector3d>();
+            Vector3d crossPt;
             int crossPtCount;
 
             for (int i = 0; i < polySidesA.Length; i++)
@@ -92,7 +90,7 @@ namespace Geometry_Algorithm
         /// <param name="polyFaceNormal">多边形面向法线</param>
         /// <param name="crossPt">输出射线和边的交点</param>
         /// <returns>返回值为 1: 有1个交点， 0：没有交点</returns>
-        public int SolvePolySideCrossPoint2D(PolySide polySide1, PolySide polySide2, out Vector3 crossPt)
+        public int SolvePolySideCrossPoint2D(PolySide polySide1, PolySide polySide2, out Vector3d crossPt)
         {
             return SolvePolySideCrossPoint2D(polySide1, polySide2, false, out crossPt);
         }
@@ -106,17 +104,17 @@ namespace Geometry_Algorithm
         /// <param name="isCmpSideEndPoint">是否比较边的端点（比较边的端点一般用于点是否在多边形中的判断）</param>
         /// <param name="crossPt">两条边的交点</param>
         /// <returns>返回值为 1: 有1个交点， 0：没有交点</returns>
-        public int SolvePolySideCrossPoint2D(PolySide polySide1, PolySide polySide2, bool isCmpSideEndPoint, out Vector3 crossPt)
+        public int SolvePolySideCrossPoint2D(PolySide polySide1, PolySide polySide2, bool isCmpSideEndPoint, out Vector3d crossPt)
         {
-            Vector3 m = new Vector3(polySide1.dir.z, 0, -polySide1.dir.x);
+            Vector3d m = new Vector3d(polySide1.dir.z, 0, -polySide1.dir.x);
             bool isHavCrossPt = SolveCrossPoint2D(polySide2.startpos, polySide2.dir, polySide1.startpos, m, out crossPt);
 
             //两条边互相平行
             if (!isHavCrossPt)
                 return 0;
 
-            float step;
-            Vector3 crossPtToPtVec = crossPt - polySide2.startpos;
+            double step;
+            Vector3d crossPtToPtVec = crossPt - polySide2.startpos;
             CmpParallelVecDir(crossPtToPtVec, polySide2.dir, out step);
             //交点crossPt不在polySide2边的范围内
             if (step < 0 || step > polySide2.step + esp)
@@ -129,8 +127,8 @@ namespace Geometry_Algorithm
             {
                 if (isCmpSideEndPoint)
                 {
-                    Vector3 sideEndPt = polySide1.startpos + polySide1.dir * polySide1.step;
-                    float v = Cross2D(sideEndPt - polySide2.startpos, polySide2.dir);
+                    Vector3d sideEndPt = polySide1.startpos + polySide1.dir * polySide1.step;
+                    double v = Cross2D(sideEndPt - polySide2.startpos, polySide2.dir);
                     return v < 0 ? 1 : 0;
                 }
 
@@ -140,7 +138,7 @@ namespace Geometry_Algorithm
             {
                 if (isCmpSideEndPoint)
                 {
-                    float v = Cross2D(polySide1.startpos - polySide2.startpos, polySide2.dir);
+                    double v = Cross2D(polySide1.startpos - polySide2.startpos, polySide2.dir);
                     return v < 0 ? 1 : 0;
                 }
 
@@ -168,16 +166,16 @@ namespace Geometry_Algorithm
         ///  t = (o - p).m / n.m
         ///  t代入1式可求出d
         /// </summary>
-        public bool SolveCrossPoint2D(Vector3 p, Vector3 n, Vector3 o, Vector3 m, out Vector3 pt)
+        public bool SolveCrossPoint2D(Vector3d p, Vector3d n, Vector3d o, Vector3d m, out Vector3d pt)
         {
-            float value = Dot2D(n, m);
+            double value = Dot2D(n, m);
             if (IsZero(value))
             {
-                pt = Vector3.zero;
+                pt = Vector3d.zero;
                 return false;
             }
 
-            float t = Dot2D(o - p, m) / value;
+            double t = Dot2D(o - p, m) / value;
             pt = p + t * n;
             return true;
         }

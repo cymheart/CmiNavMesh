@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using Mathd;
 
 namespace Geometry_Algorithm
 {
@@ -10,38 +7,80 @@ namespace Geometry_Algorithm
     {
         Poly polyA;
         Poly polyB;
-        GeometryAlgorithm geoAlgor = new GeometryAlgorithm();
+        GeometryAlgorithm geoAlgor;
         CrossPointInfoComparer cmp;
-        Vector3 offsetValue;
+        Vector3d offsetValue;
 
-        List<Vector3[]> resultPolyVertsList = new List<Vector3[]>();
+        List<Vector3d[]> resultPolyVertsList = new List<Vector3d[]>();
 
-        public PolyBoolean(Vector3[] polyVertsA, Vector3[] polyVertsB)
+        public PolyBoolean(GeometryAlgorithm geoAlgor)
         {
-            polyA = geoAlgor.CreatePoly(polyVertsA, Vector3.zero);
-            polyB = geoAlgor.CreatePoly(polyVertsB, Vector3.zero);
-            AdjustPolyPos(polyB);
+            this.geoAlgor = geoAlgor;
             cmp = new CrossPointInfoComparer(this);
-
-            CreatePolysCrossPointInfoGroup();
         }
 
-        public PolyBoolean(Poly polyA, Poly polyB)
+        public void Sub(Vector3d[] polyVertsA, Vector3d[] polyVertsB)
+        {
+            CreatePolys(polyVertsA, polyVertsB);
+            CreatePolysCrossPointInfoGroup();
+            SubOp();
+        }
+
+        public void Intersection(Vector3d[] polyVertsA, Vector3d[] polyVertsB)
+        {
+            CreatePolys(polyVertsA, polyVertsB);
+            CreatePolysCrossPointInfoGroup();
+            IntersectionOp();
+        }
+
+        public void Union(Vector3d[] polyVertsA, Vector3d[] polyVertsB)
+        {
+            CreatePolys(polyVertsA, polyVertsB);
+            CreatePolysCrossPointInfoGroup();
+            UnionOp();
+        }
+
+
+        public void Sub(Poly polyA, Poly polyB)
         {
             this.polyA = polyA.Copy();
             this.polyB = polyB.Copy();
             AdjustPolyPos(this.polyB);
-            cmp = new CrossPointInfoComparer(this);
-
             CreatePolysCrossPointInfoGroup();
+            SubOp();
         }
 
-  
+        public void Intersection(Poly polyA, Poly polyB)
+        {
+            this.polyA = polyA.Copy();
+            this.polyB = polyB.Copy();
+            AdjustPolyPos(this.polyB);
+            CreatePolysCrossPointInfoGroup();
+            IntersectionOp();
+        }
+
+        public void Union(Poly polyA, Poly polyB)
+        {
+            this.polyA = polyA.Copy();
+            this.polyB = polyB.Copy();
+            AdjustPolyPos(this.polyB);
+            CreatePolysCrossPointInfoGroup();
+            UnionOp();
+        }
+
+
+        void CreatePolys(Vector3d[] polyVertsA, Vector3d[] polyVertsB)
+        {
+            polyA = geoAlgor.CreatePoly(polyVertsA, Vector3d.zero);
+            polyB = geoAlgor.CreatePoly(polyVertsB, Vector3d.zero);
+            AdjustPolyPos(polyB);
+        }
+
         void AdjustPolyPos(Poly poly)
         {
-            Vector3 dir1 = poly.sidesList[0][0].dir;
-            Vector3 dir2 = poly.sidesList[0][1].dir;
-            Vector3 dir3 = poly.sidesList[0][2].dir;
+            Vector3d dir1 = poly.sidesList[0][0].dir;
+            Vector3d dir2 = poly.sidesList[0][1].dir;
+            Vector3d dir3 = poly.sidesList[0][2].dir;
             float scale1 = UnityEngine.Random.Range(0.0006f, 0.001f);
             float scale2 = UnityEngine.Random.Range(0.0006f, 0.001f);
             float scale3 = UnityEngine.Random.Range(0.0006f, 0.001f);
@@ -72,7 +111,7 @@ namespace Geometry_Algorithm
             }
         }
 
-        public List<Vector3[]> GetResultPolyVerts()
+        public List<Vector3d[]> GetResultPolyVerts()
         {
             return resultPolyVertsList;
         }
@@ -97,7 +136,7 @@ namespace Geometry_Algorithm
         {
             List<PolySide[]> sidesListA = polyA.sidesList;
             List<PolySide[]> sidesListB = polyB.sidesList;
-            Vector3 crossPt;
+            Vector3d crossPt;
             int crossPtCount;
 
             for (int i=0; i < sidesListA.Count; i++)
@@ -129,7 +168,7 @@ namespace Geometry_Algorithm
                             crossPtInfoA.pt = crossPt;
                             crossPtInfoA.pointIdx = sidesA[j].crossPointInfoList.Count;
                             crossPtInfoA.crossSidePointIdx = sidesB[j2].crossPointInfoList.Count;
-                            Vector3 v = crossPt - crossPtInfoA.selfSide.startpos;
+                            Vector3d v = crossPt - crossPtInfoA.selfSide.startpos;
                             crossPtInfoA.dist = geoAlgor.GetScale(v, crossPtInfoA.selfSide.dir);
                             sidesA[j].crossPointInfoList.Add(crossPtInfoA);
 
@@ -310,7 +349,7 @@ namespace Geometry_Algorithm
 
         void BooleanOp(BooleanType booleanOp)
         {
-            List<Vector3> newPolyVertList = new List<Vector3>();
+            List<Vector3d> newPolyVertList = new List<Vector3d>();
             CrossPointInfo firstPtInfo;
             CrossPointInfo ptInfo, ptInfo2;
             bool isContinue;
@@ -379,9 +418,9 @@ namespace Geometry_Algorithm
         /// <summary>
         /// 差集
         /// </summary>
-        public void SubOp()
+        void SubOp()
         {
-            List<Vector3> newPolyVertList = new List<Vector3>();
+            List<Vector3d> newPolyVertList = new List<Vector3d>();
             CrossPointInfo firstPtInfo;
             CrossPointInfo ptInfo = null, ptInfo2;
             bool wiseFlag;
@@ -490,7 +529,7 @@ namespace Geometry_Algorithm
             for (int i = 0; i < polyb.vertexsList.Count; i++)
             {
                 int len = polyb.vertexsList[i].Length;
-                Vector3[] verts = new Vector3[len];
+                Vector3d[] verts = new Vector3d[len];
                 for (int j = 0; j < len; j++)
                     verts[j] = polyb.vertexsList[i][len - i - 1];
                 resultPolyVertsList.Add(verts);
@@ -501,7 +540,7 @@ namespace Geometry_Algorithm
         /// <summary>
         /// 交集
         /// </summary>
-        public void IntersectionOp()
+        void IntersectionOp()
         {
             BooleanOp(BooleanType.Intersection);
 
@@ -532,7 +571,7 @@ namespace Geometry_Algorithm
         /// <summary>
         /// 并集
         /// </summary>
-        public void UnionOp()
+        void UnionOp()
         { 
              BooleanOp(BooleanType.Union);
 

@@ -98,9 +98,9 @@ namespace Geometry_Algorithm
     }
     public struct AABB
     {
-        public float minX, maxX;
-        public float minZ, maxZ;
-        public float minY, maxY;
+        public double minX, maxX;
+        public double minZ, maxZ;
+        public double minY, maxY;
     }
 
     public struct VoxHeightSpan
@@ -114,6 +114,6 @@ namespace Geometry_Algorithm
 
     public struct Range
     {
-        public float min, max;
+        public double min, max;
     }
 }

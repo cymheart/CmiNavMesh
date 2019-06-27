@@ -1,15 +1,13 @@
-﻿using System;
+﻿using Mathd;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace Geometry_Algorithm
 {
     public partial class GeometryAlgorithm
     {
-        float esp = 0.00001f;
-        public void SetESP(float esp)
+        double esp = 0.00001f;
+        public void SetESP(double esp)
         {
             this.esp = esp;
         }
@@ -21,16 +19,18 @@ namespace Geometry_Algorithm
         /// <param name="polyFaceNormal"></param>
         /// <param name="pt"></param>
         /// <returns></returns>
-        public bool IsInsidePolyEx(Poly poly, Vector3 pt, PloySideType checkSideType = PloySideType.Allside)
+        public bool IsInsidePolyEx(Poly poly, Vector3d pt, PloySideType checkSideType = PloySideType.Allside)
         {
+
             PolySide[] polySides = poly.sidesList[0];
-            Vector3 n = Vector3.Cross(pt - polySides[0].startpos, polySides[0].dir);
+            Vector3d n = Vector3d.Cross(pt - polySides[0].startpos, polySides[0].dir);
 
             if (!IsZero(n) || !IsParallel(n, poly.faceNormal))
                 return false;
 
             return IsInsidePoly(poly, pt, checkSideType);
 
+          
         }
 
         /// <summary>
@@ -40,17 +40,17 @@ namespace Geometry_Algorithm
         /// <param name="polySides">多边形中所有点共面</param>
         /// <param name="pointMustInPloyPlane"></param>
         /// <returns></returns>
-        public bool IsInsidePoly(Poly poly, Vector3 pointMustInPloyPlane, PloySideType checkSideType = PloySideType.Allside)
+        public bool IsInsidePoly(Poly poly, Vector3d pointMustInPloyPlane, PloySideType checkSideType = PloySideType.Allside)
         {
             PolySide[] polySides;
             List<PolySide[]> polySidesList = poly.sidesList;
-            Vector3 pt = pointMustInPloyPlane;
-            Vector3 polyFaceNormal = poly.faceNormal;
+            Vector3d pt = pointMustInPloyPlane;
+            Vector3d polyFaceNormal = poly.faceNormal;
 
             //判断从点引出的平行于sides[0]方向的正向射线是否与其它边相交
-            Vector3 n = polySidesList[0][0].startpos - pt;
+            Vector3d n = polySidesList[0][0].startpos - pt;
             int crossPtCount = 0;
-            Vector3 crossPt;
+            Vector3d crossPt;
             PolySide polySide2 = new PolySide();
             polySide2.startpos = pt;
             polySide2.dir = n;
@@ -83,10 +83,10 @@ namespace Geometry_Algorithm
         /// <param name="polySidesB">多边形B的边集</param>
         /// <param name="polyFaceNormal">多边形面向法线</param>
         /// <returns></returns>
-        public Vector3[] SolvePolySidesCrossPoints(PolySide[] polySidesA, PolySide[] polySidesB, Vector3 polyFaceNormal)
+        public Vector3d[] SolvePolySidesCrossPoints(PolySide[] polySidesA, PolySide[] polySidesB, Vector3d polyFaceNormal)
         {
-            List<Vector3> pts = new List<Vector3>();
-            Vector3 crossPt;
+            List<Vector3d> pts = new List<Vector3d>();
+            Vector3d crossPt;
             int crossPtCount;
 
             for (int i = 0; i < polySidesA.Length; i++)
@@ -113,7 +113,7 @@ namespace Geometry_Algorithm
         /// <param name="polyFaceNormal">多边形面向法线</param>
         /// <param name="crossPt">输出射线和边的交点</param>
         /// <returns>返回值为 1: 有1个交点， 0：没有交点</returns>
-        public int SolvePolySideCrossPoint(PolySide polySide1, PolySide polySide2, Vector3 polyFaceNormal, out Vector3 crossPt)
+        public int SolvePolySideCrossPoint(PolySide polySide1, PolySide polySide2, Vector3d polyFaceNormal, out Vector3d crossPt)
         {
             return SolvePolySideCrossPoint(polySide1, polySide2, polyFaceNormal, false, out crossPt);
         }
@@ -129,20 +129,20 @@ namespace Geometry_Algorithm
         /// <param name="crossPt">两条边的交点</param>
         /// <returns>返回值为 1: 有1个交点， 0：没有交点</returns>
         public int SolvePolySideCrossPoint(
-            PolySide polySide1, PolySide polySide2, Vector3 polyFaceNormal,
-            bool isCmpSideEndPoint, out Vector3 crossPt)
+            PolySide polySide1, PolySide polySide2, Vector3d polyFaceNormal,
+            bool isCmpSideEndPoint, out Vector3d crossPt)
         {           
             //m为新的平面的法向，要求m和 polySide1.dir互相垂直,同时m不能与poly的法向平行  
             //既由m确认的平面不能是poly的平面
-            Vector3 m = Vector3.Cross(polySide1.dir, polyFaceNormal);       
+            Vector3d m = Vector3d.Cross(polySide1.dir, polyFaceNormal);       
             bool isHavCrossPt = SolveCrossPoint(polySide2.startpos, polySide2.dir, polySide1.startpos, m, out crossPt);
             
             //两条边互相平行
             if (!isHavCrossPt)
                 return 0;
 
-            float step;
-            Vector3 crossPtToPtVec = crossPt - polySide2.startpos;
+            double step;
+            Vector3d crossPtToPtVec = crossPt - polySide2.startpos;
             CmpParallelVecDir(crossPtToPtVec, polySide2.dir, out step);
             //交点crossPt不在polySide2边的范围内
             if (step < 0 || step > polySide2.step + esp)
@@ -155,8 +155,8 @@ namespace Geometry_Algorithm
             {
                 if (isCmpSideEndPoint)
                 {
-                    Vector3 sideEndPt = polySide1.startpos + polySide1.dir * polySide1.step;
-                    Vector3 v = Vector3.Cross(sideEndPt - polySide2.startpos, polySide2.dir);
+                    Vector3d sideEndPt = polySide1.startpos + polySide1.dir * polySide1.step;
+                    Vector3d v = Vector3d.Cross(sideEndPt - polySide2.startpos, polySide2.dir);
                     if (CmpParallelVecDir(v, polyFaceNormal, out step) != 1)
                         return 1;
                     return 0;
@@ -168,7 +168,7 @@ namespace Geometry_Algorithm
             {
                 if (isCmpSideEndPoint)
                 {
-                    Vector3 v = Vector3.Cross(polySide1.startpos - polySide2.startpos, polySide2.dir);
+                    Vector3d v = Vector3d.Cross(polySide1.startpos - polySide2.startpos, polySide2.dir);
                     if (CmpParallelVecDir(v, polyFaceNormal, out step) != 1)
                         return 1;
                     return 0;
@@ -192,9 +192,9 @@ namespace Geometry_Algorithm
         /// <param name="vec"></param>
         /// <param name="dir"></param>
         /// <returns></returns>
-        public float GetScale(Vector3 vec, Vector3 dir)
+        public double GetScale(Vector3d vec, Vector3d dir)
         {
-            float step = 0;
+            double step = 0;
             if (!IsZero(vec.x))
             {
                 return vec.x / dir.x;
@@ -220,7 +220,7 @@ namespace Geometry_Algorithm
         /// <param name="vec1"></param>
         /// <param name="vec2"></param>
         /// <returns></returns>
-        public int CmpParallelVecDir(Vector3 vec1, Vector3 vec2, out float step)
+        public int CmpParallelVecDir(Vector3d vec1, Vector3d vec2, out double step)
         {
             if (!IsZero(vec1.x))
             {
@@ -254,9 +254,9 @@ namespace Geometry_Algorithm
         /// <param name="vec1"></param>
         /// <param name="vec2"></param>
         /// <returns></returns>
-        public int CmpParallelVecDir(Vector3 vec1, Vector3 vec2)
+        public int CmpParallelVecDir(Vector3d vec1, Vector3d vec2)
         {
-            float step;
+            double step;
 
             if (!IsZero(vec1.x))
             {
@@ -286,10 +286,10 @@ namespace Geometry_Algorithm
         /// <param name="vec1"></param>
         /// <param name="vec2"></param>
         /// <returns></returns>
-        public bool IsParallel(Vector3 vec1, Vector3 vec2)
+        public bool IsParallel(Vector3d vec1, Vector3d vec2)
         {
-            Vector3 cmpVec = Vector3.Cross(vec1, vec2);
-            if (IsEqual(cmpVec, Vector3.zero))
+            Vector3d cmpVec = Vector3d.Cross(vec1, vec2);
+            if (IsEqual(cmpVec, Vector3d.zero))
                 return true;
             return false;
         }
@@ -299,7 +299,7 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
-        public bool IsZero(float val)
+        public bool IsZero(double val)
         {
             if (val > -esp && val < esp)
                 return true;
@@ -313,7 +313,7 @@ namespace Geometry_Algorithm
         /// <param name="v1"></param>
         /// <param name="v2"></param>
         /// <returns></returns>
-        public bool IsEqual(Vector3 v1, Vector3 v2)
+        public bool IsEqual(Vector3d v1, Vector3d v2)
         {
             if (IsZero(v1.x - v2.x) && IsZero(v1.y - v2.y) && IsZero(v1.z - v2.z))
                 return true;
@@ -325,7 +325,7 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="v"></param>
         /// <returns></returns>
-        public bool IsZero(Vector3 v)
+        public bool IsZero(Vector3d v)
         {
             if (IsZero(v.x) && IsZero(v.y) && IsZero(v.z))
                 return true;
@@ -343,7 +343,7 @@ namespace Geometry_Algorithm
         /// <param name="x"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public bool IsInRect2D(float xmin, float xmax, float zmin, float zmax, float x, float z)
+        public bool IsInRect2D(double xmin, double xmax, double zmin, double zmax, double x, double z)
         {
             if(x >= xmin - esp && x <= xmax + esp &&
                 z >= zmin - esp && z <= zmax + esp)
@@ -363,7 +363,7 @@ namespace Geometry_Algorithm
         /// <param name="x"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public int InRect2DCount(float xmin, float xmax, float zmin, float zmax, Vector3[] pts, ref int[] inRectIdx)
+        public int InRect2DCount(double xmin, double xmax, double zmin, double zmax, Vector3d[] pts, ref int[] inRectIdx)
         {
             int inCount = 0;
    
@@ -391,7 +391,7 @@ namespace Geometry_Algorithm
         /// <param name="x"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public bool IsInRect3D(AABB bound, Vector3 pt)
+        public bool IsInRect3D(AABB bound, Vector3d pt)
         {
             if (pt.x >= bound.minX - esp && pt.x <= bound.maxX + esp &&
                pt.z >= bound.minZ - esp && pt.z <= bound.maxZ + esp &&
@@ -412,7 +412,7 @@ namespace Geometry_Algorithm
         /// <param name="x"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public int InRect3DCount(AABB bound,  Vector3[] pts, ref int[] inRectIdx)
+        public int InRect3DCount(AABB bound,  Vector3d[] pts, ref int[] inRectIdx)
         {
             int inCount = 0;
 
@@ -436,9 +436,9 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="pts"></param>
         /// <returns></returns>
-        public float[] GetYValueBound(Vector3[] pts)
+        public double[] GetYValueBound(Vector3d[] pts)
         {
-            float min = pts[0].y, max = pts[0].y;
+            double min = pts[0].y, max = pts[0].y;
 
             for (int i = 1; i < pts.Length; i++)
             {
@@ -448,7 +448,7 @@ namespace Geometry_Algorithm
                     min = pts[i].y;
             }
 
-            return new float[] { min, max };
+            return new double[] { min, max };
         }
 
         /// <summary>
@@ -456,9 +456,9 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="pts"></param>
         /// <returns></returns>
-        public float[] GetXValueBound(Vector3[] pts)
+        public double[] GetXValueBound(Vector3d[] pts)
         {
-            float min = pts[0].x, max = pts[0].x;
+            double min = pts[0].x, max = pts[0].x;
 
             for (int i = 1; i < pts.Length; i++)
             {
@@ -468,7 +468,7 @@ namespace Geometry_Algorithm
                     min = pts[i].x;
             }
 
-            return new float[] { min, max };
+            return new double[] { min, max };
         }
 
         /// <summary>
@@ -476,9 +476,9 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="pts"></param>
         /// <returns></returns>
-        public float[] GetZValueBound(Vector3[] pts)
+        public double[] GetZValueBound(Vector3d[] pts)
         {
-            float min = pts[0].z, max = pts[0].z;
+            double min = pts[0].z, max = pts[0].z;
 
             for (int i = 1; i < pts.Length; i++)
             {
@@ -488,7 +488,7 @@ namespace Geometry_Algorithm
                     min = pts[i].z;
             }
 
-            return new float[] { min, max };
+            return new double[] { min, max };
         }
 
 
@@ -497,12 +497,12 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="verts"></param>
         /// <returns></returns>
-        public Vector3[] GetBoundRectXZ(Vector3[] verts)
+        public Vector3d[] GetBoundRectXZ(Vector3d[] verts)
         {
-            float xmin = verts[0].x;
-            float xmax = verts[0].x;
-            float zmin = verts[0].z;
-            float zmax = verts[0].z;
+            double xmin = verts[0].x;
+            double xmax = verts[0].x;
+            double zmin = verts[0].z;
+            double zmax = verts[0].z;
 
             for (int i = 1; i < verts.Length; i++)
             {
@@ -517,12 +517,12 @@ namespace Geometry_Algorithm
                     zmax = verts[i].z;
             }
 
-            Vector3[] boundRect = new Vector3[]
+            Vector3d[] boundRect = new Vector3d[]
             {
-                    new Vector3(xmin, 0, zmin),
-                    new Vector3(xmin, 0, zmax),
-                    new Vector3(xmax, 0, zmax),
-                    new Vector3(xmax, 0, zmin),
+                    new Vector3d(xmin, 0, zmin),
+                    new Vector3d(xmin, 0, zmax),
+                    new Vector3d(xmax, 0, zmax),
+                    new Vector3d(xmax, 0, zmin),
             };
 
             return boundRect;
@@ -535,9 +535,9 @@ namespace Geometry_Algorithm
         /// <param name="vecA"></param>
         /// <param name="vecB"></param>
         /// <returns></returns>
-        public DirCmpInfo CmpVectorDir(Vector3 vecA, Vector3 vecB)
+        public DirCmpInfo CmpVectorDir(Vector3d vecA, Vector3d vecB)
         {
-            float val = Vector3.Dot(vecA, vecB);
+            double val = Vector3d.Dot(vecA, vecB);
 
             if (IsZero(val))
                 return DirCmpInfo.Vertical;    
@@ -554,9 +554,9 @@ namespace Geometry_Algorithm
         /// <param name="polyVertexsList"></param>
         /// <param name="faceNormal"></param>
         /// <returns></returns>
-        public Poly CreatePoly(Vector3[] polyVertexs, Vector3 faceNormal)
+        public Poly CreatePoly(Vector3d[] polyVertexs, Vector3d faceNormal)
         {
-            return CreatePoly(new List<Vector3[]> { polyVertexs }, faceNormal);
+            return CreatePoly(new List<Vector3d[]> { polyVertexs }, faceNormal);
         }
 
         /// <summary>
@@ -564,17 +564,17 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="vertexs"></param>
         /// <returns></returns>
-        public Poly CreatePoly(List<Vector3[]> polyVertexsList, Vector3 faceNormal)
+        public Poly CreatePoly(List<Vector3d[]> polyVertexsList, Vector3d faceNormal)
         {
             Poly poly = new Poly();
             poly.vertexsList = polyVertexsList;
   
             if (IsZero(faceNormal))
             {
-                Vector3[] polyVertexs = polyVertexsList[0];
-                Vector3 vec1 = polyVertexs[1] - polyVertexs[0];
-                Vector3 vec2 = polyVertexs[2] - polyVertexs[0];
-                poly.faceNormal = Vector3.Cross(vec1, vec2);
+                Vector3d[] polyVertexs = polyVertexsList[0];
+                Vector3d vec1 = polyVertexs[1] - polyVertexs[0];
+                Vector3d vec2 = polyVertexs[2] - polyVertexs[0];
+                poly.faceNormal = Vector3d.Cross(vec1, vec2);
                 poly.faceNormal.Normalize();
             }
             else
@@ -592,7 +592,7 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="vertexs"></param>
         /// <returns></returns>
-        public List<PolySide[]> CreatePolySidesList(List<Vector3[]> polyVertexsList, Vector3 faceNormal)
+        public List<PolySide[]> CreatePolySidesList(List<Vector3d[]> polyVertexsList, Vector3d faceNormal)
         {
             List<PolySide[]> sidesList = new List<PolySide[]>();
             PolySide side;
@@ -600,7 +600,7 @@ namespace Geometry_Algorithm
 
             for (int j = 0; j < polyVertexsList.Count; j++)
             {
-                Vector3[] polyVertexs = polyVertexsList[j];
+                Vector3d[] polyVertexs = polyVertexsList[j];
                 sides = CreateBaseDataPolySides(polyVertexs);
 
                 for (int i = 0; i < sides.Length; i++)
@@ -609,7 +609,7 @@ namespace Geometry_Algorithm
 
                     if (j == 0)
                     {
-                        side.vertDir = Vector3.Cross(side.dir, faceNormal);
+                        side.vertDir = Vector3d.Cross(side.dir, faceNormal);
                         side.vertDir.Normalize();
                     }
                 }
@@ -625,7 +625,7 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="polyVertexs"></param>
         /// <returns></returns>
-        public PolySide[] CreateBaseDataPolySides(Vector3[] polyVertexs)
+        public PolySide[] CreateBaseDataPolySides(Vector3d[] polyVertexs)
         {
             PolySide side;
             PolySide[] sides = new PolySide[polyVertexs.Length];
@@ -662,16 +662,16 @@ namespace Geometry_Algorithm
         ///  t = (o - p).m / n.m
         ///  t代入1式可求出d
         /// </summary>
-        public bool SolveCrossPoint(Vector3 p, Vector3 n, Vector3 o, Vector3 m, out Vector3 pt)
+        public bool SolveCrossPoint(Vector3d p, Vector3d n, Vector3d o, Vector3d m, out Vector3d pt)
         {
-            float value = Vector3.Dot(n, m);
+            double value = Vector3d.Dot(n, m);
             if (IsZero(value))
             {
-                pt = Vector3.zero;
+                pt = Vector3d.zero;
                 return false;
             }
 
-            float t = Vector3.Dot(o - p, m) / value;
+            double t = Vector3d.Dot(o - p, m) / value;
             pt = p + t * n;
             return true;
         }
@@ -682,9 +682,9 @@ namespace Geometry_Algorithm
         /// <param name="mainPoly">主多边形</param>
         /// <param name="otherVertsPloy">需要判断的多边形点</param>
         /// <returns></returns>
-        public bool IsOverlap(Poly mainPoly, Vector3[] otherVertsPloy)
+        public bool IsOverlap(Poly mainPoly, Vector3d[] otherVertsPloy)
         {
-            float[] range;
+            double[] range;
             PolySide[] sides = mainPoly.sidesList[0];
 
             for (int i = 0; i < sides.Length; i++)
@@ -700,7 +700,7 @@ namespace Geometry_Algorithm
             return true;
         }
 
-        bool OverlapRange(float amin, float amax, float bmin, float bmax)
+        bool OverlapRange(double amin, double amax, double bmin, double bmax)
         {
             return ((amin + esp) > bmax || (amax - esp) < bmin) ? false : true;
         }
@@ -719,9 +719,9 @@ namespace Geometry_Algorithm
         /// PartOverlay：otherVertsPloy部分重叠mainPloy
         /// NotOverlay：两个多边形互不重叠
         /// </returns>
-        public OverlapRelation GetOverlapRelation(Poly mainPoly, Vector3[] otherVertsPloy)
+        public OverlapRelation GetOverlapRelation(Poly mainPoly, Vector3d[] otherVertsPloy)
         {
-            float[] range;
+            double[] range;
             PolySide[] sides = mainPoly.sidesList[0];
             OverlapRelation relation =  OverlapRelation.FullOverlap;
             OverlapRelation tmpRelation;
@@ -760,7 +760,7 @@ namespace Geometry_Algorithm
         /// <param name="mainPloyMin"></param>
         /// <param name="mainPolyMax"></param>
         /// <returns></returns>
-        OverlapRelation _OverlapRelation(float vertsPolyMin, float vertsPolyMax, float mainPloyMin, float mainPolyMax)
+        OverlapRelation _OverlapRelation(double vertsPolyMin, double vertsPolyMax, double mainPloyMin, double mainPolyMax)
         {
             if (vertsPolyMin >= mainPloyMin && vertsPolyMax <= mainPolyMax)
                 return OverlapRelation.FullOverlap;
@@ -777,7 +777,7 @@ namespace Geometry_Algorithm
         /// <param name="poly"></param>
         public void CreatePolySelfProjectAxisRange(Poly poly)
         {
-            float[] range;
+            double[] range;
             PolySide[] sides = poly.sidesList[0];
             Range[] ranges = new Range[sides.Length];
 
@@ -800,19 +800,19 @@ namespace Geometry_Algorithm
         /// <param name="axis"></param>
         /// <param name="polyVertexs"></param>
         /// <returns></returns>
-        public float[] ProjectPoly(Vector3 axis, Vector3[] polyVertexs)
+        public double[] ProjectPoly(Vector3d axis, Vector3d[] polyVertexs)
         {
-            float min, max,tmp;
-            min = max = Vector3.Dot(axis, polyVertexs[0]);
+            double min, max,tmp;
+            min = max = Vector3d.Dot(axis, polyVertexs[0]);
 
             for (int i = 1; i < polyVertexs.Length; i++)
             {
-                tmp = Vector3.Dot(axis, polyVertexs[i]);
-                min = Mathf.Min(min, tmp);
-                max = Mathf.Max(max, tmp);
+                tmp = Vector3d.Dot(axis, polyVertexs[i]);
+                min = Math.Min(min, tmp);
+                max = Math.Max(max, tmp);
             }
 
-            return new float[] { min, max };
+            return new double[] { min, max };
         }
     }
 }

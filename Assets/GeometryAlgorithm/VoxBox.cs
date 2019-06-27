@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mathd;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace Geometry_Algorithm
     {
         VoxSpace voxSpace;
 
-        public Vector3 position;
+        public Vector3d position;
         float[] yPosRange = null;
 
         public int floorCellIdxX;

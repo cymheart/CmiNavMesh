@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mathd;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,8 @@ namespace Geometry_Algorithm
                     voxBoxs[i].GetHeightCellRangeCount() * voxSpace.cellHeight,
                      voxSpace.cellSize);
 
-                vox = CreateVoxBoxMesh(voxBoxs[i].position, size, voxBoxs[i].name);
+                Vector3 pos = new Vector3((float)voxBoxs[i].position.x, (float)voxBoxs[i].position.y, (float)voxBoxs[i].position.z);
+                vox = CreateVoxBoxMesh(pos, size, voxBoxs[i].name);
                 voxList.Add(vox);
             }
         }

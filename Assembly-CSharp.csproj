@@ -73,6 +73,24 @@
     <Compile Include="Assets\GeometryAlgorithm\VoxSpace.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxTriFace.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxViewer.cs" />
+    <Compile Include="Assets\LinearAlgebra\Complex.cs" />
+    <Compile Include="Assets\LinearAlgebra\LinearEquations\ConjugateGradient.cs" />
+    <Compile Include="Assets\LinearAlgebra\LinearEquations\GaussElimination.cs" />
+    <Compile Include="Assets\LinearAlgebra\LinearEquations\LinearLeastSquares.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\Matrix.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixComputation.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixDecomposition.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixIO.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixScalar.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixSubset.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\OutputResult.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\SpecialMatrices.cs" />
+    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\Utility.cs" />
+    <Compile Include="Assets\LinearAlgebra\VectorAlgebra\Vector.cs" />
+    <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorComputation.cs" />
+    <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorMatrixComputation.cs" />
+    <Compile Include="Assets\Mathd\Vector2d.cs" />
+    <Compile Include="Assets\Mathd\Vector3d.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>D:/Documents/github/CmiNavMesh/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
@@ -326,6 +344,7 @@
       <HintPath>d:/Program Files/Unity/Editor/Data/MonoBleedingEdge/lib/mono/unity/Boo.Lang.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
