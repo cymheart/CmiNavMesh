@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+//using System.Threading.Tasks;
 
 namespace LinearAlgebra.MatrixAlgebra
 {
@@ -67,13 +67,21 @@ namespace LinearAlgebra.MatrixAlgebra
             var ans = new double[mA, nB];
             unsafe
             {
-                Parallel.For(0, mA, delegate (int i)/*并行计算矩阵乘法*/
+                for(int i=0; i < mA; i++)
                 {
                     fixed (double* mat = ans)
                     fixed (double* a = A)
                     fixed (double* b = B)
                     CacheAwareMultiply(mat, a, b, i, nA, nB);
-                });
+                }
+
+                //Parallel.For(0, mA, delegate (int i)/*并行计算矩阵乘法*/
+                //{
+                //    fixed (double* mat = ans)
+                //    fixed (double* a = A)
+                //    fixed (double* b = B)
+                //    CacheAwareMultiply(mat, a, b, i, nA, nB);
+                //});
             }
             return ans;
         }

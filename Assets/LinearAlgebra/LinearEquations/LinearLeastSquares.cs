@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using LinearAlgebra.MatrixAlgebra;
 namespace LinearAlgebra.LinearEquations
 {
@@ -36,21 +35,21 @@ namespace LinearAlgebra.LinearEquations
                 return 1.0 - (1.0 - Rsq) * ((n - 1.0) / (n - k - 1.0));
             }
         }
-        public LinearLeastSquares(Matrix X, double[] Y)
-        {
-            int xRows = X.RowCount;
-            int xCols = X.ColumnCount;
-            int yLength = Y.Length;
-            if (xRows != Y.Length) throw new ArgumentException("X矩阵与Y矩阵的行数需要相同");
-            VariableCount = xCols;
-            Obs = xRows;
-            TSS = SST(Y);
-            var XY = BindXY(X, Y);
-            var R = QR(XY);
-            Beta = BackSolve(R, xCols + 1);//加上截距项
-            ESS = SSE(R, xCols);
-            RSS = TSS - ESS;
-        }
+        //public LinearLeastSquares(Matrix X, double[] Y)
+        //{
+        //    int xRows = X.RowCount;
+        //    int xCols = X.ColumnCount;
+        //    int yLength = Y.Length;
+        //    if (xRows != Y.Length) throw new ArgumentException("X矩阵与Y矩阵的行数需要相同");
+        //    VariableCount = xCols;
+        //    Obs = xRows;
+        //    TSS = SST(Y);
+        //    var XY = BindXY(X, Y);
+        //    var R = QR(XY);
+        //    Beta = BackSolve(R, xCols + 1);//加上截距项
+        //    ESS = SSE(R, xCols);
+        //    RSS = TSS - ESS;
+        //}
         private static double[] BackSolve(double[,] R, int n)//回代
         {
             var beta = new double[n];
@@ -64,32 +63,32 @@ namespace LinearAlgebra.LinearEquations
             }
             return beta;
         }
-        private static double[,] BindXY(Matrix X, double[] Y)//拼接X矩阵与Y矩阵
-        {
-            int xRows = X.RowCount;
-            int xCols = X.ColumnCount;
-            double[,] XY = new double[xRows, xCols + 2];
-            unsafe
-            {
-                Parallel.For(0, xRows, i =>
-                {
-                    fixed (double* x = X.Elements)
-                    fixed (double* xy = XY)
-                    fixed (double* y = Y)
-                    {
-                        int xyStart = i * (xCols + 2);
-                        int xStart = i * xCols;
-                        int xEnd = xStart + xCols;
-                        xy[xyStart] = 1.0;/*添加截距项，X矩阵的第一列全为1*/
-                        xyStart++;
-                        for (int k = xStart; k < xEnd; k++, xyStart++)
-                            xy[xyStart] = x[k];
-                        xy[xyStart] = y[i];
-                    }
-                });
-            }
-            return XY;
-        }
+        //private static double[,] BindXY(Matrix X, double[] Y)//拼接X矩阵与Y矩阵
+        //{
+        //    int xRows = X.RowCount;
+        //    int xCols = X.ColumnCount;
+        //    double[,] XY = new double[xRows, xCols + 2];
+        //    unsafe
+        //    {
+        //        Parallel.For(0, xRows, i =>
+        //        {
+        //            fixed (double* x = X.Elements)
+        //            fixed (double* xy = XY)
+        //            fixed (double* y = Y)
+        //            {
+        //                int xyStart = i * (xCols + 2);
+        //                int xStart = i * xCols;
+        //                int xEnd = xStart + xCols;
+        //                xy[xyStart] = 1.0;/*添加截距项，X矩阵的第一列全为1*/
+        //                xyStart++;
+        //                for (int k = xStart; k < xEnd; k++, xyStart++)
+        //                    xy[xyStart] = x[k];
+        //                xy[xyStart] = y[i];
+        //            }
+        //        });
+        //    }
+        //    return XY;
+        //}
         public override string ToString()
         {
             var s = new StringBuilder(string.Concat("Y = ", Beta[0].ToString("F6")));

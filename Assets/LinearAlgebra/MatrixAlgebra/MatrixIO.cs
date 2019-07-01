@@ -18,7 +18,7 @@ namespace LinearAlgebra.MatrixAlgebra
                 while (sr.Peek() != -1)
                 {
                     string line = sr.ReadLine();
-                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    if (string.IsNullOrEmpty(line)) continue;
                     arr = line.Split('\t', ',');
                     if (arr.Length != cols) throw new Exception("读取的矩阵列数不一致");
                     list.AddRange(arr.Select(double.Parse));
