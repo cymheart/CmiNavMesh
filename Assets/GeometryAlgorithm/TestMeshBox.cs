@@ -26,13 +26,13 @@ public class TestMeshBox : MonoBehaviour {
         Vector[] vectxs = new Vector[3];
 
         Vector3 v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
-        vectxs[0] = new Vector(new double[] { v.x, v.y, v.z }, VectorType.Column);
+        vectxs[0] = new Vector(new double[] { v.x, v.y, v.z,1 }, VectorType.Column);
 
         v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
-        vectxs[1] = new Vector(new double[] { v.x, v.y, v.z }, VectorType.Column);
+        vectxs[1] = new Vector(new double[] { v.x, v.y, v.z,1 }, VectorType.Column);
 
         v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
-        vectxs[2] = new Vector(new double[] { v.x, v.y, v.z }, VectorType.Column);
+        vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
         VoxSpace voxSpace = new VoxSpace();
 

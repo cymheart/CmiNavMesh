@@ -71,8 +71,12 @@ namespace LinearAlgebra.VectorAlgebra
         }
         public override string ToString()
         {
-            if (vType == VectorType.Row) return string.Join("  ", elements);
-            else return string.Join("\r\n", elements);
+            string[] strElems = new string[elements.Length];
+            for(int i=0; i<elements.Length; i++)
+                strElems[i] = elements[i].ToString();
+
+            if (vType == VectorType.Row) return string.Join("  ", strElems);
+            else return string.Join("\r\n", strElems);
         }
         public bool Equals(Vector other)
         {

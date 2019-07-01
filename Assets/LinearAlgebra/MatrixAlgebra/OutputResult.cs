@@ -15,11 +15,11 @@ namespace LinearAlgebra
         public int Parity { get; set; }
         public override string ToString()
         {
-            return string.Join("\r\n", L, U);
+            return string.Join("\r\n", new string[] { L.ToString(), U.ToString() });
         }
         public string ToString(string format)
         {
-            return string.Join("\r\n", L.ToString(format), U.ToString(format));
+            return string.Join("\r\n", new string[] { L.ToString(format), U.ToString(format) });
         }
     }
     public struct MatrixQR
@@ -34,11 +34,11 @@ namespace LinearAlgebra
         public Matrix R { get; set; }
         public override string ToString()
         {
-            return string.Join("\r\n", Q, R);
+            return string.Join("\r\n", new string[] { Q.ToString(), R.ToString()});
         }
         public string ToString(string format)
         {
-            return string.Join("\r\n", Q.ToString(format), R.ToString(format));
+            return string.Join("\r\n", new string[] { Q.ToString(format), R.ToString(format) });
         }
     }
     public struct MatrixEigenValue
@@ -58,7 +58,9 @@ namespace LinearAlgebra
         {
             get
             {
-                return Real.Zip(Imaginary, (x, y) => new Complex(x, y)).ToArray();
+                return null;
+
+                //return Real.Zip(Imaginary, (x, y) => new Complex(x, y)).ToArray();
             }
         }
     }
