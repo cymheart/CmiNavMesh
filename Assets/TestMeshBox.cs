@@ -56,7 +56,7 @@ public class TestMeshBox : MonoBehaviour {
                 vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
                 voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-                 voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+                // voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
 
                 count += voxTriFace.voxBoxList.Count;
             }

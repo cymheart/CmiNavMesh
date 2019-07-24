@@ -31,6 +31,14 @@ namespace Geometry_Algorithm
         Vector3d[] preCellRect;
         PolySide[] preCellRectSides;
 
+        Vector3d[] rect = new Vector3d[4]
+        {
+            new Vector3d(0, 0, 0),
+            new Vector3d(0, 0, 0),
+            new Vector3d(0, 0, 0),
+            new Vector3d(0, 0, 0)
+        };
+
         public VoxTriFace(VoxSpace voxSpace)
         {
             SetVoxSpace(voxSpace);
@@ -251,51 +259,72 @@ namespace Geometry_Algorithm
         /// <param name="cellz"></param>
         void CreateFloorGridCellProjTriFaceVoxBox(int cellx, int cellz)
         {
-            Vector3d[] rect = voxSpace.GetFloorGridCellRect(cellx, cellz);
-            OverlapRelation relation = geoAlgo.GetOverlapRelation(polyProjectionFloor, rect);
-            if (relation == OverlapRelation.NotOverlay)
-                return;
+            double xStart = cellx * voxSpace.cellSize;
+            double xEnd = xStart + voxSpace.cellSize;
 
-            Vector3d[] projectionPts;
-            
-            if (relation == OverlapRelation.PartOverlay)
-            {
-                int count = geoAlgo.InRect2DCount(rect[0].x, rect[2].x, rect[0].z, rect[1].z, vertexsProjectionFloor, ref inRectIdx);
-                if (count == vertexsProjectionFloor.Length)
-                {
-                    projectionPts = vertexs;
-                }
-                else
-                {
-                    edgePloyPts.Clear();
+            double zStart = cellz * voxSpace.cellSize;
+            double zEnd = zStart + voxSpace.cellSize;
 
-                    if (faceDirType != DirCmpInfo.Vertical)
-                    {
-                        for (int i = 0; i < rect.Length; i++)
-                        {
-                            if (geoAlgo.IsInsidePoly2D(polyProjectionFloor, rect[i]))
-                                edgePloyPts.Add(rect[i]);
-                        }
-                    }
+            rect[0].x = xStart;
+            rect[0].z = zStart;
 
-                    for (int i = 0; i < count; i++)
-                        edgePloyPts.Add(vertexsProjectionFloor[inRectIdx[i]]);
+            rect[1].x = xStart;
+            rect[1].z = zEnd;
 
-                    for (int i = 0; i < preCellRectSides.Length; i++)
-                        preCellRectSides[i].startpos = rect[i];
+            rect[2].x = xEnd;
+            rect[2].z = zEnd;
 
-                    Vector3d[] pts = geoAlgo.SolvePolySidesCrossPoints2D(preCellRectSides, polyProjectionFloor.sidesList[0]);
+            rect[3].x = xEnd;
+            rect[3].z = zStart;
+
+
+
+            //Vector3d[] rect = voxSpace.GetFloorGridCellRect(cellx, cellz);
+            //   OverlapRelation relation = geoAlgo.GetOverlapRelation(polyProjectionFloor, rect);
+            //   if (relation == OverlapRelation.NotOverlay)
+            return;
+
+           Vector3d[] projectionPts;
+          //  projectionPts = CreateProjectionToTriFacePts(rect);
+
+            //if (relation == OverlapRelation.PartOverlay)
+            //{
+            //    int count = geoAlgo.InRect2DCount(rect[0].x, rect[2].x, rect[0].z, rect[1].z, vertexsProjectionFloor, ref inRectIdx);
+            //    if (count == vertexsProjectionFloor.Length)
+            //    {
+            //        projectionPts = vertexs;
+            //    }
+            //    else
+            //    {
+            //        edgePloyPts.Clear();
+
+            //        if (faceDirType != DirCmpInfo.Vertical)
+            //        {
+            //            for (int i = 0; i < rect.Length; i++)
+            //            {
+            //                if (geoAlgo.IsInsidePoly2D(polyProjectionFloor, rect[i]))
+            //                    edgePloyPts.Add(rect[i]);
+            //            }
+            //        }
+
+            //        for (int i = 0; i < count; i++)
+            //            edgePloyPts.Add(vertexsProjectionFloor[inRectIdx[i]]);
+
+            //        for (int i = 0; i < preCellRectSides.Length; i++)
+            //            preCellRectSides[i].startpos = rect[i];
+
+            //        Vector3d[] pts = geoAlgo.SolvePolySidesCrossPoints2D(preCellRectSides, polyProjectionFloor.sidesList[0]);
                     
-                    for (int i = 0; i < pts.Length; i++)
-                        edgePloyPts.Add(pts[i]);
+            //        for (int i = 0; i < pts.Length; i++)
+            //            edgePloyPts.Add(pts[i]);
 
-                    projectionPts = CreateProjectionToTriFacePts(edgePloyPts.ToArray());
-                }
-            }
-            else
-            {
-                projectionPts = CreateProjectionToTriFacePts(rect);
-            }
+            //        projectionPts = CreateProjectionToTriFacePts(edgePloyPts.ToArray());
+            //    }
+            //}
+            //else
+            //{
+            //    projectionPts = CreateProjectionToTriFacePts(rect);
+            //}
 
             if(projectionPts == null || projectionPts.Length == 0)
             {
