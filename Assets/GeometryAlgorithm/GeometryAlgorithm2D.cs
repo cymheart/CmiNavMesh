@@ -16,6 +16,16 @@ namespace Geometry_Algorithm
             return v1.x * v2.x + v1.z * v2.z;
         }
 
+        /// <summary>
+        /// 生成2D多边形(平面为xz平面)
+        /// </summary>
+        /// <param name="polyVertexsList"></param>
+        /// <param name="faceNormal"></param>
+        /// <returns></returns>
+        public Poly CreatePoly2D(Vector3d[] polyVertexs)
+        {
+            return CreatePoly(new List<Vector3d[]> { polyVertexs }, Vector3d.up);
+        }
 
 
         public bool IsInsidePoly2D(Poly poly, Vector3d pt, PloySideType checkSideType = PloySideType.Allside)
@@ -178,6 +188,72 @@ namespace Geometry_Algorithm
             double t = Dot2D(o - p, m) / value;
             pt = p + t * n;
             return true;
+        }
+
+        /// <summary>
+        /// 为多边形边生成BoundRect
+        /// </summary>
+        /// <param name="sides"></param>
+        /// <returns></returns>
+        public List<Vector3d[]> CreatePolySidesBoundRects(PolySide[] sides)
+        {
+            if (sides == null || sides.Length == 0)
+                return null;
+
+            List<Vector3d[]> boundRectList = new List<Vector3d[]>();
+            Vector3d[] boundRect;
+            Vector3d vert;
+
+            for (int i = 0; i < sides.Length; i++)
+            {
+                vert = sides[i].startpos + sides[i].dir * sides[i].step;
+                boundRect = GetBoundRectXZ(new Vector3d[] {sides[i].startpos, vert });
+                boundRectList.Add(boundRect);
+            }
+
+            return boundRectList;
+        }
+
+
+        public double TestClockWise2D(Vector3d[] verts)
+        {
+            double xMax = verts[0].x;
+            int idx = 0;
+            int prevIdx, nextIdx;
+            
+
+            for(int i = 1; i < verts.Length; i++)
+            {
+                if (verts[i].x >= xMax)
+                {
+                    xMax = verts[i].x;
+                    idx = i;
+                }
+            }
+
+
+            if(idx == verts.Length - 1)
+            {
+                prevIdx = idx - 1;
+                nextIdx = 0;
+            }
+            else if(idx == 0)
+            {
+                prevIdx = verts.Length - 1;
+                nextIdx = idx + 1;
+            }
+            else
+            {
+                prevIdx = idx - 1;
+                nextIdx = idx + 1;
+            }
+
+
+            Vector3d v1 = verts[idx] - verts[prevIdx];
+            Vector3d v2 = verts[nextIdx] - verts[idx];
+
+            double m = Cross2D(v1, v2);
+            return m;
         }
     }
 }

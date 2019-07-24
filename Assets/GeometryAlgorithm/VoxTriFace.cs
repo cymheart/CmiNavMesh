@@ -2,9 +2,6 @@
 using Mathd;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace Geometry_Algorithm
 {
@@ -20,7 +17,6 @@ namespace Geometry_Algorithm
         DirCmpInfo faceDirType = DirCmpInfo.Same;
 
         List<VoxBox> voxBoxList = new List<VoxBox>();
-        VoxViewer voxViewer = new VoxViewer();
         GeometryAlgorithm geoAlgo = new GeometryAlgorithm();
 
         AABB aabb = new AABB() {minX = 999999f, maxX = 0f, minZ = 999999f, maxZ = 0f };
@@ -65,7 +61,7 @@ namespace Geometry_Algorithm
                 new Vector3d(voxSpace.cellSize, 0, 0),
             };
 
-            preCellRectSides = geoAlgo.CreateBaseDataPolySides(preCellRect);
+            preCellRectSides = geoAlgo.CreatePolySides(preCellRect);
 
 
             //
@@ -98,10 +94,11 @@ namespace Geometry_Algorithm
 
             if(faceDirType == DirCmpInfo.Vertical)
             {
+                Random ran = new Random();
                 float pos;
                 for (int i=0; i < vertexs.Length; i++)
                 {
-                    pos = UnityEngine.Random.Range(0.0001f, 0.0006f);
+                    pos = ((float)ran.Next(10, 60)) / 100000;
                     vertexs[i].x += pos;
                     vertexs[i].y += pos;
                     vertexs[i].z += pos;
@@ -308,6 +305,7 @@ namespace Geometry_Algorithm
             CreateVoxBoxToList(gridYIdxs, cellx, cellz);
         }
 
+
         /// <summary>
         /// 根据投影Rect生成体素box
         /// </summary>
@@ -317,12 +315,8 @@ namespace Geometry_Algorithm
         {
             VoxBox voxBox = new VoxBox(voxBoxList.Count.ToString(), voxSpace, cellx, cellz, gridYIdxs[0], gridYIdxs[1]);
             voxBoxList.Add(voxBox);
+
         }
 
-   
-        public void CreateVoxBoxViewer()
-        {
-            voxViewer.CreateVoxs(voxBoxList.ToArray(), voxSpace);
-        }
     }
 }

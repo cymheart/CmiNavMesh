@@ -554,7 +554,7 @@ namespace Geometry_Algorithm
         /// <param name="polyVertexsList"></param>
         /// <param name="faceNormal"></param>
         /// <returns></returns>
-        public Poly CreatePoly(Vector3d[] polyVertexs, Vector3d faceNormal)
+        public Poly CreatePoly(Vector3d[] polyVertexs, Vector3d? faceNormal = null)
         {
             return CreatePoly(new List<Vector3d[]> { polyVertexs }, faceNormal);
         }
@@ -564,12 +564,12 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="vertexs"></param>
         /// <returns></returns>
-        public Poly CreatePoly(List<Vector3d[]> polyVertexsList, Vector3d faceNormal)
+        public Poly CreatePoly(List<Vector3d[]> polyVertexsList, Vector3d? faceNormal)
         {
             Poly poly = new Poly();
             poly.vertexsList = polyVertexsList;
   
-            if (IsZero(faceNormal))
+            if (faceNormal == null)
             {
                 Vector3d[] polyVertexs = polyVertexsList[0];
                 Vector3d vec1 = polyVertexs[1] - polyVertexs[0];
@@ -579,7 +579,7 @@ namespace Geometry_Algorithm
             }
             else
             {
-                poly.faceNormal = faceNormal;
+                poly.faceNormal = faceNormal.Value;
             }
 
             poly.sidesList = CreatePolySidesList(poly.vertexsList, poly.faceNormal);
@@ -601,7 +601,7 @@ namespace Geometry_Algorithm
             for (int j = 0; j < polyVertexsList.Count; j++)
             {
                 Vector3d[] polyVertexs = polyVertexsList[j];
-                sides = CreateBaseDataPolySides(polyVertexs);
+                sides = CreatePolySides(polyVertexs);
 
                 for (int i = 0; i < sides.Length; i++)
                 {
@@ -620,33 +620,44 @@ namespace Geometry_Algorithm
             return sidesList;
         }
 
+
+
         /// <summary>
-        /// 生成基础数据的PolySide
+        /// 生成基础数据的PolySide组
         /// </summary>
         /// <param name="polyVertexs"></param>
         /// <returns></returns>
-        public PolySide[] CreateBaseDataPolySides(Vector3d[] polyVertexs)
+        public PolySide[] CreatePolySides(Vector3d[] polyVertexs)
         {
-            PolySide side;
             PolySide[] sides = new PolySide[polyVertexs.Length];
 
             for (int i = 0; i < polyVertexs.Length; i++)
             {
-                side = new PolySide();
-                side.startpos = polyVertexs[i];
-
-                if (i == polyVertexs.Length - 1)
-                    side.dir = polyVertexs[0] - polyVertexs[i];
+                if(i == polyVertexs.Length - 1)
+                    sides[i] = CreatePolySide(polyVertexs[i], polyVertexs[0]);
                 else
-                    side.dir = polyVertexs[i + 1] - polyVertexs[i];
-
-                side.step = side.dir.magnitude;
-                side.dir /= side.step;
-
-                sides[i] = side;
+                    sides[i] = CreatePolySide(polyVertexs[i], polyVertexs[i+1]);
             }
 
             return sides;
+        }
+
+
+        /// <summary>
+        /// 生成PolySide
+        /// </summary>
+        /// <param name="startVertex"></param>
+        /// <param name="endVertex"></param>
+        /// <returns></returns>
+        public PolySide CreatePolySide(Vector3d startVertex, Vector3d endVertex)
+        {
+            PolySide side = new PolySide();
+            side.startpos = startVertex;
+            side.dir = endVertex - startVertex;
+            side.step = side.dir.magnitude;
+            side.dir /= side.step;
+
+            return side;
         }
 
         /// <summary>

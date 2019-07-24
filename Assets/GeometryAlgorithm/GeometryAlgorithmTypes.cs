@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-
+﻿
 namespace Geometry_Algorithm
 {
     /// <summary>
@@ -103,14 +98,6 @@ namespace Geometry_Algorithm
         public double minY, maxY;
     }
 
-    public struct VoxHeightSpan
-    {
-        public float startPos;
-        public float endPos;
-
-        public int startCellIdx;
-        public int endCellIdx;
-    }
 
     public struct Range
     {

@@ -64,15 +64,17 @@
     <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithm.cs" />
     <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithm2D.cs" />
     <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithmTypes.cs" />
+    <Compile Include="Assets\GeometryAlgorithm\Mathd\Vector2d.cs" />
+    <Compile Include="Assets\GeometryAlgorithm\Mathd\Vector3d.cs" />
     <Compile Include="Assets\GeometryAlgorithm\Poly.cs" />
     <Compile Include="Assets\GeometryAlgorithm\PolyBoolean.cs" />
+    <Compile Include="Assets\GeometryAlgorithm\PolyConvertToSimplePoly.cs" />
     <Compile Include="Assets\GeometryAlgorithm\PolySplitTriangles.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\TestMeshBox.cs" />
+    <Compile Include="Assets\GeometryAlgorithm\SolidSpanGroup.cs" />
+    <Compile Include="Assets\GeometryAlgorithm\SpaceSpanGroup.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxBox.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\VoxHeightFieldInfo.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxSpace.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxTriFace.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\VoxViewer.cs" />
     <Compile Include="Assets\LinearAlgebra\Complex.cs" />
     <Compile Include="Assets\LinearAlgebra\LinearEquations\ConjugateGradient.cs" />
     <Compile Include="Assets\LinearAlgebra\LinearEquations\GaussElimination.cs" />
@@ -89,8 +91,7 @@
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\Vector.cs" />
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorComputation.cs" />
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorMatrixComputation.cs" />
-    <Compile Include="Assets\Mathd\Vector2d.cs" />
-    <Compile Include="Assets\Mathd\Vector3d.cs" />
+    <Compile Include="Assets\TestMeshBox.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>D:/Documents/github/CmiNavMesh/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
