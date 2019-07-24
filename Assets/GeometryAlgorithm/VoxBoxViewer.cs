@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mathd;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,12 +7,12 @@ using UnityEngine;
 
 namespace Geometry_Algorithm
 {
-    public class VoxViewer
+    public class VoxBoxViewer
     {
         List<GameObject> voxList = new List<GameObject>();
         VoxSpace voxSpace;
 
-        public void CreateVoxs(VoxBox[] voxBoxs, VoxSpace voxSpace)
+        public void AppendVoxBoxs(VoxBox[] voxBoxs, VoxSpace voxSpace)
         {
             this.voxSpace = voxSpace;
 
@@ -20,11 +21,12 @@ namespace Geometry_Algorithm
 
             for(int i=0; i<voxBoxs.Length; i++)
             {
-                size.Set(voxSpace.cellSize,
-                    voxBoxs[i].GetHeightCellRangeCount() * voxSpace.cellHeight,
-                     voxSpace.cellSize);
+                size.Set((float)voxSpace.cellSize,
+                    (float)(voxBoxs[i].GetHeightCellRangeCount() * voxSpace.cellHeight),
+                    (float)voxSpace.cellSize);
 
-                vox = CreateVoxBoxMesh(voxBoxs[i].position, size, voxBoxs[i].name);
+                Vector3 pos = new Vector3((float)voxBoxs[i].position.x, (float)voxBoxs[i].position.y, (float)voxBoxs[i].position.z);
+                vox = CreateVoxBoxMesh(pos, size, voxBoxs[i].name);
                 voxList.Add(vox);
             }
         }

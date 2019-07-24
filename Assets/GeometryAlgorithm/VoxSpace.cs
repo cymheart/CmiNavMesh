@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using LinearAlgebra;
+using Mathd;
+using System;
 
 namespace Geometry_Algorithm
 {
     public class VoxSpace
     {
-        public Vector3 boundSize;
-        public float cellSize = 0.1f;
-        public float cellHeight = 0.01f;
+        public Vector3d boundSize;
+        public double cellSize = 0.1f;
+        public double cellHeight = 0.02f;
 
         /// <summary>
         /// 求点pa从坐标系A转换到另一个坐标系B后点的坐标位置pb，转换原理:
@@ -29,8 +27,8 @@ namespace Geometry_Algorithm
         ///  pab_x.z   pab_y.z   pab_z.z
         ///  vab.x     vab.y     vab.z        
         /// </summary>
-        public Matrix4x4 worldToVoxSpace = Matrix4x4.identity;
-        public Matrix4x4 voxSpaceToWorld = Matrix4x4.identity;
+        public Matrix worldToVoxSpace = Matrix.Eye(4);
+        public Matrix voxSpaceToWorld = Matrix.Eye(4);
 
 
         /// <summary>
@@ -39,20 +37,20 @@ namespace Geometry_Algorithm
         /// <param name="xIdxCell"></param>
         /// <param name="zIdxCell"></param>
         /// <returns></returns>
-        public Vector3[] GetFloorGridCellRect(int xIdxCell, int zIdxCell)
+        public Vector3d[] GetFloorGridCellRect(int xIdxCell, int zIdxCell)
         {
-            float xStart = xIdxCell * cellSize;
-            float xEnd = xStart + cellSize;
+            double xStart = xIdxCell * cellSize;
+            double xEnd = xStart + cellSize;
 
-            float zStart = zIdxCell * cellSize;
-            float zEnd = zStart + cellSize;
+            double zStart = zIdxCell * cellSize;
+            double zEnd = zStart + cellSize;
 
-            Vector3[] rect = new Vector3[]
+            Vector3d[] rect = new Vector3d[]
             {
-                new Vector3(xStart, 0, zStart),
-                new Vector3(xStart,0, zEnd),
-                new Vector3(xEnd,0, zEnd),
-                new Vector3(xEnd,0, zStart),
+                new Vector3d(xStart, 0, zStart),
+                new Vector3d(xStart,0, zEnd),
+                new Vector3d(xEnd,0, zEnd),
+                new Vector3d(xEnd,0, zStart),
             };
 
             return rect;
@@ -65,11 +63,11 @@ namespace Geometry_Algorithm
         /// <param name="xIdxCell"></param>
         /// <param name="zIdxCell"></param>
         /// <returns></returns>
-        public Vector3 GetFloorGridCellRectCenterPos(int xIdxCell, int zIdxCell)
+        public Vector3d GetFloorGridCellRectCenterPos(int xIdxCell, int zIdxCell)
         {
-            float xStart = xIdxCell * cellSize;
-            float zStart = zIdxCell * cellSize;
-            return new Vector3((xStart + cellSize + xStart) / 2, 0, (zStart + cellSize + zStart) / 2);
+            double xStart = xIdxCell * cellSize;
+            double zStart = zIdxCell * cellSize;
+            return new Vector3d((xStart + cellSize + xStart) / 2, 0, (zStart + cellSize + zStart) / 2);
         }
 
 
@@ -79,15 +77,15 @@ namespace Geometry_Algorithm
         /// <param name="minHeightPos"></param>
         /// <param name="maxHeightPos"></param>
         /// <returns></returns>
-        public int[] GetWallGridCellIdxRange(float minHeightPos, float maxHeightPos)
+        public int[] GetWallGridCellIdxRange(double minHeightPos, double maxHeightPos)
         {
             int end;
-            float n = minHeightPos / cellHeight;
-            int start = (int)Mathf.Floor(n);
+            double n = minHeightPos / cellHeight;
+            int start = (int)Math.Floor(n);
 
             //yendCell
             n = maxHeightPos / cellHeight;
-            end = (int)(Mathf.Ceil((float)n));
+            end = (int)(Math.Ceiling(n));
             if (start == end) { end++; }
 
             return new int[] { start, end };
@@ -100,12 +98,11 @@ namespace Geometry_Algorithm
         /// <param name="cellStartIdx"></param>
         /// <param name="cellEndIdx"></param>
         /// <returns></returns>
-        public float[] GetWallGridCellPosRange(int cellStartIdx, int cellEndIdx)
+        public double[] GetWallGridCellPosRange(int cellStartIdx, int cellEndIdx)
         {
-            float ystart = cellStartIdx * cellHeight;
-            float yend = cellEndIdx * cellHeight;
-            return new float[] { ystart, yend };
+            double ystart = cellStartIdx * cellHeight;
+            double yend = cellEndIdx * cellHeight;
+            return new double[] { ystart, yend };
         }
-
     }
 }

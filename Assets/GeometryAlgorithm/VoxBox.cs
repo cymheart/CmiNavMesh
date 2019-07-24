@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using Mathd;
 
 namespace Geometry_Algorithm
 {
@@ -10,8 +6,8 @@ namespace Geometry_Algorithm
     {
         VoxSpace voxSpace;
 
-        public Vector3 position;
-        float[] yPosRange = null;
+        public Vector3d position;
+        public double[] yPosRange = null;
 
         public int floorCellIdxX;
         public int floorCellIdxZ;
@@ -43,7 +39,7 @@ namespace Geometry_Algorithm
             yPosRange = voxSpace.GetWallGridCellPosRange(heightCellStartIdx, heightCellEndIdx);
             position.y = (yPosRange[0] + yPosRange[1]) / 2f;
         }
-        
+  
         public int GetHeightCellRangeCount()
         {
             return heightCellEndIdx - heightCellStartIdx;
