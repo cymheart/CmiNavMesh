@@ -38,7 +38,9 @@ public class TestMeshBox : MonoBehaviour {
 
         voxTriFace.SetVoxSpace(voxSpace);
         voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-        voxTriFace.CreateVoxBoxViewer();
+
+        VoxViewer voxViewer = new VoxViewer();
+        voxViewer.CreateVoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
     }
 	
 	// Update is called once per frame

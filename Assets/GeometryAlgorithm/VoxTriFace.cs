@@ -16,7 +16,7 @@ namespace Geometry_Algorithm
         Vector3d floorGridNormal = Vector3d.up;
         DirCmpInfo faceDirType = DirCmpInfo.Same;
 
-        List<VoxBox> voxBoxList = new List<VoxBox>();
+        public List<VoxBox> voxBoxList = new List<VoxBox>();
         GeometryAlgorithm geoAlgo = new GeometryAlgorithm();
 
         AABB aabb = new AABB() {minX = 999999f, maxX = 0f, minZ = 999999f, maxZ = 0f };
