@@ -277,56 +277,57 @@ namespace Geometry_Algorithm
             rect[3].x = xEnd;
             rect[3].z = zStart;
 
+            return;
 
 
             //Vector3d[] rect = voxSpace.GetFloorGridCellRect(cellx, cellz);
-            //   OverlapRelation relation = geoAlgo.GetOverlapRelation(polyProjectionFloor, rect);
-            //   if (relation == OverlapRelation.NotOverlay)
-            return;
+            OverlapRelation relation = geoAlgo.GetOverlapRelation(polyProjectionFloor, rect);
+            if (relation == OverlapRelation.NotOverlay)
+                return;
 
            Vector3d[] projectionPts;
-          //  projectionPts = CreateProjectionToTriFacePts(rect);
+            projectionPts = CreateProjectionToTriFacePts(rect);
 
-            //if (relation == OverlapRelation.PartOverlay)
-            //{
-            //    int count = geoAlgo.InRect2DCount(rect[0].x, rect[2].x, rect[0].z, rect[1].z, vertexsProjectionFloor, ref inRectIdx);
-            //    if (count == vertexsProjectionFloor.Length)
-            //    {
-            //        projectionPts = vertexs;
-            //    }
-            //    else
-            //    {
-            //        edgePloyPts.Clear();
+            if (relation == OverlapRelation.PartOverlay)
+            {
+                int count = geoAlgo.InRect2DCount(rect[0].x, rect[2].x, rect[0].z, rect[1].z, vertexsProjectionFloor, ref inRectIdx);
+                if (count == vertexsProjectionFloor.Length)
+                {
+                    projectionPts = vertexs;
+                }
+                else
+                {
+                    edgePloyPts.Clear();
 
-            //        if (faceDirType != DirCmpInfo.Vertical)
-            //        {
-            //            for (int i = 0; i < rect.Length; i++)
-            //            {
-            //                if (geoAlgo.IsInsidePoly2D(polyProjectionFloor, rect[i]))
-            //                    edgePloyPts.Add(rect[i]);
-            //            }
-            //        }
+                    if (faceDirType != DirCmpInfo.Vertical)
+                    {
+                        for (int i = 0; i < rect.Length; i++)
+                        {
+                            if (geoAlgo.IsInsidePoly2D(polyProjectionFloor, rect[i]))
+                                edgePloyPts.Add(rect[i]);
+                        }
+                    }
 
-            //        for (int i = 0; i < count; i++)
-            //            edgePloyPts.Add(vertexsProjectionFloor[inRectIdx[i]]);
+                    for (int i = 0; i < count; i++)
+                        edgePloyPts.Add(vertexsProjectionFloor[inRectIdx[i]]);
 
-            //        for (int i = 0; i < preCellRectSides.Length; i++)
-            //            preCellRectSides[i].startpos = rect[i];
+                    for (int i = 0; i < preCellRectSides.Length; i++)
+                        preCellRectSides[i].startpos = rect[i];
 
-            //        Vector3d[] pts = geoAlgo.SolvePolySidesCrossPoints2D(preCellRectSides, polyProjectionFloor.sidesList[0]);
-                    
-            //        for (int i = 0; i < pts.Length; i++)
-            //            edgePloyPts.Add(pts[i]);
+                    Vector3d[] pts = geoAlgo.SolvePolySidesCrossPoints2D(preCellRectSides, polyProjectionFloor.sidesList[0]);
 
-            //        projectionPts = CreateProjectionToTriFacePts(edgePloyPts.ToArray());
-            //    }
-            //}
-            //else
-            //{
-            //    projectionPts = CreateProjectionToTriFacePts(rect);
-            //}
+                    for (int i = 0; i < pts.Length; i++)
+                        edgePloyPts.Add(pts[i]);
 
-            if(projectionPts == null || projectionPts.Length == 0)
+                    projectionPts = CreateProjectionToTriFacePts(edgePloyPts.ToArray());
+                }
+            }
+            else
+            {
+                projectionPts = CreateProjectionToTriFacePts(rect);
+            }
+
+            if (projectionPts == null || projectionPts.Length == 0)
             {
                 return;
             }

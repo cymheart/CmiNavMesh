@@ -4,6 +4,7 @@ using Mathd;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TestMeshBox : MonoBehaviour {
 
@@ -11,7 +12,7 @@ public class TestMeshBox : MonoBehaviour {
     VoxTriFace voxTriFace;
 
     public List<GameObject> goList;
-    public List<GameObject> meshGoList = new List<GameObject>();
+    public GameObject txta;
 
     void Start () {
         VoxSpace voxSpace = new VoxSpace();
@@ -23,9 +24,8 @@ public class TestMeshBox : MonoBehaviour {
 
         Transform tf;
 
-        System.DateTime startTime, endTime;
-        System.TimeSpan time;
-        startTime = System.DateTime.Now;
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
 
         int count = 0;
 
@@ -39,34 +39,34 @@ public class TestMeshBox : MonoBehaviour {
             int[] idxs = mf.mesh.triangles;
             Vector3[] vects = new Vector3[3];
             Vector[] vectxs = new Vector[3];
-          
+
             for (int i = 0; i < idxs.Length; i += 3)
             {
                 vects[0] = vectors[idxs[i]];
                 vects[1] = vectors[idxs[i + 1]];
                 vects[2] = vectors[idxs[i + 2]];
 
-                Vector3 v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
+                Vector3 v = vects[0]; // mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
                 vectxs[0] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-                v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
+                v = vects[1]; // mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
                 vectxs[1] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-                v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
+                v = vects[2]; // mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
                 vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
                 voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-                // voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+                 //voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
 
                 count += voxTriFace.voxBoxList.Count;
             }
         }
 
-        endTime = System.DateTime.Now;
-        time = endTime - startTime;
-        int runTime = time.Milliseconds;
+        stopwatch.Stop();
 
-        Debug.Log("用时:" + runTime + "毫秒");
+        txta.transform.GetComponent<Text>().text = "用时:" + stopwatch.ElapsedMilliseconds + "毫秒, " + "vox数量:" + count;
+
+        Debug.Log("用时:" + stopwatch.ElapsedMilliseconds + "毫秒");
         Debug.Log("voxel数量:" + count + "个");
     }
 	
