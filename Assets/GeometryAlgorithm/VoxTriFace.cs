@@ -30,30 +30,10 @@ namespace Geometry_Algorithm
 
         Vector3d[] preCellRect;
         PolySide[] preCellRectSides;
-        public void SetVoxSpace(VoxSpace voxSpace)
+
+        public VoxTriFace(VoxSpace voxSpace)
         {
-            this.voxSpace = voxSpace;
-        }
-
-        public void TransTriFaceWorldVertexToVoxSpace(Vector[] triFaceWorldVertex)
-        {
-            voxBoxList.Clear();
-
-            //
-            _TransTriFaceWorldVertexToVoxSpace(triFaceWorldVertex);
-            CreatePoly();
-
-            //
-            CreateProjectionToFloorTriFaceVertexs();
-            CreateProjectionToFloorPoly();
-                
-            CalFloorGridIdxRange();
-
-
-            //
-            inRectIdx = new int[vertexs.Length];
-            inTriFaceIdx = new int[4];
-
+            SetVoxSpace(voxSpace);
             //
             preCellRect = new Vector3d[]
             {
@@ -65,6 +45,32 @@ namespace Geometry_Algorithm
 
             preCellRectSides = geoAlgo.CreatePolySides(preCellRect);
 
+        
+        }
+
+
+        public void SetVoxSpace(VoxSpace voxSpace)
+        {
+            this.voxSpace = voxSpace;
+        }
+
+        public void TransTriFaceWorldVertexToVoxSpace(Vector[] triFaceWorldVertex)
+        {
+            voxBoxList.Clear();
+            aabb = new AABB() { minX = 999999f, maxX = 0f, minZ = 999999f, maxZ = 0f };
+
+            //
+            _TransTriFaceWorldVertexToVoxSpace(triFaceWorldVertex);
+            CalFloorGridIdxRange();
+            CreatePoly();
+
+            //
+            CreateProjectionToFloorTriFaceVertexs();
+            CreateProjectionToFloorPoly();
+                
+            //
+            inRectIdx = new int[vertexs.Length];
+            inTriFaceIdx = new int[4];  
 
             //
             CreateFloorGridProjTriFaceVoxBox();   

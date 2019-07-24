@@ -97,15 +97,15 @@ NavMeshSettings:
   m_BuildSettings:
     serializedVersion: 2
     agentTypeID: 0
-    agentRadius: 0.24
+    agentRadius: 0.35
     agentHeight: 1
-    agentSlope: 40.6
-    agentClimb: 0.1
+    agentSlope: 43
+    agentClimb: 0.48
     ledgeDropHeight: 0
     maxJumpAcrossDistance: 0
     minRegionArea: 1
     manualCellSize: 1
-    cellSize: 0.05
+    cellSize: 0.2
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
@@ -198,8 +198,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 186064166}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.69, y: -2.1104589, z: 4.439239}
-  m_LocalScale: {x: 1.08, y: 1.22, z: 1.42}
+  m_LocalPosition: {x: 12.03, y: 0, z: 5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -300,8 +300,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   goList:
-  - {fileID: 1961666428}
   - {fileID: 186064166}
+  - {fileID: 1961666428}
 --- !u!1 &1961666428
 GameObject:
   m_ObjectHideFlags: 0
@@ -314,7 +314,6 @@ GameObject:
   - component: {fileID: 1961666432}
   - component: {fileID: 1961666431}
   - component: {fileID: 1961666430}
-  - component: {fileID: 1961666429}
   m_Layer: 0
   m_Name: Quad2
   m_TagString: Untagged
@@ -322,19 +321,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 8
   m_IsActive: 1
---- !u!114 &1961666429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1961666428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8cd175e85ef74044f90cf4eb4d397d50, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  goList: []
 --- !u!64 &1961666430
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -402,7 +388,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1961666428}
   m_LocalRotation: {x: 0.001842277, y: 0.90245175, z: -0.43078315, w: 0.0018602061}
-  m_LocalPosition: {x: -4.12, y: -0.77, z: 6.55}
+  m_LocalPosition: {x: 12.35, y: 1.49, z: 6.55}
   m_LocalScale: {x: 2, y: 5.83, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

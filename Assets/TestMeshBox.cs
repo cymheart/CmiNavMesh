@@ -8,13 +8,15 @@ using UnityEngine;
 public class TestMeshBox : MonoBehaviour {
 
     // Use this for initialization
-    VoxTriFace voxTriFace = new VoxTriFace();
+    VoxTriFace voxTriFace;
 
     public List<GameObject> goList; 
 
     void Start () {
-
+        VoxSpace voxSpace = new VoxSpace();
+        voxTriFace = new VoxTriFace(voxSpace);
         VoxBoxViewer voxBoxViewer = new VoxBoxViewer();
+
         if (goList == null)
             return;
 
@@ -26,9 +28,7 @@ public class TestMeshBox : MonoBehaviour {
             int[] idxs = mf.mesh.triangles;
             Vector3[] vects = new Vector3[3];
             Vector[] vectxs = new Vector[3];
-            VoxSpace voxSpace = new VoxSpace();
-            voxTriFace.SetVoxSpace(voxSpace);
-
+          
             for (int i = 0; i < idxs.Length; i += 3)
             {
                 vects[0] = vectors[idxs[i]];

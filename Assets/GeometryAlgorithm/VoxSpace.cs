@@ -104,6 +104,5 @@ namespace Geometry_Algorithm
             double yend = cellEndIdx * cellHeight;
             return new double[] { ystart, yend };
         }
-
     }
 }
