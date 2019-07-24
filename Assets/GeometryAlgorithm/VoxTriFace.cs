@@ -44,8 +44,7 @@ namespace Geometry_Algorithm
             };
 
             preCellRectSides = geoAlgo.CreatePolySides(preCellRect);
-
-        
+  
         }
 
 
@@ -298,6 +297,11 @@ namespace Geometry_Algorithm
                 projectionPts = CreateProjectionToTriFacePts(rect);
             }
 
+            if(projectionPts == null || projectionPts.Length == 0)
+            {
+                return;
+            }
+
             CreateVoxBoxToList(projectionPts, cellx, cellz);
         }
 
@@ -323,7 +327,6 @@ namespace Geometry_Algorithm
         {
             VoxBox voxBox = new VoxBox(voxBoxList.Count.ToString(), voxSpace, cellx, cellz, gridYIdxs[0], gridYIdxs[1]);
             voxBoxList.Add(voxBox);
-
         }
 
     }

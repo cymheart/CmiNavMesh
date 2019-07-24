@@ -10,7 +10,8 @@ public class TestMeshBox : MonoBehaviour {
     // Use this for initialization
     VoxTriFace voxTriFace;
 
-    public List<GameObject> goList; 
+    public List<GameObject> goList;
+    public List<GameObject> meshGoList = new List<GameObject>();
 
     void Start () {
         VoxSpace voxSpace = new VoxSpace();
@@ -20,9 +21,19 @@ public class TestMeshBox : MonoBehaviour {
         if (goList == null)
             return;
 
-        for (int j = 0; j < goList.Count; j++)
+        Transform tf;
+
+        System.DateTime startTime, endTime;
+        System.TimeSpan time;
+        startTime = System.DateTime.Now;
+
+        int count = 0;
+
+
+        for (int j = 0; j < goList[0].transform.childCount; j++)
         {
-            MeshFilter mf = goList[j].GetComponent<MeshFilter>();
+            tf = goList[0].transform.GetChild(j);
+            MeshFilter mf = tf.GetComponent<MeshFilter>();
             Vector3[] vectors = mf.mesh.vertices;
             Vector3[] normals = mf.mesh.normals;
             int[] idxs = mf.mesh.triangles;
@@ -45,9 +56,18 @@ public class TestMeshBox : MonoBehaviour {
                 vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
                 voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-                voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+                 voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+
+                count += voxTriFace.voxBoxList.Count;
             }
         }
+
+        endTime = System.DateTime.Now;
+        time = endTime - startTime;
+        int runTime = time.Milliseconds;
+
+        Debug.Log("用时:" + runTime + "毫秒");
+        Debug.Log("voxel数量:" + count + "个");
     }
 	
 	// Update is called once per frame

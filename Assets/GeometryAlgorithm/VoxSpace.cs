@@ -7,8 +7,8 @@ namespace Geometry_Algorithm
     public class VoxSpace
     {
         public Vector3d boundSize;
-        public double cellSize = 0.2f;
-        public double cellHeight = 0.01f;
+        public double cellSize = 0.1f;
+        public double cellHeight = 0.02f;
 
         /// <summary>
         /// 求点pa从坐标系A转换到另一个坐标系B后点的坐标位置pb，转换原理:
