@@ -73,9 +73,9 @@
     <Compile Include="Assets\GeometryAlgorithm\SolidSpanGroup.cs" />
     <Compile Include="Assets\GeometryAlgorithm\SpaceSpanGroup.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxBox.cs" />
+    <Compile Include="Assets\GeometryAlgorithm\VoxBoxViewer.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxSpace.cs" />
     <Compile Include="Assets\GeometryAlgorithm\VoxTriFace.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\VoxViewer.cs" />
     <Compile Include="Assets\LinearAlgebra\Complex.cs" />
     <Compile Include="Assets\LinearAlgebra\LinearEquations\ConjugateGradient.cs" />
     <Compile Include="Assets\LinearAlgebra\LinearEquations\GaussElimination.cs" />

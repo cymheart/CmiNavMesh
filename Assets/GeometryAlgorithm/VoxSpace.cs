@@ -7,7 +7,7 @@ namespace Geometry_Algorithm
     public class VoxSpace
     {
         public Vector3d boundSize;
-        public double cellSize = 0.1f;
+        public double cellSize = 0.2f;
         public double cellHeight = 0.01f;
 
         /// <summary>

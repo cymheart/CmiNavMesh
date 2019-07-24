@@ -37,6 +37,8 @@ namespace Geometry_Algorithm
 
         public void TransTriFaceWorldVertexToVoxSpace(Vector[] triFaceWorldVertex)
         {
+            voxBoxList.Clear();
+
             //
             _TransTriFaceWorldVertexToVoxSpace(triFaceWorldVertex);
             CreatePoly();

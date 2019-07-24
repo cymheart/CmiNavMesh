@@ -10,37 +10,44 @@ public class TestMeshBox : MonoBehaviour {
     // Use this for initialization
     VoxTriFace voxTriFace = new VoxTriFace();
 
+    public List<GameObject> goList; 
+
     void Start () {
 
-        MeshFilter mf = GetComponent<MeshFilter>();
-        Vector3[] vectors = mf.mesh.vertices;
-        Vector3[] normals = mf.mesh.normals;
-        int[] idxs = mf.mesh.triangles;
+        VoxBoxViewer voxBoxViewer = new VoxBoxViewer();
+        if (goList == null)
+            return;
 
-        Vector3[] vects = new Vector3[3];
+        for (int j = 0; j < goList.Count; j++)
+        {
+            MeshFilter mf = goList[j].GetComponent<MeshFilter>();
+            Vector3[] vectors = mf.mesh.vertices;
+            Vector3[] normals = mf.mesh.normals;
+            int[] idxs = mf.mesh.triangles;
+            Vector3[] vects = new Vector3[3];
+            Vector[] vectxs = new Vector[3];
+            VoxSpace voxSpace = new VoxSpace();
+            voxTriFace.SetVoxSpace(voxSpace);
 
-        vects[0] = vectors[idxs[0]];
-        vects[1] = vectors[idxs[1]];
-        vects[2] = vectors[idxs[2]];
+            for (int i = 0; i < idxs.Length; i += 3)
+            {
+                vects[0] = vectors[idxs[i]];
+                vects[1] = vectors[idxs[i + 1]];
+                vects[2] = vectors[idxs[i + 2]];
 
-        Vector[] vectxs = new Vector[3];
+                Vector3 v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
+                vectxs[0] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-        Vector3 v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
-        vectxs[0] = new Vector(new double[] { v.x, v.y, v.z,1 }, VectorType.Column);
+                v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
+                vectxs[1] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-        v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
-        vectxs[1] = new Vector(new double[] { v.x, v.y, v.z,1 }, VectorType.Column);
+                v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
+                vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-        v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
-        vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
-
-        VoxSpace voxSpace = new VoxSpace();
-
-        voxTriFace.SetVoxSpace(voxSpace);
-        voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-
-        VoxViewer voxViewer = new VoxViewer();
-        voxViewer.CreateVoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+                voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
+                voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+            }
+        }
     }
 	
 	// Update is called once per frame

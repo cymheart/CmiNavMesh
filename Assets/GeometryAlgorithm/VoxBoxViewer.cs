@@ -7,12 +7,12 @@ using UnityEngine;
 
 namespace Geometry_Algorithm
 {
-    public class VoxViewer
+    public class VoxBoxViewer
     {
         List<GameObject> voxList = new List<GameObject>();
         VoxSpace voxSpace;
 
-        public void CreateVoxs(VoxBox[] voxBoxs, VoxSpace voxSpace)
+        public void AppendVoxBoxs(VoxBox[] voxBoxs, VoxSpace voxSpace)
         {
             this.voxSpace = voxSpace;
 
