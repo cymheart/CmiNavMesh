@@ -259,31 +259,32 @@ namespace Geometry_Algorithm
         /// </summary>
         void CreateFloorGridProjTriFaceVoxBox()
         {
-            float xStart = xstartCell * voxSpace.cellSize;
-            float zStart = zstartCell * voxSpace.cellSize;
-            floorCellRect[0].x = xStart - voxSpace.cellSize;
-            floorCellRect[1].x = xStart - voxSpace.cellSize;
+            float cellSize = voxSpace.cellSize;
+            float xStart = xstartCell * cellSize;
+            float zStart = zstartCell * cellSize;
+            floorCellRect[0].x = xStart - cellSize;
+            floorCellRect[1].x = xStart - cellSize;
             floorCellRect[2].x = xStart;
             floorCellRect[3].x = xStart;
 
             for (int x = xstartCell; x < xendCell; x++)
             {
-                floorCellRect[0].x += voxSpace.cellSize;
-                floorCellRect[1].x += voxSpace.cellSize;
-                floorCellRect[2].x += voxSpace.cellSize;
-                floorCellRect[3].x += voxSpace.cellSize;
+                floorCellRect[0].x += cellSize;
+                floorCellRect[1].x += cellSize;
+                floorCellRect[2].x += cellSize;
+                floorCellRect[3].x += cellSize;
 
-                floorCellRect[0].z = zStart - voxSpace.cellSize;
+                floorCellRect[0].z = zStart - cellSize;
                 floorCellRect[1].z = zStart;
                 floorCellRect[2].z = zStart;
-                floorCellRect[3].z = zStart - voxSpace.cellSize;
+                floorCellRect[3].z = zStart - cellSize;
 
                 for (int z = zstartCell; z < zendCell; z++)
                 {
-                    floorCellRect[0].z += voxSpace.cellSize;
-                    floorCellRect[1].z += voxSpace.cellSize;
-                    floorCellRect[2].z += voxSpace.cellSize;
-                    floorCellRect[3].z += voxSpace.cellSize;
+                    floorCellRect[0].z += cellSize;
+                    floorCellRect[1].z += cellSize;
+                    floorCellRect[2].z += cellSize;
+                    floorCellRect[3].z += cellSize;
 
                     CreateFloorGridCellProjTriFaceVoxBox(x, z);
                 }

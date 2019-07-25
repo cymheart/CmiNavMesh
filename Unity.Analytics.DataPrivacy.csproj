@@ -5,9 +5,9 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FFC9D894-C801-382B-C4C3-2473610CB968}</ProjectGuid>
+    <ProjectGuid>{D6E266C6-3D1F-28C8-9FEB-2A01E44DBF77}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <AssemblyName>Unity.Analytics.DataPrivacy</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
@@ -47,15 +47,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Unity.Timeline.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.PackageManagerUI.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Timeline">
-      <HintPath>Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
-    </Reference>
     <Reference Include="Managed/UnityEngine/UnityEngine">
       <HintPath>D:\Unity\Editor\Data\Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
@@ -236,6 +227,24 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.UI">
+      <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/Editor/UnityEditor.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.VR">
+      <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/UnityVR/Editor/UnityEditor.VR.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Graphs">
+      <HintPath>D:/Unity/Editor/Data/Managed/UnityEditor.Graphs.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.WindowsStandalone.Extensions">
+      <HintPath>D:/Unity/Editor/Data/PlaybackEngines/windowsstandalonesupport/UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
+      <HintPath>C:/Program Files (x86)/Microsoft Visual Studio Tools for Unity/15.0/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Advertisements">
+      <HintPath>D:/MyDocuments/GitHub/CmiNavMesh/Library/PackageCache/com.unity.ads@2.0.8/Editor/UnityEditor.Advertisements.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.Editor">
       <HintPath>D:/MyDocuments/GitHub/CmiNavMesh/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
     </Reference>
@@ -247,6 +256,9 @@
     </Reference>
     <Reference Include="UnityEngine.Purchasing">
       <HintPath>D:/MyDocuments/GitHub/CmiNavMesh/Library/PackageCache/com.unity.purchasing@2.0.1/UnityEngine.Purchasing.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Purchasing">
+      <HintPath>D:/MyDocuments/GitHub/CmiNavMesh/Library/PackageCache/com.unity.purchasing@2.0.1/Editor/UnityEditor.Purchasing.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>D:\Unity\Editor\Data\NetStandard\ref\2.0.0\netstandard.dll</HintPath>
@@ -595,56 +607,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Unity.TextMeshPro.Editor.csproj">
-      <Project>{3A848AB7-9891-EDDA-D555-BF184C2F81F4}</Project>
-      <Name>Unity.TextMeshPro.Editor</Name>
-    </ProjectReference>
-    <ProjectReference Include="Unity.CollabProxy.Editor.csproj">
-      <Project>{C12CEEC6-100C-58A2-DE36-314E4DE5E40B}</Project>
-      <Name>Unity.CollabProxy.Editor</Name>
-    </ProjectReference>
-    <ProjectReference Include="Unity.TextMeshPro.csproj">
-      <Project>{07A21C90-D344-AE1A-8456-9910C203B41A}</Project>
-      <Name>Unity.TextMeshPro</Name>
-    </ProjectReference>
-    <ProjectReference Include="Unity.Analytics.DataPrivacy.csproj">
-      <Project>{D6E266C6-3D1F-28C8-9FEB-2A01E44DBF77}</Project>
-      <Name>Unity.Analytics.DataPrivacy</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithm.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithm2D.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithmTypes.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\Mathd\Vector2d.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\Mathd\Vector3d.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\Poly.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\PolyBoolean.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\PolyConvertToSimplePoly.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\PolySplitTriangles.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\SolidSpanGroup.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\SpaceSpanGroup.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\VoxBox.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\VoxBoxViewer.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\VoxSpace.cs" />
-    <Compile Include="Assets\GeometryAlgorithm\VoxTriFace.cs" />
-    <Compile Include="Assets\LinearAlgebra\Complex.cs" />
-    <Compile Include="Assets\LinearAlgebra\LinearEquations\ConjugateGradient.cs" />
-    <Compile Include="Assets\LinearAlgebra\LinearEquations\GaussElimination.cs" />
-    <Compile Include="Assets\LinearAlgebra\LinearEquations\LinearLeastSquares.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\Matrix.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixComputation.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixDecomposition.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixIO.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixScalar.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\MatrixSubset.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\OutputResult.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\SpecialMatrices.cs" />
-    <Compile Include="Assets\LinearAlgebra\MatrixAlgebra\Utility.cs" />
-    <Compile Include="Assets\LinearAlgebra\VectorAlgebra\Vector.cs" />
-    <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorComputation.cs" />
-    <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorMatrixComputation.cs" />
-    <Compile Include="Assets\TestMeshBox.cs" />
+    <Compile Include="Packages\com.unity.analytics\DataPrivacy\AssemblyInfo.cs" />
+    <Compile Include="Packages\com.unity.analytics\DataPrivacy\DataPrivacy.cs" />
+    <Compile Include="Packages\com.unity.analytics\DataPrivacy\DataPrivacyButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\gmcs.rsp" />
