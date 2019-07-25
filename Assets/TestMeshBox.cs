@@ -28,6 +28,7 @@ public class TestMeshBox : MonoBehaviour {
         stopwatch.Start();
 
         int count = 0;
+        int tcount = 0;
 
 
         for (int j = 0; j < goList[0].transform.childCount; j++)
@@ -46,25 +47,27 @@ public class TestMeshBox : MonoBehaviour {
                 vects[1] = vectors[idxs[i + 1]];
                 vects[2] = vectors[idxs[i + 2]];
 
-                Vector3 v = vects[0]; // mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
+                Vector3 v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
                 vectxs[0] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-                v = vects[1]; // mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
+                v =  mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
                 vectxs[1] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-                v = vects[2]; // mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
+                v =  mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
                 vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
+                voxTriFace.Clear();
                 voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-                 //voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+                //voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
 
                 count += voxTriFace.voxBoxList.Count;
+                tcount += voxTriFace.totalCount;
             }
         }
 
         stopwatch.Stop();
 
-        txta.transform.GetComponent<Text>().text = "用时:" + stopwatch.ElapsedMilliseconds + "毫秒, " + "vox数量:" + count;
+        txta.transform.GetComponent<Text>().text = "用时:" + stopwatch.ElapsedMilliseconds + "毫秒, " + "vox数量:" + count + "," + tcount;
 
         Debug.Log("用时:" + stopwatch.ElapsedMilliseconds + "毫秒");
         Debug.Log("voxel数量:" + count + "个");

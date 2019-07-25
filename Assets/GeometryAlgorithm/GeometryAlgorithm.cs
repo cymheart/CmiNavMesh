@@ -438,12 +438,6 @@ namespace Geometry_Algorithm
         /// <returns></returns>
         public double[] GetYValueBound(Vector3d[] pts)
         {
-            if (pts == null || pts.Length == 0)
-            {
-                int a;
-                a = 3;
-            }
-
             double min = pts[0].y, max = pts[0].y;
 
             for (int i = 1; i < pts.Length; i++)

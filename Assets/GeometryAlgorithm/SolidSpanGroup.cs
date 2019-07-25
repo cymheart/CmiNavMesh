@@ -44,8 +44,8 @@ namespace Geometry_Algorithm
         {
             int voxStartIdx = voxBox.heightCellStartIdx;
             int voxEndIdx = voxBox.heightCellStartIdx;
-            double yPosStart = voxBox.yPosRange[0];
-            double yPosEnd = voxBox.yPosRange[1];    
+            double yPosStart = voxBox.yPosStart;
+            double yPosEnd = voxBox.yPosEnd;    
 
             LinkedListNode<SolidSpan> startNode = null;
             LinkedListNode<SolidSpan> endNode = null;

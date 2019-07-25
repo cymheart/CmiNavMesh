@@ -93,9 +93,9 @@ namespace Geometry_Algorithm
     }
     public struct AABB
     {
-        public double minX, maxX;
-        public double minZ, maxZ;
-        public double minY, maxY;
+        public float minX, maxX;
+        public float minZ, maxZ;
+        public float minY, maxY;
     }
 
 

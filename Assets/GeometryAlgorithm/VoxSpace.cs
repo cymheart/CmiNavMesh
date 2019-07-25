@@ -7,8 +7,10 @@ namespace Geometry_Algorithm
     public class VoxSpace
     {
         public Vector3d boundSize;
-        public double cellSize = 0.1f;
-        public double cellHeight = 0.02f;
+        public float cellSize = 0.1f;
+        public float cellHeight = 0.02f;
+        public float invCellSize = 1 / 0.1f;
+        public float invCellHeight = 1 / 0.02f;
 
         /// <summary>
         /// 求点pa从坐标系A转换到另一个坐标系B后点的坐标位置pb，转换原理:
@@ -80,11 +82,11 @@ namespace Geometry_Algorithm
         public int[] GetWallGridCellIdxRange(double minHeightPos, double maxHeightPos)
         {
             int end;
-            double n = minHeightPos / cellHeight;
+            double n = minHeightPos * invCellHeight;
             int start = (int)Math.Floor(n);
 
             //yendCell
-            n = maxHeightPos / cellHeight;
+            n = maxHeightPos * invCellHeight;
             end = (int)(Math.Ceiling(n));
             if (start == end) { end++; }
 
