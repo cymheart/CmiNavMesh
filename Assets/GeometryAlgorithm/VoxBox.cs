@@ -7,37 +7,35 @@ namespace Geometry_Algorithm
         VoxSpace voxSpace;
 
         public Vector3d position;
-        public double[] yPosRange = null;
+        public double yPosStart;
+        public double yPosEnd;
 
         public int floorCellIdxX;
         public int floorCellIdxZ;
         public int heightCellStartIdx;
         public int heightCellEndIdx;
 
-        public string name;
 
 
         public VoxBox(
-            string name,
             VoxSpace voxSpace,
             int floorCellIdxX, int floorCellIdxZ,
             int heightCellStartIdx, int heightCellEndIdx)
         {
-            this.name = name;
             this.voxSpace = voxSpace;
             this.floorCellIdxX = floorCellIdxX;
             this.floorCellIdxZ = floorCellIdxZ;
             this.heightCellStartIdx = heightCellStartIdx;
             this.heightCellEndIdx = heightCellEndIdx;
+            yPosStart = heightCellStartIdx * voxSpace.cellHeight;
+            yPosEnd = heightCellEndIdx * voxSpace.cellHeight;
 
-            CreateRealPosition();
         }
 
         public void CreateRealPosition()
         {
             position = voxSpace.GetFloorGridCellRectCenterPos(floorCellIdxX, floorCellIdxZ);
-            yPosRange = voxSpace.GetWallGridCellPosRange(heightCellStartIdx, heightCellEndIdx);
-            position.y = (yPosRange[0] + yPosRange[1]) / 2f;
+            position.y = (yPosStart + yPosEnd) / 2f;
         }
   
         public int GetHeightCellRangeCount()

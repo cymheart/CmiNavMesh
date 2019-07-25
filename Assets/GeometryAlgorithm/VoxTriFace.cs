@@ -5,80 +5,88 @@ using System.Collections.Generic;
 
 namespace Geometry_Algorithm
 {
+    public struct SimpleVector3
+    {
+        public float x, y, z;
+        public SimpleVector3(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
     public class VoxTriFace
     {
         VoxSpace voxSpace;
-        Vector3d[] vertexs;
-        Vector3d[] vertexsProjectionFloor;
-        Poly poly;
-        Poly polyProjectionFloor;
-        Vector3d triFaceNormal;
-        Vector3d floorGridNormal = Vector3d.up;
+        readonly float esp = 0.00001f;
+
+        SimpleVector3[] vertexs = new SimpleVector3[3]
+        {
+            new SimpleVector3(0,0,0),
+            new SimpleVector3(0,0,0),
+            new SimpleVector3(0,0,0)
+        };
+
+        SimpleVector3[] vertexsProjFloor = new SimpleVector3[4]      
+        {
+            new SimpleVector3(0,0,0),
+            new SimpleVector3(0,0,0),
+            new SimpleVector3(0,0,0),
+            new SimpleVector3(0,0,0)
+        };
+
+        SimpleVector3[] floorCellRect = new SimpleVector3[4]
+      {
+            new SimpleVector3(0, 0, 0),
+            new SimpleVector3(0, 0, 0),
+            new SimpleVector3(0, 0, 0),
+            new SimpleVector3(0, 0, 0)
+      };
+
+        SimpleVector3[] cellProjectionRect = new SimpleVector3[4];
+   
+        float[] m = new float[3];
+        float[] n = new float[3];
+
+        int[] rayLineCrossCount = new int[4];
+
+        float invRandomExNum = 1 / 100000;
+        SimpleVector3 triFaceNormal;
+        SimpleVector3 floorGridNormal = new SimpleVector3(0,1,0);
         DirCmpInfo faceDirType = DirCmpInfo.Same;
 
-        public List<VoxBox> voxBoxList = new List<VoxBox>();
-        GeometryAlgorithm geoAlgo = new GeometryAlgorithm();
-
-        AABB aabb = new AABB() {minX = 999999f, maxX = 0f, minZ = 999999f, maxZ = 0f };
+        public List<VoxBox> voxBoxList = new List<VoxBox>(1000);
+        AABB aabb = new AABB() {minX = 99999f, maxX = 0f, minZ = 99999f, maxZ = 0f };
         int xstartCell, xendCell;
         int zstartCell, zendCell;
 
-
-        int[] inRectIdx;
-        int[] inTriFaceIdx;
-        List<Vector3d> edgePloyPts = new List<Vector3d>();
-
-        Vector3d[] preCellRect;
-        PolySide[] preCellRectSides;
-
-        Vector3d[] rect = new Vector3d[4]
-        {
-            new Vector3d(0, 0, 0),
-            new Vector3d(0, 0, 0),
-            new Vector3d(0, 0, 0),
-            new Vector3d(0, 0, 0)
-        };
+        public int totalCount = 0;
 
         public VoxTriFace(VoxSpace voxSpace)
         {
             SetVoxSpace(voxSpace);
-            //
-            preCellRect = new Vector3d[]
-            {
-                Vector3d.zero,
-                new Vector3d(0, 0, voxSpace.cellSize),
-                new Vector3d(voxSpace.cellSize, 0, voxSpace.cellSize),
-                new Vector3d(voxSpace.cellSize, 0, 0),
-            };
-
-            preCellRectSides = geoAlgo.CreatePolySides(preCellRect);
-  
         }
-
 
         public void SetVoxSpace(VoxSpace voxSpace)
         {
             this.voxSpace = voxSpace;
         }
 
+        public void Clear()
+        {
+            totalCount = 0;
+            voxBoxList.Clear();
+            aabb = new AABB() { minX = 99999f, maxX = 0f, minZ = 99999f, maxZ = 0f };
+        }
+
         public void TransTriFaceWorldVertexToVoxSpace(Vector[] triFaceWorldVertex)
         {
-            voxBoxList.Clear();
-            aabb = new AABB() { minX = 999999f, maxX = 0f, minZ = 999999f, maxZ = 0f };
-
-            //
             _TransTriFaceWorldVertexToVoxSpace(triFaceWorldVertex);
             CalFloorGridIdxRange();
-            CreatePoly();
-
-            //
             CreateProjectionToFloorTriFaceVertexs();
             CreateProjectionToFloorPoly();
                 
-            //
-            inRectIdx = new int[vertexs.Length];
-            inTriFaceIdx = new int[4];  
-
             //
             CreateFloorGridProjTriFaceVoxBox();   
         }
@@ -87,15 +95,13 @@ namespace Geometry_Algorithm
         /// 转换三角面的世界顶点到体素空间
         /// </summary>
         /// <param name="triFaceWorldVertex"></param>
-        void _TransTriFaceWorldVertexToVoxSpace(Vector[] triFaceWorldVertex)
+        void _TransTriFaceWorldVertexToVoxSpace(Vector[] triFaceVertex)
         {
-            vertexs = new Vector3d[triFaceWorldVertex.Length];
-
-            Vector vec;
-            for(int i=0;i < triFaceWorldVertex.Length; i++)
+            for(int i=0;i < triFaceVertex.Length; i++)
             {
-                vec = Vector.MatMulColVec(voxSpace.worldToVoxSpace, triFaceWorldVertex[i]);
-                vertexs[i] = new Vector3d(vec.Elements[0], vec.Elements[1], vec.Elements[2]);
+                vertexs[i].x = (float)triFaceVertex[i].Elements[0];
+                vertexs[i].y = (float)triFaceVertex[i].Elements[1];
+                vertexs[i].z = (float)triFaceVertex[i].Elements[2];
 
                 if (vertexs[i].x > aabb.maxX) { aabb.maxX = vertexs[i].x; }
                 if (vertexs[i].x < aabb.minX) { aabb.minX = vertexs[i].x; }
@@ -111,9 +117,10 @@ namespace Geometry_Algorithm
             {
                 Random ran = new Random();
                 float pos;
+                
                 for (int i=0; i < vertexs.Length; i++)
                 {
-                    pos = ((float)ran.Next(10, 60)) / 100000;
+                    pos = ran.Next(10, 60) * invRandomExNum;
                     vertexs[i].x += pos;
                     vertexs[i].y += pos;
                     vertexs[i].z += pos;
@@ -121,8 +128,6 @@ namespace Geometry_Algorithm
 
                 CalTriFaceNormal();
             }
-
-            triFaceNormal.Normalize();
         }
 
         /// <summary>
@@ -130,33 +135,60 @@ namespace Geometry_Algorithm
         /// </summary>
         void CalTriFaceNormal()
         {
-            Vector3d vec1 = vertexs[1] - vertexs[0];
-            Vector3d vec2 = vertexs[2] - vertexs[0];
-            triFaceNormal = Vector3d.Cross(vec1, vec2);
-            faceDirType = geoAlgo.CmpVectorDir(triFaceNormal, Vector3d.up);
+            SimpleVector3 vec1 = new SimpleVector3()
+            {
+                x = vertexs[1].x - vertexs[0].x,
+                y = vertexs[1].y - vertexs[0].y,
+                z = vertexs[1].z - vertexs[0].z,
+            };
+
+            SimpleVector3 vec2 = new SimpleVector3()
+            {
+                x = vertexs[2].x - vertexs[0].x,
+                y = vertexs[2].y - vertexs[0].y,
+                z = vertexs[2].z - vertexs[0].z,
+            };
+
+            float x = vec1.y * vec2.z - vec2.y * vec1.z;
+            float y = vec1.z * vec2.x - vec2.z * vec1.x;
+            float z = vec1.x * vec2.y - vec2.x * vec1.y;
+            triFaceNormal = new SimpleVector3(x, y, z);
+
+            //
+            float val = 
+                triFaceNormal.x * floorGridNormal.x +
+                triFaceNormal.y * floorGridNormal.y + 
+                triFaceNormal.z * floorGridNormal.z;
+
+            if (val > -esp && val < esp)
+                faceDirType = DirCmpInfo.Vertical;
+            else if (val > 0)
+                faceDirType = DirCmpInfo.Same;
+            else
+                faceDirType = DirCmpInfo.Different;
         }
 
-
+       
         /// <summary>
         /// 计算三角面在floorGrid的格子范围
         /// </summary>
         void CalFloorGridIdxRange()
         {
             //xstartCell
-            double n = aabb.minX / voxSpace.cellSize;
+            float n = aabb.minX * voxSpace.invCellSize;
             xstartCell = (int)Math.Floor(n);
 
             //xendCell
-            n = aabb.maxX / voxSpace.cellSize;
+            n = aabb.maxX * voxSpace.invCellSize;
             xendCell = (int)Math.Ceiling(n);
             if (xstartCell == xendCell) xendCell++;
 
             //zstartCell
-            n = aabb.minZ / voxSpace.cellSize;
+            n = aabb.minZ * voxSpace.invCellSize;
             zstartCell = (int)Math.Floor(n);
 
             //zendCell
-            n = aabb.maxZ / voxSpace.cellSize;
+            n = aabb.maxZ * voxSpace.invCellSize;
             zendCell = (int)Math.Ceiling(n);
             if (zstartCell == zendCell) zendCell++;
 
@@ -168,85 +200,91 @@ namespace Geometry_Algorithm
         /// </summary>
         void CreateProjectionToFloorTriFaceVertexs()
         {
-            vertexsProjectionFloor = new Vector3d[vertexs.Length];
-
-            if (faceDirType ==  DirCmpInfo.Different)
+            if (faceDirType != DirCmpInfo.Different)
             {
-                for (int i = 0; i < vertexs.Length; i++)
-                {
-                    vertexsProjectionFloor[i] = vertexs[vertexs.Length - i - 1];
-                    vertexsProjectionFloor[i].y = 0;
-                }
+                vertexsProjFloor[0].x = vertexs[0].x;
+                vertexsProjFloor[0].z = vertexs[0].z;
+                vertexsProjFloor[1].x = vertexs[1].x;
+                vertexsProjFloor[1].z = vertexs[1].z;
+                vertexsProjFloor[2].x = vertexs[2].x;
+                vertexsProjFloor[2].z = vertexs[2].z;
+                vertexsProjFloor[3].x = vertexs[0].x;
+                vertexsProjFloor[3].z = vertexs[0].z;
             }
             else
             {
-                for (int i = 0; i < vertexs.Length; i++)
-                {
-                    vertexsProjectionFloor[i] = vertexs[i];
-                    vertexsProjectionFloor[i].y = 0;
-                }
+                vertexsProjFloor[0].x = vertexs[2].x;
+                vertexsProjFloor[0].z = vertexs[2].z;
+                vertexsProjFloor[1].x = vertexs[1].x;
+                vertexsProjFloor[1].z = vertexs[1].z;
+                vertexsProjFloor[2].x = vertexs[0].x;
+                vertexsProjFloor[2].z = vertexs[0].z;
+                vertexsProjFloor[3].x = vertexs[2].x;
+                vertexsProjFloor[3].z = vertexs[2].z;
             }
-        }
-
-        void CreatePoly()
-        {
-            poly = geoAlgo.CreatePoly(vertexs, triFaceNormal);
-            geoAlgo.CreatePolySelfProjectAxisRange(poly);           
         }
 
         void CreateProjectionToFloorPoly()
         {
-            polyProjectionFloor = geoAlgo.CreatePoly(vertexsProjectionFloor, floorGridNormal);
-            geoAlgo.CreatePolySelfProjectAxisRange(polyProjectionFloor);
-        }
-
-    
-        /// <summary>
-        /// 生成投影到TriFace上的pts
-        /// </summary>
-        /// <param name="rect"></param>
-        /// <returns></returns>
-        Vector3d[] CreateProjectionToTriFacePts(Vector3d[] pts)
-        {
-            Vector3d[] cellProjectionRect = new Vector3d[pts.Length];
-
-            for (int i = 0; i < pts.Length; i++)
+            float tmpM;
+            float tmpN;
+            SimpleVector3 vec = new SimpleVector3();
+            for (int i = 0; i < 3; i++)
             {
-               geoAlgo.SolveCrossPoint(pts[i], floorGridNormal, vertexs[0], triFaceNormal, out cellProjectionRect[i]);
-            }
+                vec.x = vertexsProjFloor[i + 1].x - vertexsProjFloor[i].x;
+                vec.y = vertexsProjFloor[i + 1].y - vertexsProjFloor[i].y;
+                vec.z = vertexsProjFloor[i + 1].z - vertexsProjFloor[i].z;
 
-            return cellProjectionRect;
+                if (vec.z > -esp && vec.z < esp)
+                {
+                    m[i] = 0;
+                }
+                else if (vec.x != 0)
+                {
+                    tmpM = vec.z / vec.x;
+                    tmpN = vertexs[i].z - tmpM * vertexs[i].x;
+                    m[i] = 1 / tmpM;
+                    n[i] = -tmpN;
+                }
+                else
+                {
+                    m[i] = 99999;
+                    n[i] = vertexs[i].x;
+                }
+            }  
         }
-
-        /// <summary>
-        /// 直接根据单元格的标号,生成投影到TriFace上的Rect
-        /// </summary>
-        /// <param name="xIdxCell"></param>
-        /// <param name="zIdxCell"></param>
-        /// <returns></returns>
-        Vector3d[] CreateFloorGridCellProjectionRect(int xIdxCell, int zIdxCell)
-        {
-            Vector3d[] cellRect = voxSpace.GetFloorGridCellRect(xIdxCell, zIdxCell);
-            Vector3d[] cellProjectionRect = new Vector3d[4];
-
-            for (int i = 0; i < cellRect.Length; i++)
-            {
-                geoAlgo.SolveCrossPoint(cellRect[i], floorGridNormal, vertexs[0], triFaceNormal, out cellProjectionRect[i]);
-            }
-
-            return cellProjectionRect;
-        }
-
 
         /// <summary>
         /// 生成地面所有网格投影到TriFace上的体素Box
         /// </summary>
         void CreateFloorGridProjTriFaceVoxBox()
         {
+            float xStart = xstartCell * voxSpace.cellSize;
+            float zStart = zstartCell * voxSpace.cellSize;
+            floorCellRect[0].x = xStart - voxSpace.cellSize;
+            floorCellRect[1].x = xStart - voxSpace.cellSize;
+            floorCellRect[2].x = xStart;
+            floorCellRect[3].x = xStart;
+
             for (int x = xstartCell; x < xendCell; x++)
             {
+                floorCellRect[0].x += voxSpace.cellSize;
+                floorCellRect[1].x += voxSpace.cellSize;
+                floorCellRect[2].x += voxSpace.cellSize;
+                floorCellRect[3].x += voxSpace.cellSize;
+
+                floorCellRect[0].z = zStart - voxSpace.cellSize;
+                floorCellRect[1].z = zStart;
+                floorCellRect[2].z = zStart;
+                floorCellRect[3].z = zStart - voxSpace.cellSize;
+
                 for (int z = zstartCell; z < zendCell; z++)
                 {
+                    floorCellRect[0].z += voxSpace.cellSize;
+                    floorCellRect[1].z += voxSpace.cellSize;
+                    floorCellRect[2].z += voxSpace.cellSize;
+                    floorCellRect[3].z += voxSpace.cellSize;
+
                     CreateFloorGridCellProjTriFaceVoxBox(x, z);
                 }
             }
@@ -259,80 +297,138 @@ namespace Geometry_Algorithm
         /// <param name="cellz"></param>
         void CreateFloorGridCellProjTriFaceVoxBox(int cellx, int cellz)
         {
-            double xStart = cellx * voxSpace.cellSize;
-            double xEnd = xStart + voxSpace.cellSize;
+            totalCount++;
+ 
+            OverlapRelation relation = GetOverlapRelation();
 
-            double zStart = cellz * voxSpace.cellSize;
-            double zEnd = zStart + voxSpace.cellSize;
-
-            rect[0].x = xStart;
-            rect[0].z = zStart;
-
-            rect[1].x = xStart;
-            rect[1].z = zEnd;
-
-            rect[2].x = xEnd;
-            rect[2].z = zEnd;
-
-            rect[3].x = xEnd;
-            rect[3].z = zStart;
-
-            return;
-
-
-            //Vector3d[] rect = voxSpace.GetFloorGridCellRect(cellx, cellz);
-            OverlapRelation relation = geoAlgo.GetOverlapRelation(polyProjectionFloor, rect);
             if (relation == OverlapRelation.NotOverlay)
                 return;
 
-           Vector3d[] projectionPts;
-            projectionPts = CreateProjectionToTriFacePts(rect);
 
             if (relation == OverlapRelation.PartOverlay)
             {
-                int count = geoAlgo.InRect2DCount(rect[0].x, rect[2].x, rect[0].z, rect[1].z, vertexsProjectionFloor, ref inRectIdx);
-                if (count == vertexsProjectionFloor.Length)
+                if(floorCellRect[0].x < aabb.minX)
                 {
-                    projectionPts = vertexs;
+                    floorCellRect[0].x = aabb.minX;
+                    floorCellRect[1].x = aabb.minX;
                 }
-                else
-                {
-                    edgePloyPts.Clear();
 
-                    if (faceDirType != DirCmpInfo.Vertical)
+                if (floorCellRect[2].x > aabb.maxX)
+                {
+                    floorCellRect[2].x = aabb.maxX;
+                    floorCellRect[3].x = aabb.maxX;
+                }
+
+                if (floorCellRect[0].z < aabb.minZ)
+                {
+                    floorCellRect[0].z = aabb.minZ;
+                    floorCellRect[3].z = aabb.minZ;
+                }
+
+                if (floorCellRect[1].z > aabb.maxZ)
+                {
+                    floorCellRect[1].z = aabb.maxZ;
+                    floorCellRect[2].z = aabb.maxZ;
+                }
+            }
+
+            CreateProjectionToTriFacePts(floorCellRect);
+            CreateVoxBoxToList(cellProjectionRect, cellx, cellz);
+        }
+
+        /// <summary>
+        /// 获取单元格与投影三角形的覆盖关系
+        /// </summary>
+        /// <returns></returns>
+        OverlapRelation GetOverlapRelation()
+        {
+            float x, z;
+
+            for (int j = 0; j < 4; j++)
+            {
+                z = floorCellRect[j].z;
+                rayLineCrossCount[j] = 0;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    if (m[i] == 0)
+                        continue;
+
+                    if (m[i] != 99999)
+                        x = (floorCellRect[j].z + n[i]) * m[i];
+                    else
+                        x = n[i];
+
+                    if (x >= floorCellRect[j].x)
                     {
-                        for (int i = 0; i < rect.Length; i++)
+                        if ((vertexsProjFloor[i].z >= z - esp && vertexsProjFloor[i].z <= z + esp) ||         
+                            (vertexsProjFloor[i + 1].z >= z - esp && vertexsProjFloor[i + 1].z <= z + esp))
                         {
-                            if (geoAlgo.IsInsidePoly2D(polyProjectionFloor, rect[i]))
-                                edgePloyPts.Add(rect[i]);
+                            rayLineCrossCount[j] = 2;
+                            break;
                         }
+
+                        rayLineCrossCount[j]++;
                     }
-
-                    for (int i = 0; i < count; i++)
-                        edgePloyPts.Add(vertexsProjectionFloor[inRectIdx[i]]);
-
-                    for (int i = 0; i < preCellRectSides.Length; i++)
-                        preCellRectSides[i].startpos = rect[i];
-
-                    Vector3d[] pts = geoAlgo.SolvePolySidesCrossPoints2D(preCellRectSides, polyProjectionFloor.sidesList[0]);
-
-                    for (int i = 0; i < pts.Length; i++)
-                        edgePloyPts.Add(pts[i]);
-
-                    projectionPts = CreateProjectionToTriFacePts(edgePloyPts.ToArray());
                 }
             }
-            else
+
+            if (rayLineCrossCount[0] == 1 && rayLineCrossCount[1] == 1 &&
+                rayLineCrossCount[2] == 1 && rayLineCrossCount[3] == 1)
             {
-                projectionPts = CreateProjectionToTriFacePts(rect);
+                return OverlapRelation.FullOverlap;
+            }
+            else if ((rayLineCrossCount[0] == 2 && rayLineCrossCount[1] == 2 &&
+                rayLineCrossCount[2] == 2 && rayLineCrossCount[3] == 2) ||
+                (rayLineCrossCount[0] == 0 && rayLineCrossCount[1] == 0 &&
+                rayLineCrossCount[2] == 0 && rayLineCrossCount[3] == 0))
+            {
+                return OverlapRelation.NotOverlay;
             }
 
-            if (projectionPts == null || projectionPts.Length == 0)
-            {
-                return;
-            }
+            return OverlapRelation.PartOverlay;
+        }
 
-            CreateVoxBoxToList(projectionPts, cellx, cellz);
+        /// <summary>
+        /// 生成投影到TriFace上的pts
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <returns></returns>
+        void CreateProjectionToTriFacePts(SimpleVector3[] pts)
+        {
+            cellProjectionRect[0] = SolveCrossPoint(pts[0], floorGridNormal, vertexs[0], triFaceNormal);
+            cellProjectionRect[1] = SolveCrossPoint(pts[1], floorGridNormal, vertexs[0], triFaceNormal);
+            cellProjectionRect[2] = SolveCrossPoint(pts[2], floorGridNormal, vertexs[0], triFaceNormal);
+            cellProjectionRect[3] = SolveCrossPoint(pts[3], floorGridNormal, vertexs[0], triFaceNormal);
+        }
+
+
+        /// <summary>
+        ///  求解射线(p, n)与平面(o, m)的交点d
+        ///  一条向量直线: d = p + t * n  1式（n为射线方向，p为起始点， t为长度， d为目标点）
+        ///  平面的点积方程表示:   (d - o).m = 0    2式
+        ///  (d为平面上任意一点， o为平面上已知的一个点， d-o表示由o点指向d点的向量， m为此平面朝向向量，
+        ///  这两个向量互相垂直时，向量点积为0)
+        ///  联立1式和2式方程， 可解出射线和平面相交时，t的量值
+        ///  (p + t*n - o).m = 0
+        ///  p.m + t*n.m - o.m = 0
+        ///  t*n.m = o.m - p.m
+        ///  t = (o - p).m / n.m
+        ///  t代入1式可求出d
+        /// </summary>
+        public SimpleVector3 SolveCrossPoint(SimpleVector3 p, SimpleVector3 n, SimpleVector3 o, SimpleVector3 m)
+        {
+            //float value = Vector3d.Dot(n, m);
+            //float t = Vector3d.Dot(o - p, m) / value;
+            float a = (o.x - p.x) * m.x + (o.y - p.y) * m.y + (o.z - p.z) * m.z;
+            float b = n.x * m.x + n.y * m.y + n.z * m.z;
+            float t = a / b;
+
+            SimpleVector3 pt = new SimpleVector3();
+            pt.x = p.x + n.x * t;
+            pt.y = p.y + n.y * t;
+            pt.z = p.z + n.z * t;
+            return pt;
         }
 
         /// <summary>
@@ -340,22 +436,27 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="cellProjectionRect"></param>
         /// <param name="floorGridCenter">在地板单元格的中心位置坐标</param>
-        void CreateVoxBoxToList(Vector3d[] projectionPts, int cellx, int cellz)
+        void CreateVoxBoxToList(SimpleVector3[] projectionPts, int cellx, int cellz)
         {
-            double[] boundY = geoAlgo.GetYValueBound(projectionPts);
-            int[] gridYIdxs = voxSpace.GetWallGridCellIdxRange(boundY[0], boundY[1]);
-            CreateVoxBoxToList(gridYIdxs, cellx, cellz);
-        }
+            float minY = projectionPts[0].y, maxY = projectionPts[0].y;
+            for (int i = 1; i < projectionPts.Length; i++)
+            {
+                if (projectionPts[i].y > maxY)
+                    maxY = projectionPts[i].y;
+                else if (projectionPts[i].y < minY)
+                    minY = projectionPts[i].y;
+            }
 
+            //
+            float n = minY * voxSpace.invCellHeight;
+            int start = (int)Math.Floor(n);
 
-        /// <summary>
-        /// 根据投影Rect生成体素box
-        /// </summary>
-        /// <param name="cellProjectionRect"></param>
-        /// <param name="floorGridCenter">在地板单元格的中心位置坐标</param>
-        void CreateVoxBoxToList(int[] gridYIdxs, int cellx, int cellz)
-        {
-            VoxBox voxBox = new VoxBox(voxBoxList.Count.ToString(), voxSpace, cellx, cellz, gridYIdxs[0], gridYIdxs[1]);
+            //yendCell
+            n = maxY * voxSpace.invCellHeight;
+            int end = (int)(Math.Ceiling(n));
+            if (start == end) { end++; }
+
+            VoxBox voxBox = new VoxBox(voxSpace, cellx, cellz, start, end);
             voxBoxList.Add(voxBox);
         }
 

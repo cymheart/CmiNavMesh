@@ -26,15 +26,15 @@ namespace Geometry_Algorithm
                     (float)voxSpace.cellSize);
 
                 Vector3 pos = new Vector3((float)voxBoxs[i].position.x, (float)voxBoxs[i].position.y, (float)voxBoxs[i].position.z);
-                vox = CreateVoxBoxMesh(pos, size, voxBoxs[i].name);
+                vox = CreateVoxBoxMesh(pos, size);
                 voxList.Add(vox);
             }
         }
 
 
-        GameObject CreateVoxBoxMesh(Vector3 centerPos, Vector3 size, string name)
+        GameObject CreateVoxBoxMesh(Vector3 centerPos, Vector3 size)
         {
-            GameObject vox = new GameObject(name);
+            GameObject vox = new GameObject();
             MeshFilter mf = vox.AddComponent<MeshFilter>();
             MeshRenderer mr = vox.AddComponent<MeshRenderer>();
 
