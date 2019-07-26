@@ -41,7 +41,7 @@ public class TestMeshBox : MonoBehaviour {
             Vector3[] vects = new Vector3[3];
             Vector[] vectxs = new Vector[3];
 
-            for (int i = 0; i < idxs.Length; i += 3)
+            for (int i = 0; i < idxs.Length - 2; i += 3)
             {
                 vects[0] = vectors[idxs[i]];
                 vects[1] = vectors[idxs[i + 1]];
@@ -58,10 +58,12 @@ public class TestMeshBox : MonoBehaviour {
 
                 voxTriFace.Clear();
                 voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-                //voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+                voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
 
                 count += voxTriFace.voxBoxList.Count;
                 tcount += voxTriFace.totalCount;
+
+                break;
             }
         }
 

@@ -5,6 +5,7 @@ namespace Geometry_Algorithm
     public class VoxBox
     {
         VoxSpace voxSpace;
+        public string name;
 
         public Vector3d position;
         public double yPosStart;
@@ -18,10 +19,12 @@ namespace Geometry_Algorithm
 
 
         public VoxBox(
+            string name,
             VoxSpace voxSpace,
             int floorCellIdxX, int floorCellIdxZ,
             int heightCellStartIdx, int heightCellEndIdx)
         {
+            this.name = name;
             this.voxSpace = voxSpace;
             this.floorCellIdxX = floorCellIdxX;
             this.floorCellIdxZ = floorCellIdxZ;
