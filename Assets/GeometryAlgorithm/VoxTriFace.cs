@@ -432,12 +432,12 @@ namespace Geometry_Algorithm
             if (relation == OverlapRelation.FullOverlap)
             {
                 CreateProjectionToTriFacePts(floorCellRect, 4);
-                CreateVoxBoxToList(cellProjPoints, 4, cellx, cellz);
+               // CreateVoxBoxToList(cellProjPoints, 4, cellx, cellz);
             }
             else
             {
                 CreateProjectionToTriFacePts(crossPt, crossPtCount);
-                CreateVoxBoxToList(cellProjPoints, crossPtCount, cellx, cellz);
+               // CreateVoxBoxToList(cellProjPoints, crossPtCount, cellx, cellz);
             }
         }
 
@@ -548,9 +548,13 @@ namespace Geometry_Algorithm
             float t = a / b;
 
             SimpleVector3 pt = new SimpleVector3();
-            pt.x = p.x + n.x * t;
             pt.y = p.y + n.y * t;
-            pt.z = p.z + n.z * t;
+            pt.x = p.x;
+            pt.z = p.z;
+
+            //pt.x = p.x + n.x * t;
+            //pt.y = p.y + n.y * t;
+           // pt.z = p.z + n.z * t;
             return pt;
         }
 
