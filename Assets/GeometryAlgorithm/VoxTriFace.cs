@@ -579,8 +579,8 @@ namespace Geometry_Algorithm
             int end = (int)(Math.Ceiling(n));
             if (start == end) { end++; }
 
-            VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
-            voxBoxList.Add(voxBox);
+           // VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
+           // voxBoxList.Add(voxBox);
         }
 
     }
