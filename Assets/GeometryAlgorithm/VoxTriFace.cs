@@ -21,6 +21,13 @@ namespace Geometry_Algorithm
         public float start, end;
     }
 
+    public struct LineParam
+    {
+        public float m, b;
+        public float ystart, yend;
+    }
+
+
     public class VoxTriFace
     {
         VoxSpace voxSpace;
@@ -42,27 +49,20 @@ namespace Geometry_Algorithm
             new SimpleVector3(0, 0, 0)
       };
 
-        SimpleVector3[] realFloorCellRect = new SimpleVector3[4]
-   {
-            new SimpleVector3(0, 0, 0),
-            new SimpleVector3(0, 0, 0),
-            new SimpleVector3(0, 0, 0),
-            new SimpleVector3(0, 0, 0)
-   };
-
-        SimpleVector3[] cellProjPoints = new SimpleVector3[10];
-   
         float[] m = new float[3];
         float[] n = new float[3];
-
         float[] a = new float[3];
         float[] b = new float[3];
-
         float[] a2 = new float[3];
         float[] b2 = new float[3];
+        float[] a3 = new float[3];
+        float[] b3 = new float[3];
 
         SimpleVector3[] crossPt = new SimpleVector3[10];
         int crossPtCount = 0;
+
+        SimpleVector3[] cellProjPoints = new SimpleVector3[10];
+        int cellProjPtsCount = 0;
 
         int[] vertCellX = new int[3];
         int[] vertCellZ = new int[3];
@@ -79,7 +79,8 @@ namespace Geometry_Algorithm
 
         List<CellLineRange> xcolZRangeList = new List<CellLineRange>(2000);
         List<CellLineRange> zrowXRangeList = new List<CellLineRange>(2000);
-        List<CellLineRange> zcolYRangeList = new List<CellLineRange>(2000);
+        List<LineParam> zrowXYPlaneLineParamList = new List<LineParam>(2000);
+        List<LineParam> xrowZYPlaneLineParamList = new List<LineParam>(2000);
 
         public int totalCount = 0;
 
@@ -108,7 +109,10 @@ namespace Geometry_Algorithm
             CreateProjToFloorTriFaceVertexs();
             CreateVertexsProjFloorSidesParams();
             CreateVertexsProjZYPlaneSidesParams();
-            CreateCellLines();
+            CreateVertexsProjXYPlaneSidesParams();
+            CreateFloorCellLines();
+            CreateXYPlaneLinesParams();
+            CreateZYPlaneLinesParams();
 
             //
             CreateFloorGridProjTriFaceVoxBox();   
@@ -133,6 +137,11 @@ namespace Geometry_Algorithm
                 if (vertexs[i].y > aabb.maxY) { aabb.maxY = vertexs[i].y; }
                 if (vertexs[i].y < aabb.minY) { aabb.minY = vertexs[i].y; }        
             }
+
+            vertexs[3].x = vertexs[0].x;
+            vertexs[3].y = vertexs[0].y;
+            vertexs[3].z = vertexs[0].z;
+
 
             CalTriFaceNormal();
 
@@ -288,7 +297,36 @@ namespace Geometry_Algorithm
             }
         }
 
-        void CreateCellLines()
+        void CreateVertexsProjXYPlaneSidesParams()
+        {
+            float tmpM;
+            float tmpN;
+            SimpleVector3 vec = new SimpleVector3();
+            for (int i = 0; i < 3; i++)
+            {
+                vec.y = vertexs[i + 1].y - vertexs[i].y;
+                vec.x = vertexs[i + 1].x - vertexs[i].x;
+
+                if (vec.y > -esp && vec.y < esp)
+                {
+                    b3[i] = vertexs[i].y;
+                    a3[i] = 99999;
+                }
+                else if (vec.x != 0)
+                {
+                    tmpM = vec.y / vec.x;
+                    tmpN = vertexs[i].y - tmpM * vertexs[i].x;
+                    b3[i] = tmpN;
+                    a3[i] = tmpM;
+                }
+                else
+                {
+                    a3[i] = 0;
+                }
+            }
+        }
+
+        void CreateFloorCellLines()
         {
             zrowXRangeList.Clear();
             xcolZRangeList.Clear();
@@ -360,9 +398,19 @@ namespace Geometry_Algorithm
                 xcolZRangeList.Add(cellLineRange);
             }
 
-            //
+        }
+
+        void CreateXYPlaneLinesParams()
+        {
             float y;
-            z = zstartCell * cellSize - cellSize;
+            int invPlaneType = 0;
+            float cellSize = voxSpace.cellSize;
+            float z = zstartCell * cellSize - cellSize;
+            float min, max;
+            float m1, n;
+            LineParam lineParam;
+            float _ystart = 0, _yend = 0;
+
             for (int j = zstartCell; j <= zendCell; j++)
             {
                 z += cellSize;
@@ -388,16 +436,131 @@ namespace Geometry_Algorithm
                         max = y;
                 }
 
-                cellLineRange = new CellLineRange() { start = min, end = max };
-                zcolYRangeList.Add(cellLineRange);
+
+                if (invPlaneType == 0 && min < max - esp)
+                {
+                    SimpleVector3 orgStart = new SimpleVector3(zrowXRangeList[j - zstartCell].start, 0, z);
+                    orgStart = SolveCrossPoint(orgStart, floorGridNormal, vertexs[0], triFaceNormal);
+                    if (orgStart.y > min - esp && orgStart.y < min + esp)
+                        invPlaneType = 1;
+                    else
+                        invPlaneType = -1;
+                }
+
+                if (invPlaneType == 1)
+                {
+                    _ystart = min;
+                    _yend = max;
+                }
+                else if (invPlaneType == -1)
+                {
+                    _ystart = max;
+                    _yend = min;
+                }
+                else
+                {
+                    _ystart = _yend = 0;
+                }
+
+                CellLineRange xa = zrowXRangeList[j - zstartCell];
+                if (xa.end > xa.start){
+                    m1 = (_yend - _ystart) / (xa.end - xa.start);
+                    n = _ystart - m1 * xa.start;
+                }
+                else
+                {
+                    m1 = 99999;
+                    n = 0;
+                }
+
+                lineParam = new LineParam() { m = m1, b = n, ystart = _ystart, yend = _yend };
+                zrowXYPlaneLineParamList.Add(lineParam);
             }
         }
 
-  
+        void CreateZYPlaneLinesParams()
+        {
+            float y;
+            int invPlaneType = 0;
+            float cellSize = voxSpace.cellSize;
+            float x = xstartCell * cellSize - cellSize;
+            float min, max;
+            float m1, n;
+            LineParam lineParam;
+            float _ystart = 0, _yend = 0;
+
+            for (int j = xstartCell; j <= xendCell; j++)
+            {
+                x += cellSize;
+                min = 999999; max = -999999;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    if (a2[i] == 0)
+                        continue;
+
+                    if (!(x >= vertexs[i].x && x <= vertexs[i + 1].x) &&
+                        !(x >= vertexs[i + 1].x && x <= vertexs[i].x))
+                        continue;
+
+                    if (a3[i] != 99999)
+                        y = a3[i] * x + b3[i];
+                    else
+                        y = b3[i];
+
+                    if (y < min)
+                        min = y;
+                    if (y > max)
+                        max = y;
+                }
+
+
+                if (invPlaneType == 0 && min < max - esp)
+                {
+                    SimpleVector3 orgStart = new SimpleVector3(x, 0, xcolZRangeList[j - xstartCell].start);
+                    orgStart = SolveCrossPoint(orgStart, floorGridNormal, vertexs[0], triFaceNormal);
+                    if (orgStart.y > min - esp && orgStart.y < min + esp)
+                        invPlaneType = 1;
+                    else
+                        invPlaneType = -1;
+                }
+
+                if (invPlaneType == 1)
+                {
+                    _ystart = min;
+                    _yend = max;
+                }
+                else if (invPlaneType == -1)
+                {
+                    _ystart = max;
+                    _yend = min;
+                }
+                else
+                {
+                    _ystart = _yend = 0;
+                }
+
+                CellLineRange xa = xcolZRangeList[j - xstartCell];
+                if (xa.end > xa.start)
+                {
+                    m1 = (_yend - _ystart) / (xa.end - xa.start);
+                    n = _ystart - m1 * xa.start;
+                }
+                else
+                {
+                    m1 = 99999;
+                    n = 0;
+                }
+
+                lineParam = new LineParam() { m = m1, b = n, ystart = _ystart, yend = _yend };
+                xrowZYPlaneLineParamList.Add(lineParam);
+            }
+        }
+
+
         /// <summary>
         /// 生成地面所有网格投影到TriFace上的体素Box
         /// </summary>
-
         void CreateFloorGridProjTriFaceVoxBox()
         {
             float cellSize = voxSpace.cellSize;
@@ -451,16 +614,7 @@ namespace Geometry_Algorithm
             if (relation == OverlapRelation.NotOverlay)
                 return;
 
-            if (relation == OverlapRelation.FullOverlap)
-            {
-              //  CreateProjectionToTriFacePts(floorCellRect, 4);
-               // CreateVoxBoxToList(cellProjPoints, 4, cellx, cellz);
-            }
-            else
-            {
-               // CreateProjectionToTriFacePts(crossPt, crossPtCount);
-               // CreateVoxBoxToList(cellProjPoints, crossPtCount, cellx, cellz);
-            }
+         //   CreateVoxBoxToList(cellProjPoints, cellProjPtsCount, cellx, cellz);
         }
 
         /// <summary>
@@ -472,11 +626,11 @@ namespace Geometry_Algorithm
             int idx = cellz - zstartCell;
             CellLineRange xa = zrowXRangeList[idx];
             CellLineRange xb = zrowXRangeList[idx + 1];
-
+          
             idx = cellx - xstartCell;
             CellLineRange za = xcolZRangeList[idx];
             CellLineRange zb = xcolZRangeList[idx + 1];
-
+           
 
             if (((floorCellRect[2].x < xb.start && floorCellRect[3].x < xa.start) || 
                 (floorCellRect[1].x > xb.end && floorCellRect[0].x > xa.end)) &&
@@ -486,55 +640,131 @@ namespace Geometry_Algorithm
                 return OverlapRelation.NotOverlay;
             }
 
-            if(floorCellRect[0].x >= xa.start && floorCellRect[0].x<= xa.end &&
+
+            LineParam lineParamA, lineParamB;
+
+            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x<= xa.end &&
                floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end &&
                floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end &&
                floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
             {
+                cellProjPtsCount = 0;
+                idx = cellz - zstartCell;
+                lineParamA = zrowXYPlaneLineParamList[idx];
+                lineParamB = zrowXYPlaneLineParamList[idx + 1];
+                cellProjPoints[cellProjPtsCount++] = new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
+                cellProjPoints[cellProjPtsCount++] = new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x * lineParamA.m + lineParamA.b, floorCellRect[3].z);
+                cellProjPoints[cellProjPtsCount++] = new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x * lineParamB.m + lineParamB.b, floorCellRect[1].z);
+                cellProjPoints[cellProjPtsCount++] = new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x * lineParamB.m + lineParamB.b, floorCellRect[2].z);
                 return OverlapRelation.FullOverlap;
             }
 
             //
-            crossPtCount = 0;
+            idx = cellz - zstartCell;
+            lineParamA = zrowXYPlaneLineParamList[idx];
+            lineParamB = zrowXYPlaneLineParamList[idx + 1];
+            cellProjPtsCount = 0;
+
             if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end)
-                crossPt[crossPtCount++] = floorCellRect[0];
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
+            }
             if (floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end)
-                crossPt[crossPtCount++] = floorCellRect[3];
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x * lineParamA.m + lineParamA.b, floorCellRect[3].z);
+            }
             if (floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end)
-                crossPt[crossPtCount++] = floorCellRect[1];
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x * lineParamB.m + lineParamB.b, floorCellRect[1].z);
+            }
             if (floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
-                crossPt[crossPtCount++] = floorCellRect[2];
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x * lineParamB.m + lineParamB.b, floorCellRect[2].z);
+            }
+
 
             if (xa.start >= floorCellRect[0].x && xa.start <= floorCellRect[3].x)
-                crossPt[crossPtCount++] = new SimpleVector3(xa.start, 0, cellz * voxSpace.cellSize);
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(xa.start, lineParamA.ystart, cellz * voxSpace.cellSize);
+            }
             if (xa.end >= floorCellRect[0].x && xa.end <= floorCellRect[3].x)
-                crossPt[crossPtCount++] = new SimpleVector3(xa.end, 0, cellz * voxSpace.cellSize);
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(xa.end, lineParamA.yend, cellz * voxSpace.cellSize);
+            }
             if (xb.start >= floorCellRect[1].x && xb.start <= floorCellRect[2].x)
-                crossPt[crossPtCount++] = new SimpleVector3(xb.start, 0, (cellz+1) * voxSpace.cellSize);
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(xb.start, lineParamB.ystart, (cellz+1) * voxSpace.cellSize);
+            }
             if (xb.end >= floorCellRect[1].x && xb.end <= floorCellRect[2].x)
-                crossPt[crossPtCount++] = new SimpleVector3(xb.end, 0, (cellz+1) * voxSpace.cellSize);
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(xb.end, lineParamB.yend, (cellz + 1) * voxSpace.cellSize);
+            }
 
+
+            //
+            idx = cellx - xstartCell;
+            lineParamA = xrowZYPlaneLineParamList[idx];
+            lineParamB = xrowZYPlaneLineParamList[idx + 1];
             if (za.start >= floorCellRect[0].z && za.start <= floorCellRect[1].z)
-                crossPt[crossPtCount++] = new SimpleVector3(cellx * voxSpace.cellSize, 0, za.start);
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(cellx * voxSpace.cellSize, lineParamA.ystart, za.start);
+            }
             if (za.end >= floorCellRect[0].z && za.end <= floorCellRect[1].z)
-                crossPt[crossPtCount++] = new SimpleVector3(cellx * voxSpace.cellSize, 0, za.end);
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(cellx * voxSpace.cellSize, lineParamA.yend, za.end);
+            }           
             if (zb.start >= floorCellRect[3].z && zb.start <= floorCellRect[2].z)
-                crossPt[crossPtCount++] = new SimpleVector3((cellx+1) * voxSpace.cellSize, 0, zb.start);
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3((cellx+1) * voxSpace.cellSize, lineParamB.ystart, zb.start);
+            }
             if (zb.end >= floorCellRect[3].z && zb.end <= floorCellRect[2].z)
-                crossPt[crossPtCount++] = new SimpleVector3((cellx+1) * voxSpace.cellSize, 0, zb.end);
+            {
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3((cellx + 1) * voxSpace.cellSize, lineParamB.yend, zb.end);
+            }
 
             for (int i = 0; i < 3; i++)
             {
                 if (vertCellX[i] == cellx && vertCellZ[i] == cellz)
                 {
-                    crossPt[crossPtCount++] = vertexs[i];
+                    cellProjPoints[cellProjPtsCount++] = vertexs[i];
                     break;
                 }
             }
 
-
             return OverlapRelation.PartOverlay;
         }
+
+
+        /// <summary>
+        /// 快速生成单元投影到空间TriFace上
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <returns></returns>
+        void FastCreateCellProjToTriFace(int cellz)
+        {
+            int idx = cellz - zstartCell; 
+            LineParam lineParamA = zrowXYPlaneLineParamList[idx];
+            LineParam lineParamB = zrowXYPlaneLineParamList[idx + 1];
+
+            cellProjPoints[0] = new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
+            cellProjPoints[1] = new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x* lineParamA.m + lineParamA.b, floorCellRect[3].z);
+            cellProjPoints[2] = new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x* lineParamB.m + lineParamB.b, floorCellRect[1].z);
+            cellProjPoints[3] = new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x* lineParamB.m + lineParamB.b, floorCellRect[2].z);
+        }
+
+
 
         /// <summary>
         /// 生成投影到TriFace上的pts
@@ -544,7 +774,7 @@ namespace Geometry_Algorithm
         void CreateProjectionToTriFacePts(SimpleVector3[] pts, int count)
         {
             for(int i=0; i<count; i++)
-                cellProjPoints[i] = SolveCrossPoint(pts[i], floorGridNormal, vertexs[0], triFaceNormal);
+                cellProjPoints[cellProjPtsCount++] = SolveCrossPoint(pts[i], floorGridNormal, vertexs[0], triFaceNormal);
         }
 
 
@@ -605,7 +835,7 @@ namespace Geometry_Algorithm
             int end = (int)(Math.Ceiling(n));
             if (start == end) { end++; }
 
-           // VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
+          //  VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
            // voxBoxList.Add(voxBox);
         }
 
