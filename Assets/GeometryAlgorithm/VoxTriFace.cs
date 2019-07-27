@@ -26,14 +26,7 @@ namespace Geometry_Algorithm
         VoxSpace voxSpace;
         readonly float esp = 0.00001f;
 
-        SimpleVector3[] vertexs = new SimpleVector3[3]
-        {
-            new SimpleVector3(0,0,0),
-            new SimpleVector3(0,0,0),
-            new SimpleVector3(0,0,0)
-        };
-
-        SimpleVector3[] vertexsProjFloor = new SimpleVector3[4]      
+        SimpleVector3[] vertexs = new SimpleVector3[4]
         {
             new SimpleVector3(0,0,0),
             new SimpleVector3(0,0,0),
@@ -65,6 +58,9 @@ namespace Geometry_Algorithm
         float[] a = new float[3];
         float[] b = new float[3];
 
+        float[] a2 = new float[3];
+        float[] b2 = new float[3];
+
         SimpleVector3[] crossPt = new SimpleVector3[10];
         int crossPtCount = 0;
 
@@ -83,6 +79,7 @@ namespace Geometry_Algorithm
 
         List<CellLineRange> xcolZRangeList = new List<CellLineRange>(2000);
         List<CellLineRange> zrowXRangeList = new List<CellLineRange>(2000);
+        List<CellLineRange> zcolYRangeList = new List<CellLineRange>(2000);
 
         public int totalCount = 0;
 
@@ -108,8 +105,9 @@ namespace Geometry_Algorithm
         {
             _TransTriFaceWorldVertexToVoxSpace(triFaceWorldVertex);
             CalFloorGridIdxRange();
-            CreateProjectionToFloorTriFaceVertexs();
-            CreateProjectionToFloorPoly();
+            CreateProjToFloorTriFaceVertexs();
+            CreateVertexsProjFloorSidesParams();
+            CreateVertexsProjZYPlaneSidesParams();
             CreateCellLines();
 
             //
@@ -223,51 +221,26 @@ namespace Geometry_Algorithm
         /// <summary>
         /// 生成三角面到地面的投影顶点
         /// </summary>
-        void CreateProjectionToFloorTriFaceVertexs()
+        void CreateProjToFloorTriFaceVertexs()
         {
-            if (faceDirType != DirCmpInfo.Different)
-            {
-                vertexsProjFloor[0].x = vertexs[0].x;
-                vertexsProjFloor[0].z = vertexs[0].z;
-                vertexsProjFloor[1].x = vertexs[1].x;
-                vertexsProjFloor[1].z = vertexs[1].z;
-                vertexsProjFloor[2].x = vertexs[2].x;
-                vertexsProjFloor[2].z = vertexs[2].z;
-                vertexsProjFloor[3].x = vertexs[0].x;
-                vertexsProjFloor[3].z = vertexs[0].z;
-            }
-            else
-            {
-                vertexsProjFloor[0].x = vertexs[2].x;
-                vertexsProjFloor[0].z = vertexs[2].z;
-                vertexsProjFloor[1].x = vertexs[1].x;
-                vertexsProjFloor[1].z = vertexs[1].z;
-                vertexsProjFloor[2].x = vertexs[0].x;
-                vertexsProjFloor[2].z = vertexs[0].z;
-                vertexsProjFloor[3].x = vertexs[2].x;
-                vertexsProjFloor[3].z = vertexs[2].z;
-            }
-
             for (int i = 0; i < 3; i++)
             {
-                float cell = vertexsProjFloor[i].x * voxSpace.invCellSize;
+                float cell = vertexs[i].x * voxSpace.invCellSize;
                 vertCellX[i] = (int)Math.Floor(cell);
-                cell = vertexsProjFloor[i].z * voxSpace.invCellSize;
+                cell = vertexs[i].z * voxSpace.invCellSize;
                 vertCellZ[i] = (int)Math.Floor(cell);
             }
-
         }
 
-        void CreateProjectionToFloorPoly()
+        void CreateVertexsProjFloorSidesParams()
         {
             float tmpM;
             float tmpN;
             SimpleVector3 vec = new SimpleVector3();
             for (int i = 0; i < 3; i++)
             {
-                vec.x = vertexsProjFloor[i + 1].x - vertexsProjFloor[i].x;
-                vec.y = vertexsProjFloor[i + 1].y - vertexsProjFloor[i].y;
-                vec.z = vertexsProjFloor[i + 1].z - vertexsProjFloor[i].z;
+                vec.x = vertexs[i + 1].x - vertexs[i].x;
+                vec.z = vertexs[i + 1].z - vertexs[i].z;
 
                 if (vec.z > -esp && vec.z < esp)
                 {
@@ -298,6 +271,36 @@ namespace Geometry_Algorithm
             }  
         }
 
+
+        void CreateVertexsProjZYPlaneSidesParams()
+        {
+            float tmpM;
+            float tmpN;
+            SimpleVector3 vec = new SimpleVector3();
+            for (int i = 0; i < 3; i++)
+            {
+                vec.y = vertexs[i + 1].y - vertexs[i].y;
+                vec.z = vertexs[i + 1].z - vertexs[i].z;
+
+                if (vec.y > -esp && vec.y < esp)
+                {
+                    b2[i] = vertexs[i].y;
+                    a2[i] = 99999;
+                }
+                else if (vec.z != 0)
+                {
+                    tmpM = vec.y / vec.z;
+                    tmpN = vertexs[i].y - tmpM * vertexs[i].z;
+                    b2[i] = tmpN;
+                    a2[i] = tmpM;
+                }
+                else
+                {
+                    a2[i] = 0;
+                }
+            }
+        }
+
         void CreateCellLines()
         {
             zrowXRangeList.Clear();
@@ -319,8 +322,8 @@ namespace Geometry_Algorithm
                     if (m[i] == 0)
                         continue;
 
-                    if (!(z >= vertexsProjFloor[i].z && z <= vertexsProjFloor[i + 1].z) &&
-                        !(z >= vertexsProjFloor[i + 1].z && z <= vertexsProjFloor[i].z))
+                    if (!(z >= vertexs[i].z && z <= vertexs[i + 1].z) &&
+                        !(z >= vertexs[i + 1].z && z <= vertexs[i].z))
                         continue;
 
                     if (m[i] != 99999)
@@ -351,8 +354,8 @@ namespace Geometry_Algorithm
                     if (a[i] == 0)
                         continue;
 
-                    if (!(x >= vertexsProjFloor[i].x && x <= vertexsProjFloor[i + 1].x) &&
-                        !(x >= vertexsProjFloor[i + 1].x && x <= vertexsProjFloor[i].x))
+                    if (!(x >= vertexs[i].x && x <= vertexs[i + 1].x) &&
+                        !(x >= vertexs[i + 1].x && x <= vertexs[i].x))
                         continue;
 
                     if (a[i] != 99999)
@@ -368,6 +371,38 @@ namespace Geometry_Algorithm
 
                 cellLineRange = new CellLineRange() { start = min, end = max };
                 xcolZRangeList.Add(cellLineRange);
+            }
+
+            //
+            float y;
+            z = zstartCell * cellSize - cellSize;
+            for (int j = zstartCell; j <= zendCell; j++)
+            {
+                z += cellSize;
+                min = 999999; max = -999999;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    if (a2[i] == 0)
+                        continue;
+
+                    if (!(z >= vertexs[i].z && z <= vertexs[i + 1].z) &&
+                        !(z >= vertexs[i + 1].z && z <= vertexs[i].z))
+                        continue;
+
+                    if (a2[i] != 99999)
+                        y = a2[i] * z + b2[i];
+                    else
+                        y = b2[i];
+
+                    if (y < min)
+                        min = y;
+                    if (y > max)
+                        max = y;
+                }
+
+                cellLineRange = new CellLineRange() { start = min, end = max };
+                zcolYRangeList.Add(cellLineRange);
             }
         }
 
@@ -431,12 +466,12 @@ namespace Geometry_Algorithm
 
             if (relation == OverlapRelation.FullOverlap)
             {
-                CreateProjectionToTriFacePts(floorCellRect, 4);
+              //  CreateProjectionToTriFacePts(floorCellRect, 4);
                // CreateVoxBoxToList(cellProjPoints, 4, cellx, cellz);
             }
             else
             {
-                CreateProjectionToTriFacePts(crossPt, crossPtCount);
+               // CreateProjectionToTriFacePts(crossPt, crossPtCount);
                // CreateVoxBoxToList(cellProjPoints, crossPtCount, cellx, cellz);
             }
         }
@@ -505,7 +540,7 @@ namespace Geometry_Algorithm
             {
                 if (vertCellX[i] == cellx && vertCellZ[i] == cellz)
                 {
-                    crossPt[crossPtCount++] = vertexsProjFloor[i];
+                    crossPt[crossPtCount++] = vertexs[i];
                     break;
                 }
             }
