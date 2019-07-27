@@ -386,6 +386,8 @@ namespace Geometry_Algorithm
 
         void CreateXYPlaneLinesParams()
         {
+            zrowXYPlaneLineParamList.Clear();
+
             float y;
             int invPlaneType = 0;
             float cellSize = voxSpace.cellSize;
@@ -464,6 +466,8 @@ namespace Geometry_Algorithm
 
         void CreateZYPlaneLinesParams()
         {
+            xrowZYPlaneLineParamList.Clear();
+
             float y;
             int invPlaneType = 0;
             float cellSize = voxSpace.cellSize;
