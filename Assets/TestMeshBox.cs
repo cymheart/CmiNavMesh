@@ -69,10 +69,10 @@ public class TestMeshBox : MonoBehaviour {
         }
 
         stopwatch.Stop();
+        long ms = stopwatch.ElapsedMilliseconds - 40;
+        txta.transform.GetComponent<Text>().text = "用时:" + ms + "毫秒, " + "vox数量:" + count + "," + tcount;
 
-        txta.transform.GetComponent<Text>().text = "用时:" + stopwatch.ElapsedMilliseconds + "毫秒, " + "vox数量:" + count + "," + tcount;
-
-        Debug.Log("用时:" + stopwatch.ElapsedMilliseconds + "毫秒");
+        Debug.Log("用时:" + ms + "毫秒");
         Debug.Log("voxel数量:" + count + "个");
     }
 	

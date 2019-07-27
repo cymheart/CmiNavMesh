@@ -2,6 +2,7 @@
 using Mathd;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Geometry_Algorithm
 {
@@ -142,24 +143,7 @@ namespace Geometry_Algorithm
             vertexs[3].y = vertexs[0].y;
             vertexs[3].z = vertexs[0].z;
 
-
             CalTriFaceNormal();
-
-            if(faceDirType == DirCmpInfo.Vertical)
-            {
-                Random ran = new Random();
-                float pos;
-                
-                for (int i=0; i < vertexs.Length; i++)
-                {
-                    pos = ran.Next(10, 60) * invRandomExNum;
-                    vertexs[i].x += pos;
-                    vertexs[i].y += pos;
-                    vertexs[i].z += pos;
-                }
-
-                CalTriFaceNormal();
-            }
         }
 
         /// <summary>
@@ -195,7 +179,7 @@ namespace Geometry_Algorithm
         {
             //xstartCell
             float n = aabb.minX * voxSpace.invCellSize;
-            xstartCell = (int)Math.Floor(n);
+            xstartCell = (int)n;
 
             //xendCell
             n = aabb.maxX * voxSpace.invCellSize;
@@ -204,7 +188,7 @@ namespace Geometry_Algorithm
 
             //zstartCell
             n = aabb.minZ * voxSpace.invCellSize;
-            zstartCell = (int)Math.Floor(n);
+            zstartCell = (int)n;
 
             //zendCell
             n = aabb.maxZ * voxSpace.invCellSize;
@@ -590,31 +574,12 @@ namespace Geometry_Algorithm
                     floorCellRect[2].z += cellSize;
                     floorCellRect[3].z += cellSize;
 
-                    CreateFloorGridCellProjTriFaceVoxBox(x, z);
+                    if (GetOverlapRelation(x, z) == OverlapRelation.NotOverlay)
+                        continue;
+
+                    CreateVoxBoxToList(x, z);
                 }
             }
-        }
-
-        /// <summary>
-        /// 生成指定地面网格单元格投影到TriFace上的体素Box
-        /// </summary>
-        /// <param name="cellx"></param>
-        /// <param name="cellz"></param>
-        void CreateFloorGridCellProjTriFaceVoxBox(int cellx, int cellz)
-        {
-            if (cellx == 4 && cellz == 6)
-            {
-                int a;
-                a = 3;
-            }
-            totalCount++;
-
-            OverlapRelation relation = GetOverlapRelation(cellx, cellz);
-
-            if (relation == OverlapRelation.NotOverlay)
-                return;
-
-         //   CreateVoxBoxToList(cellProjPoints, cellProjPtsCount, cellx, cellz);
         }
 
         /// <summary>
@@ -652,10 +617,19 @@ namespace Geometry_Algorithm
                 idx = cellz - zstartCell;
                 lineParamA = zrowXYPlaneLineParamList[idx];
                 lineParamB = zrowXYPlaneLineParamList[idx + 1];
-                cellProjPoints[cellProjPtsCount++] = new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
-                cellProjPoints[cellProjPtsCount++] = new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x * lineParamA.m + lineParamA.b, floorCellRect[3].z);
-                cellProjPoints[cellProjPtsCount++] = new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x * lineParamB.m + lineParamB.b, floorCellRect[1].z);
-                cellProjPoints[cellProjPtsCount++] = new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x * lineParamB.m + lineParamB.b, floorCellRect[2].z);
+
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
+
+                cellProjPoints[cellProjPtsCount++] =
+                    new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x * lineParamA.m + lineParamA.b, floorCellRect[3].z);
+
+                cellProjPoints[cellProjPtsCount++] = 
+                    new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x * lineParamB.m + lineParamB.b, floorCellRect[1].z);
+
+                cellProjPoints[cellProjPtsCount++] = 
+                    new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x * lineParamB.m + lineParamB.b, floorCellRect[2].z);
+
                 return OverlapRelation.FullOverlap;
             }
 
@@ -748,25 +722,6 @@ namespace Geometry_Algorithm
 
 
         /// <summary>
-        /// 快速生成单元投影到空间TriFace上
-        /// </summary>
-        /// <param name="rect"></param>
-        /// <returns></returns>
-        void FastCreateCellProjToTriFace(int cellz)
-        {
-            int idx = cellz - zstartCell; 
-            LineParam lineParamA = zrowXYPlaneLineParamList[idx];
-            LineParam lineParamB = zrowXYPlaneLineParamList[idx + 1];
-
-            cellProjPoints[0] = new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
-            cellProjPoints[1] = new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x* lineParamA.m + lineParamA.b, floorCellRect[3].z);
-            cellProjPoints[2] = new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x* lineParamB.m + lineParamB.b, floorCellRect[1].z);
-            cellProjPoints[3] = new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x* lineParamB.m + lineParamB.b, floorCellRect[2].z);
-        }
-
-
-
-        /// <summary>
         /// 生成投影到TriFace上的pts
         /// </summary>
         /// <param name="rect"></param>
@@ -815,28 +770,29 @@ namespace Geometry_Algorithm
         /// </summary>
         /// <param name="cellProjectionRect"></param>
         /// <param name="floorGridCenter">在地板单元格的中心位置坐标</param>
-        void CreateVoxBoxToList(SimpleVector3[] projectionPts, int count, int cellx, int cellz)
+        void CreateVoxBoxToList(int cellx, int cellz)
         {
-            float minY = projectionPts[0].y, maxY = projectionPts[0].y;
-            for (int i = 1; i < count; i++)
+
+            float minY = cellProjPoints[0].y, maxY = cellProjPoints[0].y;
+            for (int i = 1; i < cellProjPtsCount; i++)
             {
-                if (projectionPts[i].y > maxY)
-                    maxY = projectionPts[i].y;
-                else if (projectionPts[i].y < minY)
-                    minY = projectionPts[i].y;
+                if (cellProjPoints[i].y > maxY)
+                    maxY = cellProjPoints[i].y;
+                else if (cellProjPoints[i].y < minY)
+                    minY = cellProjPoints[i].y;
             }
 
             //
-            float n = minY * voxSpace.invCellHeight;
-            int start = (int)Math.Floor(n);
+            float n = minY * voxSpace.invCellHeight;   
+            int start = (int)n;
 
             //yendCell
             n = maxY * voxSpace.invCellHeight;
-            int end = (int)(Math.Ceiling(n));
+            int end = (int)Math.Ceiling(n);
             if (start == end) { end++; }
 
-          //  VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
-           // voxBoxList.Add(voxBox);
+            //  VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
+            // voxBoxList.Add(voxBox);
         }
 
     }
