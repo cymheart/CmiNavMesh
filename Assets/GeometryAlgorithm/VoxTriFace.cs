@@ -175,20 +175,7 @@ namespace Geometry_Algorithm
             float x = vec1.y * vec2.z - vec2.y * vec1.z;
             float y = vec1.z * vec2.x - vec2.z * vec1.x;
             float z = vec1.x * vec2.y - vec2.x * vec1.y;
-            triFaceNormal = new SimpleVector3(x, y, z);
-
-            //
-            float val = 
-                triFaceNormal.x * floorGridNormal.x +
-                triFaceNormal.y * floorGridNormal.y + 
-                triFaceNormal.z * floorGridNormal.z;
-
-            if (val > -esp && val < esp)
-                faceDirType = DirCmpInfo.Vertical;
-            else if (val > 0)
-                faceDirType = DirCmpInfo.Same;
-            else
-                faceDirType = DirCmpInfo.Different;
+            triFaceNormal = new SimpleVector3(x, y, z);           
         }
 
        
