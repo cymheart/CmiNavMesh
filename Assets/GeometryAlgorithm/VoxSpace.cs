@@ -1,15 +1,18 @@
 ﻿using LinearAlgebra;
+using LinearAlgebra.VectorAlgebra;
 using Mathd;
 using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Geometry_Algorithm
 {
     public class VoxSpace
     {
         public Vector3d boundSize;
-        public float cellSize = 0.1f;
+        public float cellSize = 0.5f;
         public float cellHeight = 0.01f;
-        public float invCellSize = 1 / 0.1f;
+        public float invCellSize = 1 / 0.5f;
         public float invCellHeight = 1 / 0.01f;
 
         /// <summary>
@@ -32,6 +35,175 @@ namespace Geometry_Algorithm
         public Matrix worldToVoxSpace = Matrix.Eye(4);
         public Matrix voxSpaceToWorld = Matrix.Eye(4);
 
+        public unsafe SolidSpan** solidSpanGrids;
+
+        LinkedList<IntPtr> solidSpansList = new LinkedList<IntPtr>();
+        LinkedListNode<IntPtr> curtSolidSpansNode;
+        int freeSolidSpanCount;
+        const int preCreateSolidSpanCount = 100000;
+
+        //
+        LinkedList<IntPtr> vertsList = new LinkedList<IntPtr>();
+        LinkedListNode<IntPtr> curtVertsNode;
+        int freeVertsCount;
+        const int preCreateVertsCount = 10000 * 3;
+
+        LinkedList<IntPtr> triAABBList = new LinkedList<IntPtr>();
+        LinkedListNode<IntPtr> curtTriAABBNode;
+        int freeTriAABBCount;
+        const int preCreateTriAABBCount = 10000;
+
+
+        AABB spaceAABB = new AABB();
+        int xstartCell, xendCell;
+        int zstartCell, zendCell;
+
+        public VoxSpace()
+        {
+            freeSolidSpanCount = preCreateSolidSpanCount;
+        }
+
+        public void CreateSpaceGrids()
+        {
+            CalFloorGridIdxRange();
+
+            int cellxCount = xendCell - xstartCell;
+            int cellzCount = zendCell - zstartCell;
+            CreateSoildSpanSpaceGrids(cellxCount, cellzCount);
+        }
+
+
+        void CreateSoildSpanSpaceGrids(int cellxCount, int cellzCount)
+        {
+            unsafe
+            {
+                solidSpanGrids = (SolidSpan**)Marshal.AllocHGlobal(sizeof(SolidSpan*) * cellxCount * cellzCount);
+            }
+        }
+
+
+        public IntPtr GetSoildSpan()
+        {
+            unsafe
+            {
+                if (freeSolidSpanCount == 0)
+                {
+                    SolidSpan* solidSpans = (SolidSpan*)Marshal.AllocHGlobal(sizeof(SolidSpan) * preCreateSolidSpanCount);
+                    solidSpansList.AddLast((IntPtr)solidSpans);
+                    curtSolidSpansNode = solidSpansList.Last;
+                    freeSolidSpanCount = preCreateSolidSpanCount;
+                }
+
+                SolidSpan* solidSpanPtr = (SolidSpan*)curtSolidSpansNode.Value;
+                solidSpanPtr += preCreateSolidSpanCount - freeSolidSpanCount;
+                freeSolidSpanCount--;
+                return (IntPtr)solidSpanPtr;
+            }
+        }
+
+        IntPtr GetVertexs3()
+        {
+            unsafe
+            {
+                if (freeVertsCount == 0)
+                {
+                    SimpleVector3* verts = (SimpleVector3*)Marshal.AllocHGlobal(sizeof(SimpleVector3) * preCreateVertsCount);
+                    vertsList.AddLast((IntPtr)verts);
+                    curtVertsNode = vertsList.Last;
+                    freeVertsCount = preCreateVertsCount;
+                }
+
+                SimpleVector3* vertPtr = (SimpleVector3*)curtVertsNode.Value;
+                vertPtr += preCreateSolidSpanCount - freeSolidSpanCount;
+                freeSolidSpanCount -= 3;
+                return (IntPtr)vertPtr;
+            }
+        }
+
+        IntPtr GetTriAABB()
+        {
+            unsafe
+            {
+                if (freeVertsCount == 0)
+                {
+                    AABB* aabbs = (AABB*)Marshal.AllocHGlobal(sizeof(AABB) * preCreateTriAABBCount);
+                    triAABBList.AddLast((IntPtr)aabbs);
+                    curtTriAABBNode = triAABBList.Last;
+                    freeTriAABBCount = preCreateTriAABBCount;
+                }
+
+                AABB* triAABBPtr = (AABB*)curtTriAABBNode.Value;
+                triAABBPtr += preCreateTriAABBCount - freeTriAABBCount;
+                freeTriAABBCount--;
+                return (IntPtr)triAABBPtr;
+            }
+        }
+
+
+        public void TransModelVertexs(Vector[] triFaceVertex)
+        {
+            unsafe
+            {
+                SimpleVector3* vertexs = (SimpleVector3*)GetVertexs3();
+                AABB* aabb = (AABB*)GetTriAABB();
+
+                vertexs[0].x = (float)triFaceVertex[0].Elements[0];
+                vertexs[0].y = (float)triFaceVertex[0].Elements[1];
+                vertexs[0].z = (float)triFaceVertex[0].Elements[2];
+
+                aabb->maxX = vertexs[0].x; aabb->minX = vertexs[0].x;
+                aabb->maxZ = vertexs[0].z; aabb->minZ = vertexs[0].z;
+                aabb->maxY = vertexs[0].y; aabb->minY = vertexs[0].y;
+
+                for (int i = 1; i < triFaceVertex.Length; i++)
+                {
+                    vertexs[i].x = (float)triFaceVertex[i].Elements[0];
+                    vertexs[i].y = (float)triFaceVertex[i].Elements[1];
+                    vertexs[i].z = (float)triFaceVertex[i].Elements[2];
+
+                    if (vertexs[i].x > aabb->maxX) { aabb->maxX = vertexs[i].x; }
+                    if (vertexs[i].x < aabb->minX) { aabb->minX = vertexs[i].x; }
+                    if (vertexs[i].z > aabb->maxZ) { aabb->maxZ = vertexs[i].z; }
+                    if (vertexs[i].z < aabb->minZ) { aabb->minZ = vertexs[i].z; }
+                }
+
+                vertexs[3].x = vertexs[0].x;
+                vertexs[3].y = vertexs[0].y;
+                vertexs[3].z = vertexs[0].z;
+
+                if (aabb->maxX > spaceAABB.maxX) { spaceAABB.maxX = aabb->maxX; }
+                if (aabb->minX < spaceAABB.minX) { spaceAABB.minX = aabb->minX; }
+                if (aabb->maxZ > spaceAABB.maxZ) { spaceAABB.maxZ = aabb->maxZ; }
+                if (aabb->minZ < spaceAABB.minZ) { spaceAABB.minZ = aabb->minZ; }
+            }
+
+        }
+
+
+        /// <summary>
+        /// 计算floorGrid的格子范围
+        /// </summary>
+        void CalFloorGridIdxRange()
+        {
+            //xstartCell
+            float n = spaceAABB.minX * invCellSize;
+            xstartCell = (int)Math.Floor(n);
+
+            //xendCell
+            n = spaceAABB.maxX * invCellSize;
+            xendCell = (int)Math.Ceiling(n);
+            if (xstartCell == xendCell) xendCell++;
+
+            //zstartCell
+            n = spaceAABB.minZ * invCellSize;
+            zstartCell = (int)Math.Floor(n);
+
+            //zendCell
+            n = spaceAABB.maxZ * invCellSize;
+            zendCell = (int)Math.Ceiling(n);
+            if (zstartCell == zendCell) zendCell++;
+
+        }
 
         /// <summary>
         /// 根据提供的FloorGridCell标号获取这个Cell在VoxSpace中的四个角的Rect坐标
@@ -39,20 +211,20 @@ namespace Geometry_Algorithm
         /// <param name="xIdxCell"></param>
         /// <param name="zIdxCell"></param>
         /// <returns></returns>
-        public Vector3d[] GetFloorGridCellRect(int xIdxCell, int zIdxCell)
+        public SimpleVector3[] GetFloorGridCellRect(int xIdxCell, int zIdxCell)
         {
-            double xStart = xIdxCell * cellSize;
-            double xEnd = xStart + cellSize;
+            float xStart = xIdxCell * cellSize;
+            float xEnd = xStart + cellSize;
 
-            double zStart = zIdxCell * cellSize;
-            double zEnd = zStart + cellSize;
+            float zStart = zIdxCell * cellSize;
+            float zEnd = zStart + cellSize;
 
-            Vector3d[] rect = new Vector3d[]
+            SimpleVector3[] rect = new SimpleVector3[]
             {
-                new Vector3d(xStart, 0, zStart),
-                new Vector3d(xStart,0, zEnd),
-                new Vector3d(xEnd,0, zEnd),
-                new Vector3d(xEnd,0, zStart),
+                new SimpleVector3(xStart, 0, zStart),
+                new SimpleVector3(xStart,0, zEnd),
+                new SimpleVector3(xEnd,0, zEnd),
+                new SimpleVector3(xEnd,0, zStart),
             };
 
             return rect;
@@ -65,11 +237,11 @@ namespace Geometry_Algorithm
         /// <param name="xIdxCell"></param>
         /// <param name="zIdxCell"></param>
         /// <returns></returns>
-        public Vector3d GetFloorGridCellRectCenterPos(int xIdxCell, int zIdxCell)
+        public SimpleVector3 GetFloorGridCellRectCenterPos(int xIdxCell, int zIdxCell)
         {
-            double xStart = xIdxCell * cellSize;
-            double zStart = zIdxCell * cellSize;
-            return new Vector3d((xStart + cellSize + xStart) / 2, 0, (zStart + cellSize + zStart) / 2);
+            float xStart = xIdxCell * cellSize;
+            float zStart = zIdxCell * cellSize;
+            return new SimpleVector3((xStart + cellSize + xStart) / 2, 0, (zStart + cellSize + zStart) / 2);
         }
 
 
@@ -79,10 +251,10 @@ namespace Geometry_Algorithm
         /// <param name="minHeightPos"></param>
         /// <param name="maxHeightPos"></param>
         /// <returns></returns>
-        public int[] GetWallGridCellIdxRange(double minHeightPos, double maxHeightPos)
+        public int[] GetWallGridCellIdxRange(float minHeightPos, float maxHeightPos)
         {
             int end;
-            double n = minHeightPos * invCellHeight;
+            float n = minHeightPos * invCellHeight;
             int start = (int)Math.Floor(n);
 
             //yendCell
@@ -100,11 +272,16 @@ namespace Geometry_Algorithm
         /// <param name="cellStartIdx"></param>
         /// <param name="cellEndIdx"></param>
         /// <returns></returns>
-        public double[] GetWallGridCellPosRange(int cellStartIdx, int cellEndIdx)
+        public float[] GetWallGridCellPosRange(int cellStartIdx, int cellEndIdx)
         {
-            double ystart = cellStartIdx * cellHeight;
-            double yend = cellEndIdx * cellHeight;
-            return new double[] { ystart, yend };
+            float ystart = cellStartIdx * cellHeight;
+            float yend = cellEndIdx * cellHeight;
+            return new float[] { ystart, yend };
         }
+
+      
+
+       
+
     }
 }

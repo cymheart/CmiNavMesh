@@ -11,11 +11,14 @@ namespace Geometry_Algorithm
     /// </summary>
     public struct SolidSpan
     {
-        public double startPos;
-        public double endPos;
+        public float startPos;
+        public float endPos;
 
         public int startCellIdx;
         public int endCellIdx;
+
+        unsafe SolidSpan* prev;
+        unsafe SolidSpan* next;
     }
 
     
@@ -24,11 +27,19 @@ namespace Geometry_Algorithm
     /// </summary>
     public class SolidSpanGroup
     {
+        VoxSpace voxSpace;
+        public unsafe SolidSpan** solidSpanGrids;
+
         public Dictionary<int, LinkedList<SolidSpan>> soildSpanDict = new Dictionary<int, LinkedList<SolidSpan>>();
 
-        public void AppendVoxBox(VoxBox voxBox)
+        public void AppendVoxBox(
+            int floorCellIdxX, int floorCellIdxZ,
+           int heightCellStartIdx, int heightCellEndIdx)
         {
-            int key = GetKey(voxBox.floorCellIdxX, voxBox.floorCellIdxZ);
+            float yPosStart = heightCellStartIdx * voxSpace.cellHeight;
+            float yPosEnd = heightCellEndIdx * voxSpace.cellHeight;
+
+            int key = GetKey(floorCellIdxX, floorCellIdxZ);
             LinkedList<SolidSpan> cellSpanList;
 
             if (soildSpanDict.TryGetValue(key, out cellSpanList) == false)
@@ -40,12 +51,13 @@ namespace Geometry_Algorithm
             AppendVoxBoxToSpanHeightList(cellSpanList, voxBox);
         }
 
+
         void AppendVoxBoxToSpanHeightList(LinkedList<SolidSpan> cellSpanList, VoxBox voxBox)
         {
             int voxStartIdx = voxBox.heightCellStartIdx;
             int voxEndIdx = voxBox.heightCellStartIdx;
-            double yPosStart = voxBox.yPosStart;
-            double yPosEnd = voxBox.yPosEnd;    
+            float yPosStart = voxBox.yPosStart;
+            float yPosEnd = voxBox.yPosEnd;    
 
             LinkedListNode<SolidSpan> startNode = null;
             LinkedListNode<SolidSpan> endNode = null;

@@ -2,14 +2,11 @@
 
 namespace Geometry_Algorithm
 {
-    public class VoxBox
+    public struct VoxBox
     {
-        VoxSpace voxSpace;
-        public string name;
-
-        public Vector3d position;
-        public double yPosStart;
-        public double yPosEnd;
+        public SimpleVector3 position;
+        public float yPosStart;
+        public float yPosEnd;
 
         public int floorCellIdxX;
         public int floorCellIdxZ;
@@ -24,8 +21,6 @@ namespace Geometry_Algorithm
             int floorCellIdxX, int floorCellIdxZ,
             int heightCellStartIdx, int heightCellEndIdx)
         {
-            this.name = name;
-            this.voxSpace = voxSpace;
             this.floorCellIdxX = floorCellIdxX;
             this.floorCellIdxZ = floorCellIdxZ;
             this.heightCellStartIdx = heightCellStartIdx;
@@ -33,9 +28,11 @@ namespace Geometry_Algorithm
             yPosStart = heightCellStartIdx * voxSpace.cellHeight;
             yPosEnd = heightCellEndIdx * voxSpace.cellHeight;
 
+            position = new SimpleVector3(0, 0, 0);
+
         }
 
-        public void CreateRealPosition()
+        public void CreateRealPosition(VoxSpace voxSpace)
         {
             position = voxSpace.GetFloorGridCellRectCenterPos(floorCellIdxX, floorCellIdxZ);
             position.y = (yPosStart + yPosEnd) / 2f;

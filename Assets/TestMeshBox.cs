@@ -58,13 +58,7 @@ public class TestMeshBox : MonoBehaviour {
 
                 voxTriFace.Clear();
                 voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-              //  voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
-
-                count += voxTriFace.voxBoxList.Count;
-                tcount += voxTriFace.totalCount;
-
- 
-
+               // voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
             }
         }
 

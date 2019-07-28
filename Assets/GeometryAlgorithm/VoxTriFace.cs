@@ -2,6 +2,7 @@
 using Mathd;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace Geometry_Algorithm
@@ -32,15 +33,9 @@ namespace Geometry_Algorithm
     public class VoxTriFace
     {
         VoxSpace voxSpace;
-        readonly float esp = 0.00001f;
+        readonly float esp = 0.0001f;
 
-        SimpleVector3[] vertexs = new SimpleVector3[4]
-        {
-            new SimpleVector3(0,0,0),
-            new SimpleVector3(0,0,0),
-            new SimpleVector3(0,0,0),
-            new SimpleVector3(0,0,0)
-        };
+        SimpleVector3[] vertexs = new SimpleVector3[4];
 
         SimpleVector3[] floorCellRect = new SimpleVector3[4]
       {
@@ -59,22 +54,19 @@ namespace Geometry_Algorithm
         float[] a3 = new float[3];
         float[] b3 = new float[3];
 
-        SimpleVector3[] crossPt = new SimpleVector3[10];
-        int crossPtCount = 0;
-
         SimpleVector3[] cellProjPoints = new SimpleVector3[10];
         int cellProjPtsCount = 0;
 
         int[] vertCellX = new int[3];
         int[] vertCellZ = new int[3];
 
-        float invRandomExNum = 1 / 100000;
         SimpleVector3 triFaceNormal;
         SimpleVector3 floorGridNormal = new SimpleVector3(0,1,0);
-        DirCmpInfo faceDirType = DirCmpInfo.Same;
+        bool isHorPlane = false;
 
-        public List<VoxBox> voxBoxList = new List<VoxBox>(1000);
-        AABB aabb = new AABB() {minX = 99999f, maxX = 0f, minZ = 99999f, maxZ = 0f };
+        unsafe SolidSpan** solidSpanGrids;
+
+        AABB aabb = new AABB();
         int xstartCell, xendCell;
         int zstartCell, zendCell;
 
@@ -83,68 +75,52 @@ namespace Geometry_Algorithm
         List<LineParam> zrowXYPlaneLineParamList = new List<LineParam>(2000);
         List<LineParam> xrowZYPlaneLineParamList = new List<LineParam>(2000);
 
-        public int totalCount = 0;
-
-        public VoxTriFace(VoxSpace voxSpace)
-        {
-            SetVoxSpace(voxSpace);
-        }
-
-        public void SetVoxSpace(VoxSpace voxSpace)
+        public VoxTriFace(VoxSpace voxSpace, IntPtr solidSpanGrids)
         {
             this.voxSpace = voxSpace;
-        }
 
-        public void Clear()
-        {
-            crossPtCount = 0;
-            totalCount = 0;
-            voxBoxList.Clear();
-            aabb = new AABB() { minX = 99999f, maxX = 0f, minZ = 99999f, maxZ = 0f };
-        }
-
-        public void TransTriFaceWorldVertexToVoxSpace(Vector[] triFaceWorldVertex)
-        {
-            _TransTriFaceWorldVertexToVoxSpace(triFaceWorldVertex);
-            CalFloorGridIdxRange();
-            CreateProjToFloorTriFaceVertexs();
-            CreateVertexsProjFloorSidesParams();
-            CreateVertexsProjZYPlaneSidesParams();
-            CreateVertexsProjXYPlaneSidesParams();
-            CreateFloorCellLines();
-            CreateXYPlaneLinesParams();
-            CreateZYPlaneLinesParams();
-
-            //
-            CreateFloorGridProjTriFaceVoxBox();   
-        }
-
-        /// <summary>
-        /// 转换三角面的世界顶点到体素空间
-        /// </summary>
-        /// <param name="triFaceWorldVertex"></param>
-        void _TransTriFaceWorldVertexToVoxSpace(Vector[] triFaceVertex)
-        {
-            for(int i=0;i < triFaceVertex.Length; i++)
+            unsafe
             {
-                vertexs[i].x = (float)triFaceVertex[i].Elements[0];
-                vertexs[i].y = (float)triFaceVertex[i].Elements[1];
-                vertexs[i].z = (float)triFaceVertex[i].Elements[2];
+                this.solidSpanGrids = (SolidSpan**)solidSpanGrids;
+            }
+        }
 
-                if (vertexs[i].x > aabb.maxX) { aabb.maxX = vertexs[i].x; }
-                if (vertexs[i].x < aabb.minX) { aabb.minX = vertexs[i].x; }
-                if (vertexs[i].z > aabb.maxZ) { aabb.maxZ = vertexs[i].z; }
-                if (vertexs[i].z < aabb.minZ) { aabb.minZ = vertexs[i].z; }
-                if (vertexs[i].y > aabb.maxY) { aabb.maxY = vertexs[i].y; }
-                if (vertexs[i].y < aabb.minY) { aabb.minY = vertexs[i].y; }        
+
+        public void TransTriFaceWorldVertexToVoxSpace(IntPtr triFaceVertex, IntPtr aabbPtr)
+        {
+            unsafe
+            {
+                SimpleVector3* vertexsPtr = (SimpleVector3*)triFaceVertex;
+
+                vertexs[0] = vertexsPtr[0];
+                vertexs[1] = vertexsPtr[1];
+                vertexs[2] = vertexsPtr[2];
+                vertexs[3] = vertexsPtr[3];
+
+                aabb = *(AABB*)aabbPtr;
             }
 
-            vertexs[3].x = vertexs[0].x;
-            vertexs[3].y = vertexs[0].y;
-            vertexs[3].z = vertexs[0].z;
-
             CalTriFaceNormal();
+            CalFloorGridIdxRange();
+            CalTriVertsAtCells();
+            CreateVertexsProjFloorSidesParams();
+            CreateFloorCellLines();
+
+            if (!isHorPlane)
+            {
+                CreateVertexsProjZYPlaneSidesParams();
+                CreateVertexsProjXYPlaneSidesParams();                
+                CreateXYPlaneLinesParams();
+                CreateZYPlaneLinesParams();
+                CreateFloorGridProjTriFaceVoxBox();
+            }
+            else
+            {
+                CreateFloorGridProjTriFaceVoxBoxForHorPlane();
+            }
         }
+
+        
 
         /// <summary>
         /// 计算三角面法线
@@ -168,7 +144,14 @@ namespace Geometry_Algorithm
             float x = vec1.y * vec2.z - vec2.y * vec1.z;
             float y = vec1.z * vec2.x - vec2.z * vec1.x;
             float z = vec1.x * vec2.y - vec2.x * vec1.y;
-            triFaceNormal = new SimpleVector3(x, y, z);           
+            triFaceNormal = new SimpleVector3(x, y, z);      
+            
+            if(triFaceNormal.x > -0.001 && triFaceNormal.x < 0.001 && 
+                triFaceNormal.z > -0.001 && triFaceNormal.z <0.001)
+            {
+                isHorPlane = true;
+            }
+
         }
 
        
@@ -179,7 +162,7 @@ namespace Geometry_Algorithm
         {
             //xstartCell
             float n = aabb.minX * voxSpace.invCellSize;
-            xstartCell = (int)n;
+            xstartCell = (int)Math.Floor(n);
 
             //xendCell
             n = aabb.maxX * voxSpace.invCellSize;
@@ -188,7 +171,7 @@ namespace Geometry_Algorithm
 
             //zstartCell
             n = aabb.minZ * voxSpace.invCellSize;
-            zstartCell = (int)n;
+            zstartCell = (int)Math.Floor(n);
 
             //zendCell
             n = aabb.maxZ * voxSpace.invCellSize;
@@ -199,9 +182,9 @@ namespace Geometry_Algorithm
 
       
         /// <summary>
-        /// 生成三角面到地面的投影顶点
+        /// 计算三角面顶点所在单元格
         /// </summary>
-        void CreateProjToFloorTriFaceVertexs()
+        void CalTriVertsAtCells()
         {
             for (int i = 0; i < 3; i++)
             {
@@ -423,14 +406,22 @@ namespace Geometry_Algorithm
                 }
 
 
-                if (invPlaneType == 0 && min < max - esp)
+
+                if (invPlaneType == 0)
                 {
-                    SimpleVector3 orgStart = new SimpleVector3(zrowXRangeList[j - zstartCell].start, 0, z);
-                    orgStart = SolveCrossPoint(orgStart, floorGridNormal, vertexs[0], triFaceNormal);
-                    if (orgStart.y > min - esp && orgStart.y < min + esp)
+                    if (min < max - esp)
+                    {
+                        SimpleVector3 orgStart = new SimpleVector3(zrowXRangeList[j - zstartCell].start, 0, z);
+                        orgStart = SolveCrossPoint(orgStart, floorGridNormal, vertexs[0], triFaceNormal);
+                        if (orgStart.y > min - esp && orgStart.y < min + esp)
+                            invPlaneType = 1;
+                        else
+                            invPlaneType = -1;
+                    }
+                    else if(min >= max - esp && min <= max + esp)
+                    {
                         invPlaneType = 1;
-                    else
-                        invPlaneType = -1;
+                    }
                 }
 
                 if (invPlaneType == 1)
@@ -484,7 +475,7 @@ namespace Geometry_Algorithm
 
                 for (int i = 0; i < 3; i++)
                 {
-                    if (a2[i] == 0)
+                    if (a3[i] == 0)
                         continue;
 
                     if (!(x >= vertexs[i].x && x <= vertexs[i + 1].x) &&
@@ -503,14 +494,21 @@ namespace Geometry_Algorithm
                 }
 
 
-                if (invPlaneType == 0 && min < max - esp)
+                if (invPlaneType == 0)
                 {
-                    SimpleVector3 orgStart = new SimpleVector3(x, 0, xcolZRangeList[j - xstartCell].start);
-                    orgStart = SolveCrossPoint(orgStart, floorGridNormal, vertexs[0], triFaceNormal);
-                    if (orgStart.y > min - esp && orgStart.y < min + esp)
+                    if (min < max - esp)
+                    {
+                        SimpleVector3 orgStart = new SimpleVector3(x, 0, xcolZRangeList[j - xstartCell].start);
+                        orgStart = SolveCrossPoint(orgStart, floorGridNormal, vertexs[0], triFaceNormal);
+                        if (orgStart.y > min - esp && orgStart.y < min + esp)
+                            invPlaneType = 1;
+                        else
+                            invPlaneType = -1;
+                    }
+                    else if (min >= max - esp && min <= max + esp)
+                    {
                         invPlaneType = 1;
-                    else
-                        invPlaneType = -1;
+                    }
                 }
 
                 if (invPlaneType == 1)
@@ -582,6 +580,50 @@ namespace Geometry_Algorithm
                         continue;
 
                     CreateVoxBoxToList(x, z);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 生成地面所有网格投影到TriFace上的体素Box
+        /// </summary>
+        void CreateFloorGridProjTriFaceVoxBoxForHorPlane()
+        {
+            float cellSize = voxSpace.cellSize;
+            float xStart = xstartCell * cellSize;
+            float zStart = zstartCell * cellSize;
+            floorCellRect[0].x = xStart - cellSize;
+            floorCellRect[1].x = xStart - cellSize;
+            floorCellRect[2].x = xStart;
+            floorCellRect[3].x = xStart;
+
+            for (int x = xstartCell; x < xendCell; x++)
+            {
+                floorCellRect[0].x += cellSize;
+                floorCellRect[1].x += cellSize;
+                floorCellRect[2].x += cellSize;
+                floorCellRect[3].x += cellSize;
+
+                floorCellRect[0].z = zStart - cellSize;
+                floorCellRect[1].z = zStart;
+                floorCellRect[2].z = zStart;
+                floorCellRect[3].z = zStart - cellSize;
+
+                for (int z = zstartCell; z < zendCell; z++)
+                {
+                    floorCellRect[0].z += cellSize;
+                    floorCellRect[1].z += cellSize;
+                    floorCellRect[2].z += cellSize;
+                    floorCellRect[3].z += cellSize;
+
+                    if (GetOverlapRelationForHorPlane(x, z) == OverlapRelation.NotOverlay)
+                        continue;
+
+                    int start = (int)Math.Floor(vertexs[0].y * voxSpace.invCellHeight);
+                    int end = start + 1;
+                   // VoxBox voxBox = new VoxBox(x.ToString() + " " + z.ToString(), voxSpace, x, z, start, end);
+                  //  voxBoxList.Add(voxBox);
                 }
             }
         }
@@ -726,6 +768,41 @@ namespace Geometry_Algorithm
 
 
         /// <summary>
+        /// 获取单元格与投影三角形的覆盖关系，针对水平平面
+        /// </summary>
+        /// <returns></returns>
+        OverlapRelation GetOverlapRelationForHorPlane(int cellx, int cellz)
+        {
+            int idx = cellz - zstartCell;
+            CellLineRange xa = zrowXRangeList[idx];
+            CellLineRange xb = zrowXRangeList[idx + 1];
+
+            idx = cellx - xstartCell;
+            CellLineRange za = xcolZRangeList[idx];
+            CellLineRange zb = xcolZRangeList[idx + 1];
+
+
+            if (((floorCellRect[2].x < xb.start && floorCellRect[3].x < xa.start) ||
+                (floorCellRect[1].x > xb.end && floorCellRect[0].x > xa.end)) &&
+                ((floorCellRect[0].z > za.end && floorCellRect[3].z > zb.end) ||
+                (floorCellRect[1].z < za.start && floorCellRect[2].z < zb.start)))
+            {
+                return OverlapRelation.NotOverlay;
+            }
+
+            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end &&
+               floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end &&
+               floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end &&
+               floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
+            {
+                return OverlapRelation.FullOverlap;
+            }
+
+            return OverlapRelation.PartOverlay;
+        }
+
+
+        /// <summary>
         /// 生成投影到TriFace上的pts
         /// </summary>
         /// <param name="rect"></param>
@@ -788,15 +865,17 @@ namespace Geometry_Algorithm
 
             //
             float n = minY * voxSpace.invCellHeight;   
-            int start = (int)n;
+            int start = (int)Math.Floor(n);
 
             //yendCell
             n = maxY * voxSpace.invCellHeight;
             int end = (int)Math.Ceiling(n);
             if (start == end) { end++; }
 
-            //  VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
-            // voxBoxList.Add(voxBox);
+
+
+           //  VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
+           //  voxBoxList.Add(voxBox);
         }
 
     }
