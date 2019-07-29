@@ -10,7 +10,7 @@ namespace MINAV
     public class VoxelTriangle
     {
         VoxelSpace voxSpace;
-        readonly float esp = 0.0001f;
+        readonly float esp = 0.001f;
 
         SimpleVector3[] vertexs = new SimpleVector3[4];
 

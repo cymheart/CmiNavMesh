@@ -135,6 +135,12 @@ namespace MINAV
                     solidSpanList->floorCellIdxZ = floorCellIdxZ;
                 }
 
+                //if(idx == 115210)
+                //{
+                //    int a;
+                //    a = 3;
+                //}
+
                 AppendVoxBoxToSpanHeightList(solidSpanList, heightCellStartIdx, heightCellEndIdx);
             }
         }
@@ -155,34 +161,40 @@ namespace MINAV
             SolidSpan* node = solidSpanList->first;
             for (; node != null; node = node->next)
             {
-                if (node->ystartCellIdx > voxStartIdx && startNode == null)
+                if (startNode == null)
                 {
-                    startNode = node;
-                }
-                else if (voxStartIdx >= node->ystartCellIdx &&
-                    voxStartIdx <= node->yendCellIdx)
-                {
-                    yPosStart = node->ystartPos;
-                    voxStartIdx = node->ystartCellIdx;
-                    startNode = node;
+                    if (node->ystartCellIdx > voxStartIdx)
+                    {
+                        startNode = node;
+                    }
+                    else if (voxStartIdx >= node->ystartCellIdx &&
+                        voxStartIdx <= node->yendCellIdx)
+                    {
+                        yPosStart = node->ystartPos;
+                        voxStartIdx = node->ystartCellIdx;
+                        startNode = node;
+                    }
                 }
 
-                if (node->ystartCellIdx > voxEndIdx && endNode == null)
+                if (endNode == null)
                 {
-                    endNode = node->prev;
-                    break;
-                }
-                else if (voxEndIdx >= node->ystartCellIdx &&
-                    voxEndIdx <= node->yendCellIdx)
-                {
-                    yPosEnd = node->yendPos;
-                    voxEndIdx = node->yendCellIdx;
-                    endNode = node;
-                    break;
+                    if (node->ystartCellIdx > voxEndIdx)
+                    {
+                        endNode = node->prev;
+                        break;
+                    }
+                    else if (voxEndIdx >= node->ystartCellIdx &&
+                        voxEndIdx <= node->yendCellIdx)
+                    {
+                        yPosEnd = node->yendPos;
+                        voxEndIdx = node->yendCellIdx;
+                        endNode = node;
+                        break;
+                    }
                 }
             }
-
-            if (startNode != null && endNode == null)
+   
+            if (startNode != null && node == null)
                 endNode = solidSpanList->last;
 
 
@@ -191,7 +203,20 @@ namespace MINAV
             voxSpan->yendPos = yPosEnd;
             voxSpan->ystartCellIdx = voxStartIdx;
             voxSpan->yendCellIdx = voxEndIdx;
+           // solidSpanList->AddLast(voxSpan);
+            //return;
 
+            if (endNode != null && endNode->next == startNode)
+            {
+                solidSpanList->AddAfter(endNode, voxSpan);
+                return;
+            }
+            
+            if(startNode != null && endNode == null)
+            {
+                solidSpanList->AddFirst(voxSpan);
+                return;
+            }
 
             if (startNode == null && endNode == null)
             {
