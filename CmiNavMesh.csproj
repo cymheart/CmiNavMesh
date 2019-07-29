@@ -95,6 +95,7 @@
     <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithmTypes.cs" />
     <Compile Include="Assets\GeometryAlgorithm\Mathd\Vector2d.cs" />
     <Compile Include="Assets\GeometryAlgorithm\Mathd\Vector3d.cs" />
+    <Compile Include="Assets\MiNav\Tools\cmemory.cs" />
     <Compile Include="Assets\MiNav\MiNavTypes.cs" />
     <Compile Include="Assets\GeometryAlgorithm\Poly.cs" />
     <Compile Include="Assets\GeometryAlgorithm\PolyBoolean.cs" />

@@ -22,13 +22,14 @@ public class TestMeshBox : MonoBehaviour {
 
         SolidSpanGroup solidSpanGroup = new SolidSpanGroup(voxSpace);
         voxSpace.CreateVoxels(solidSpanGroup);
+
         stopwatch.Stop();
 
        // VoxBoxViewer voxBoxViewer = new VoxBoxViewer();
 
     
-        long ms = stopwatch.ElapsedMilliseconds - 40;
-        txta.transform.GetComponent<Text>().text = "用时:" + ms + "毫秒, " + "vox数量:" + count + "," + tcount;
+        long ms = stopwatch.ElapsedMilliseconds;
+        txta.transform.GetComponent<Text>().text = "用时:" + ms + "毫秒, " + "vox数量:" + 0 + "," + 0;
 
         Debug.Log("用时:" + ms + "毫秒");
         Debug.Log("voxel数量:" + 0 + "个");

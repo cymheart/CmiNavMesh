@@ -37,23 +37,22 @@ namespace MINAV
         public unsafe SolidSpanList* solidSpanGrids;
 
         LinkedList<IntPtr> solidSpansList = new LinkedList<IntPtr>();
-        int freeSolidSpanCount;
+        int freeSolidSpanCount = 0;
         const int preCreateSolidSpanCount = 100000;
 
         //
         LinkedList<IntPtr> triVertInfoList = new LinkedList<IntPtr>();
-        int freeVertsCount;
+        int freeVertsCount = 0;
         const int preCreateVertsCount = 10000;
 
 
-        MiNavAABB spaceAABB = new MiNavAABB();
+        MiNavAABB spaceAABB = new MiNavAABB() { minX = 1, maxX = -1 };
         int xstartCell, xendCell;
         int zstartCell, zendCell;
         int cellxCount;
         int cellzCount;
         public VoxelSpace()
         {
-            freeSolidSpanCount = preCreateSolidSpanCount;
         }
 
         public void CreateSpaceGrids()
@@ -96,7 +95,9 @@ namespace MINAV
 
         unsafe void CreateSoildSpanSpaceGrids(int cellxCount, int cellzCount)
         {
-            solidSpanGrids = (SolidSpanList*)Marshal.AllocHGlobal(sizeof(SolidSpanList) * cellxCount * cellzCount);
+            int size = sizeof(SolidSpanList) * cellxCount * cellzCount;
+            solidSpanGrids = (SolidSpanList*)Marshal.AllocHGlobal(size);
+            cmemory.memset(solidSpanGrids, 0, size * sizeof(byte));
         }
 
 
@@ -126,7 +127,7 @@ namespace MINAV
 
             TriVertsInfo* triVertsInfoPtr = (TriVertsInfo*)triVertInfoList.Last.Value;
             triVertsInfoPtr += preCreateVertsCount - freeVertsCount;
-            freeSolidSpanCount--;
+            freeVertsCount--;
             return triVertsInfoPtr;
         }
 
@@ -136,7 +137,6 @@ namespace MINAV
             unsafe
             {
                 TriVertsInfo* triInfo = GetTriInfo();
-
 
                 MiNavAABB* aabb = &(triInfo->aabb);
 
@@ -164,10 +164,20 @@ namespace MINAV
                 if (triInfo->vert2.z > aabb->maxZ) { aabb->maxZ = triInfo->vert2.z; }
                 if (triInfo->vert2.z < aabb->minZ) { aabb->minZ = triInfo->vert2.z; }
 
-                if (aabb->maxX > spaceAABB.maxX) { spaceAABB.maxX = aabb->maxX; }
-                if (aabb->minX < spaceAABB.minX) { spaceAABB.minX = aabb->minX; }
-                if (aabb->maxZ > spaceAABB.maxZ) { spaceAABB.maxZ = aabb->maxZ; }
-                if (aabb->minZ < spaceAABB.minZ) { spaceAABB.minZ = aabb->minZ; }
+                if (spaceAABB.maxX < spaceAABB.minX)
+                {
+                    spaceAABB.maxX = aabb->maxX;
+                    spaceAABB.minX = aabb->minX;
+                    spaceAABB.maxZ = aabb->maxZ;
+                    spaceAABB.minZ = aabb->minZ;
+                }
+                else
+                {
+                    if (aabb->maxX > spaceAABB.maxX) { spaceAABB.maxX = aabb->maxX; }
+                    if (aabb->minX < spaceAABB.minX) { spaceAABB.minX = aabb->minX; }
+                    if (aabb->maxZ > spaceAABB.maxZ) { spaceAABB.maxZ = aabb->maxZ; }
+                    if (aabb->minZ < spaceAABB.minZ) { spaceAABB.minZ = aabb->minZ; }
+                }
             }
 
         }

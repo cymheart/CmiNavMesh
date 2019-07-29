@@ -6,7 +6,6 @@ using System.Text;
 
 namespace MINAV
 {
-
     /// <summary>
     /// 实心跨距
     /// </summary>
@@ -29,7 +28,7 @@ namespace MINAV
 
         public void AddFirst(SolidSpan* node)
         {
-            if(first != null)
+            if (first != null)
             {
                 first->prev = node;
                 node->next = first;
@@ -98,7 +97,6 @@ namespace MINAV
         }
     }
 
-    
     /// <summary>
     /// 实心跨距组
     /// </summary>
@@ -109,7 +107,11 @@ namespace MINAV
 
         public SolidSpanGroup(VoxelSpace voxSpace)
         {
-            this.voxSpace = voxSpace;
+            unsafe
+            {
+                this.voxSpace = voxSpace;
+                solidSpanGrids = voxSpace.solidSpanGrids;
+            }
         }
 
         public void AppendVoxBox(
@@ -119,7 +121,6 @@ namespace MINAV
             unsafe
             {
                 int idx = voxSpace.GetFloorGridIdx(floorCellIdxX, floorCellIdxZ);
-
                 SolidSpanList* solidSpanList = &(solidSpanGrids[idx]); 
                 AppendVoxBoxToSpanHeightList(solidSpanList, heightCellStartIdx, heightCellEndIdx);
             }

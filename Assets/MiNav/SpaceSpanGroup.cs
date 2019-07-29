@@ -104,10 +104,10 @@ namespace MINAV
 
         public void _CreateSpaceSpanGroup(SolidSpanGroup solidSpanGroup)
         {
-            Dictionary<int, LinkedList<SolidSpan>> soildSpanDict = solidSpanGroup.soildSpanDict;
+            Dictionary<int, LinkedList<SolidSpan>> soildSpanDict = null; // solidSpanGroup.soildSpanDict;
             LinkedList<SolidSpan> solidSpanList;
             SpaceSpan spaceSpan;
-            int[] cellIdxs;
+            int[] cellIdxs = null;
             SimpleVector3[] voxRect;
             CellSpaceSpans cellSpaceSpans;
             List<SpaceSpan> spaceSpanList;
@@ -116,7 +116,7 @@ namespace MINAV
 
             foreach (var item in soildSpanDict)
             {
-                cellIdxs = solidSpanGroup.GetCellIdxs(item.Key);
+               // cellIdxs = solidSpanGroup.GetCellIdxs(item.Key);
                 voxRect = voxSpace.GetFloorGridCellRect(cellIdxs[0], cellIdxs[1]);
 
                 solidSpanList = item.Value;

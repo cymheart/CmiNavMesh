@@ -55,4 +55,7 @@ namespace MINAV
         public SimpleVector3 vert2;
         public MiNavAABB aabb;
     }
+
+  
 }
+
