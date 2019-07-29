@@ -129,9 +129,9 @@ namespace MINAV
 
                 for (; node != null; node = node.Next)
                 {
-                    startpos = node.Value.endPos;
+                    startpos = node.Value.yendPos;
                     if (node.Next != null)
-                        endpos = node.Next.Value.startPos;
+                        endpos = node.Next.Value.ystartPos;
                     else
                         endpos = startpos + 1000000;
 

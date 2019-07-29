@@ -12,26 +12,52 @@ namespace MINAV
         List<GameObject> voxList = new List<GameObject>();
         VoxelSpace voxSpace;
 
-        public void AppendVoxBoxs(VoxBox[] voxBoxs, VoxelSpace voxSpace)
+        public VoxBoxViewer(VoxelSpace voxSpace)
         {
             this.voxSpace = voxSpace;
-
-            Vector3 size = new Vector3();
-            GameObject vox;
-
-            for(int i=0; i<voxBoxs.Length; i++)
-            {
-                size.Set(voxSpace.cellSize,
-                    (voxBoxs[i].GetHeightCellRangeCount() * voxSpace.cellHeight),
-                    voxSpace.cellSize);
-
-                voxBoxs[i].CreateRealPosition(voxSpace);
-                Vector3 pos = new Vector3(voxBoxs[i].position.x, voxBoxs[i].position.y, voxBoxs[i].position.z);
-                vox = CreateVoxBoxMesh(null, pos, size);
-                voxList.Add(vox);
-            }
         }
 
+        public void AppendVoxBoxs(SolidSpanGroup solidSpanGroup)
+        {
+            unsafe
+            {  
+                SolidSpanList* solidSpanGrids = solidSpanGroup.solidSpanGrids;
+                int gridCount = solidSpanGroup.gridCount;
+               
+                Vector3 size = new Vector3();
+                GameObject vox;
+                float yPosStart, yPosEnd;
+
+                for (int i = 0; i < gridCount; i++)
+                {
+                    if (solidSpanGrids[i].first == null)
+                        continue;
+
+                    float x = solidSpanGrids[i].floorCellIdxX * voxSpace.cellSize;
+                    float z = solidSpanGrids[i].floorCellIdxZ * voxSpace.cellSize;
+
+                    x = (x + voxSpace.cellSize + x) / 2;
+                    z = (z + voxSpace.cellSize + z) / 2;
+
+                    SolidSpan* solidSpan = solidSpanGrids[i].first;
+                    for (; solidSpan !=null; solidSpan = solidSpan->next)
+                    {
+                        size.Set(voxSpace.cellSize,
+                       ((solidSpan->yendCellIdx - solidSpan->ystartCellIdx) * voxSpace.cellHeight),
+                       voxSpace.cellSize);
+
+                        yPosStart = solidSpan->ystartPos;
+                        yPosEnd = solidSpan->yendPos;
+
+                        Vector3 pos = new Vector3(x, (yPosStart + yPosEnd) / 2f, z);
+                        vox = CreateVoxBoxMesh(null, pos, size);
+                        voxList.Add(vox);
+
+                    } 
+                }
+
+            }
+        }
 
         GameObject CreateVoxBoxMesh(string name, Vector3 centerPos, Vector3 size)
         {

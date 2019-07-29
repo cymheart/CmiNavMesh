@@ -103,7 +103,6 @@
     <Compile Include="Assets\GeometryAlgorithm\PolySplitTriangles.cs" />
     <Compile Include="Assets\MiNav\SolidSpanGroup.cs" />
     <Compile Include="Assets\MiNav\SpaceSpanGroup.cs" />
-    <Compile Include="Assets\MiNav\VoxBox.cs" />
     <Compile Include="Assets\MiNav\VoxBoxViewer.cs" />
     <Compile Include="Assets\MiNav\VoxelSpace.cs" />
     <Compile Include="Assets\MiNav\VoxelTriangle.cs" />

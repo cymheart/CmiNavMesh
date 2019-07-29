@@ -9,9 +9,9 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 0.5f;
+        public float cellSize = 1f;
         public float cellHeight = 0.01f;
-        public float invCellSize = 1 / 0.5f;
+        public float invCellSize = 1 / 1f;
         public float invCellHeight = 1 / 0.01f;
 
         /// <summary>
@@ -51,6 +51,8 @@ namespace MINAV
         int zstartCell, zendCell;
         int cellxCount;
         int cellzCount;
+
+        public int gridCount;
         public VoxelSpace()
         {
         }
@@ -58,7 +60,7 @@ namespace MINAV
         public void CreateSpaceGrids()
         {
             CalFloorGridIdxRange();
-            CreateSoildSpanSpaceGrids(cellxCount, cellzCount);
+            CreateSoildSpanSpaceGrids();
         }
 
 
@@ -89,13 +91,14 @@ namespace MINAV
 
         public int GetFloorGridIdx(int x, int z)
         {
-            return (z - zstartCell) * cellzCount + x - xstartCell;
+            return (z - zstartCell) * cellxCount + x - xstartCell;
         }
 
 
-        unsafe void CreateSoildSpanSpaceGrids(int cellxCount, int cellzCount)
+        unsafe void CreateSoildSpanSpaceGrids()
         {
-            int size = sizeof(SolidSpanList) * cellxCount * cellzCount;
+            gridCount = cellxCount * cellzCount;
+            int size = sizeof(SolidSpanList) * gridCount;
             solidSpanGrids = (SolidSpanList*)Marshal.AllocHGlobal(size);
             cmemory.memset(solidSpanGrids, 0, size * sizeof(byte));
         }

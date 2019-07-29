@@ -11,8 +11,8 @@ namespace MINAV
     /// </summary>
     public unsafe struct SolidSpan
     {
-        public float startPos;
-        public float endPos;
+        public float ystartPos;
+        public float yendPos;
 
         public int ystartCellIdx;
         public int yendCellIdx;
@@ -23,6 +23,8 @@ namespace MINAV
 
     public unsafe struct SolidSpanList
     {
+        public int floorCellIdxX;
+        public int floorCellIdxZ;
         public SolidSpan* first;
         public SolidSpan* last;
 
@@ -104,6 +106,7 @@ namespace MINAV
     {
         VoxelSpace voxSpace;
         public unsafe SolidSpanList* solidSpanGrids;
+        public int gridCount = 0;
 
         public SolidSpanGroup(VoxelSpace voxSpace)
         {
@@ -111,6 +114,7 @@ namespace MINAV
             {
                 this.voxSpace = voxSpace;
                 solidSpanGrids = voxSpace.solidSpanGrids;
+                gridCount = voxSpace.gridCount;
             }
         }
 
@@ -121,7 +125,16 @@ namespace MINAV
             unsafe
             {
                 int idx = voxSpace.GetFloorGridIdx(floorCellIdxX, floorCellIdxZ);
-                SolidSpanList* solidSpanList = &(solidSpanGrids[idx]); 
+                SolidSpanList* solidSpanList = &(solidSpanGrids[idx]);
+
+                SolidSpanList tmp = *solidSpanList;
+
+                if (solidSpanList->first == null)
+                {
+                    solidSpanList->floorCellIdxX = floorCellIdxX;
+                    solidSpanList->floorCellIdxZ = floorCellIdxZ;
+                }
+
                 AppendVoxBoxToSpanHeightList(solidSpanList, heightCellStartIdx, heightCellEndIdx);
             }
         }
@@ -141,15 +154,15 @@ namespace MINAV
 
             SolidSpan* node = solidSpanList->first;
             for (; node != null; node = node->next)
-            {      
-                if(node->ystartCellIdx > voxStartIdx && startNode == null)
+            {
+                if (node->ystartCellIdx > voxStartIdx && startNode == null)
                 {
                     startNode = node;
                 }
-                else if (voxStartIdx >= node->ystartCellIdx  &&
+                else if (voxStartIdx >= node->ystartCellIdx &&
                     voxStartIdx <= node->yendCellIdx)
                 {
-                    yPosStart = node->startPos;
+                    yPosStart = node->ystartPos;
                     voxStartIdx = node->ystartCellIdx;
                     startNode = node;
                 }
@@ -159,33 +172,34 @@ namespace MINAV
                     endNode = node->prev;
                     break;
                 }
-                else if (voxEndIdx >= node->ystartCellIdx && 
+                else if (voxEndIdx >= node->ystartCellIdx &&
                     voxEndIdx <= node->yendCellIdx)
                 {
-                    yPosEnd = node->endPos;
+                    yPosEnd = node->yendPos;
                     voxEndIdx = node->yendCellIdx;
                     endNode = node;
                     break;
                 }
             }
 
-            if(startNode != null && endNode == null)
+            if (startNode != null && endNode == null)
                 endNode = solidSpanList->last;
 
 
             SolidSpan* voxSpan = voxSpace.GetSoildSpan();
-            voxSpan->startPos = yPosStart;
-            voxSpan->endPos = yPosEnd;
+            voxSpan->ystartPos = yPosStart;
+            voxSpan->yendPos = yPosEnd;
             voxSpan->ystartCellIdx = voxStartIdx;
             voxSpan->yendCellIdx = voxEndIdx;
 
+
             if (startNode == null && endNode == null)
             {
-                if(node == solidSpanList->first)
+                if (node == solidSpanList->first)
                     solidSpanList->AddFirst(voxSpan);
                 else
                     solidSpanList->AddLast(voxSpan);
-            }     
+            }
             else
             {
                 var prevNode = startNode->prev;
@@ -193,7 +207,7 @@ namespace MINAV
                 SolidSpan* tmpNode;
                 bool flag = true;
 
-                while(flag)
+                while (flag)
                 {
                     if (mnode == endNode)
                         flag = false;
@@ -203,13 +217,11 @@ namespace MINAV
                     mnode = tmpNode;
                 }
 
-                if(prevNode == null)
+                if (prevNode == null)
                     solidSpanList->AddFirst(voxSpan);
                 else
                     solidSpanList->AddAfter(prevNode, voxSpan);
             }
         }
-
-  
     }
 }
