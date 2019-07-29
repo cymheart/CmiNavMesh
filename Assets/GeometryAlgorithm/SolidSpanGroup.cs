@@ -6,19 +6,96 @@ using System.Text;
 
 namespace Geometry_Algorithm
 {
+
     /// <summary>
     /// 实心跨距
     /// </summary>
-    public struct SolidSpan
+    public unsafe struct SolidSpan
     {
         public float startPos;
         public float endPos;
 
-        public int startCellIdx;
-        public int endCellIdx;
+        public int ystartCellIdx;
+        public int yendCellIdx;
 
-        unsafe SolidSpan* prev;
-        unsafe SolidSpan* next;
+        public SolidSpan* prev;
+        public SolidSpan* next;
+    }
+
+    public unsafe struct SolidSpanList
+    {
+        public SolidSpan* first;
+        public SolidSpan* last;
+
+        public void AddFirst(SolidSpan* node)
+        {
+            if(first != null)
+            {
+                first->prev = node;
+                node->next = first;
+                first = node;
+            }
+            else
+            {
+                first = node;
+                last = node;
+            }
+        }
+
+        public void AddLast(SolidSpan* node)
+        {
+            if (last != null)
+            {
+                last->next = node;
+                node->prev = last;
+                last = node;
+            }
+            else
+            {
+                first = node;
+                last = node;
+            }
+        }
+
+        public void AddAfter(SolidSpan* after, SolidSpan* node)
+        {
+            if (after != null)
+            {
+                SolidSpan* tmp = after->next;
+                after->next = node;
+                node->prev = after;
+                node->next = tmp;
+
+                if (tmp != null)
+                {
+                    tmp->prev = node;
+                }
+                else
+                {
+                    last = node;
+                }
+            }
+            else
+            {
+                AddFirst(node);
+            }
+        }
+
+        public void Remove(SolidSpan* node)
+        {
+            SolidSpan* prev = node->prev;
+            SolidSpan* next = node->next;
+
+            if (prev != null)
+                prev->next = next;
+            else
+                first = next;
+
+            if (next != null)
+                next->prev = prev;
+            else
+                last = prev;
+        }
     }
 
     
@@ -28,93 +105,86 @@ namespace Geometry_Algorithm
     public class SolidSpanGroup
     {
         VoxSpace voxSpace;
-        public unsafe SolidSpan** solidSpanGrids;
-
-        public Dictionary<int, LinkedList<SolidSpan>> soildSpanDict = new Dictionary<int, LinkedList<SolidSpan>>();
+        public unsafe SolidSpanList* solidSpanGrids;
 
         public void AppendVoxBox(
             int floorCellIdxX, int floorCellIdxZ,
            int heightCellStartIdx, int heightCellEndIdx)
         {
-            float yPosStart = heightCellStartIdx * voxSpace.cellHeight;
-            float yPosEnd = heightCellEndIdx * voxSpace.cellHeight;
-
-            int key = GetKey(floorCellIdxX, floorCellIdxZ);
-            LinkedList<SolidSpan> cellSpanList;
-
-            if (soildSpanDict.TryGetValue(key, out cellSpanList) == false)
+            unsafe
             {
-                cellSpanList = new LinkedList<SolidSpan>();
-                soildSpanDict[key] = cellSpanList;
-            }
+                int idx = voxSpace.GetFloorGridIdx(floorCellIdxX, floorCellIdxZ);
 
-            AppendVoxBoxToSpanHeightList(cellSpanList, voxBox);
+                SolidSpanList* solidSpanList = &(solidSpanGrids[idx]); 
+                AppendVoxBoxToSpanHeightList(solidSpanList, heightCellStartIdx, heightCellEndIdx);
+            }
         }
 
 
-        void AppendVoxBoxToSpanHeightList(LinkedList<SolidSpan> cellSpanList, VoxBox voxBox)
+        unsafe void AppendVoxBoxToSpanHeightList(
+            SolidSpanList* solidSpanList, 
+            int heightCellStartIdx, int heightCellEndIdx)
         {
-            int voxStartIdx = voxBox.heightCellStartIdx;
-            int voxEndIdx = voxBox.heightCellStartIdx;
-            float yPosStart = voxBox.yPosStart;
-            float yPosEnd = voxBox.yPosEnd;    
+            int voxStartIdx = heightCellStartIdx;
+            int voxEndIdx = heightCellEndIdx;
+            float yPosStart = voxStartIdx * voxSpace.cellHeight;
+            float yPosEnd = voxEndIdx * voxSpace.cellHeight;
 
-            LinkedListNode<SolidSpan> startNode = null;
-            LinkedListNode<SolidSpan> endNode = null;
+            SolidSpan* startNode = null;
+            SolidSpan* endNode = null;
 
-            var node = cellSpanList.First;
-            for (; node != null; node = node.Next)
-            {
-                if(node.Value.startCellIdx > voxStartIdx && startNode == null)
+            SolidSpan* node = solidSpanList->first;
+            for (; node != null; node = node->next)
+            {      
+                if(node->ystartCellIdx > voxStartIdx && startNode == null)
                 {
                     startNode = node;
                 }
-                else if (voxStartIdx >= node.Value.startCellIdx  &&
-                    voxStartIdx <= node.Value.endCellIdx)
+                else if (voxStartIdx >= node->ystartCellIdx  &&
+                    voxStartIdx <= node->yendCellIdx)
                 {
-                    yPosStart = node.Value.startPos;
-                    voxStartIdx = node.Value.startCellIdx;
+                    yPosStart = node->startPos;
+                    voxStartIdx = node->ystartCellIdx;
                     startNode = node;
                 }
 
-                if (node.Value.startCellIdx > voxEndIdx && endNode == null)
+                if (node->ystartCellIdx > voxEndIdx && endNode == null)
                 {
-                    endNode = node.Previous;
+                    endNode = node->prev;
                     break;
                 }
-                else if (voxEndIdx >= node.Value.startCellIdx && 
-                    voxEndIdx <= node.Value.endCellIdx)
+                else if (voxEndIdx >= node->ystartCellIdx && 
+                    voxEndIdx <= node->yendCellIdx)
                 {
-                    yPosEnd = node.Value.endPos;
-                    voxEndIdx = node.Value.endCellIdx;
+                    yPosEnd = node->endPos;
+                    voxEndIdx = node->yendCellIdx;
                     endNode = node;
                     break;
                 }
             }
 
             if(startNode != null && endNode == null)
-                endNode = cellSpanList.Last;
+                endNode = solidSpanList->last;
 
-            SolidSpan voxSpan = new SolidSpan()
-            {
-                startPos = yPosStart,
-                endPos = yPosEnd,
-                startCellIdx = voxStartIdx,
-                endCellIdx = voxEndIdx
-            };
+
+            SolidSpan* voxSpan = voxSpace.GetSoildSpan();
+            voxSpan->startPos = yPosStart;
+            voxSpan->endPos = yPosEnd;
+            voxSpan->ystartCellIdx = voxStartIdx;
+            voxSpan->yendCellIdx = voxEndIdx;
 
             if (startNode == null && endNode == null)
             {
-                if(node == cellSpanList.First)
-                    cellSpanList.AddFirst(voxSpan);
+                if(node == solidSpanList->first)
+                    solidSpanList->AddFirst(voxSpan);
                 else
-                    cellSpanList.AddLast(voxSpan);
+                    solidSpanList->AddLast(voxSpan);
             }     
             else
             {
-                var prevNode = startNode.Previous;
+                var prevNode = startNode->prev;
                 var mnode = startNode;
-                LinkedListNode<SolidSpan> tmpNode;
+                SolidSpan* tmpNode;
                 bool flag = true;
 
                 while(flag)
@@ -122,31 +192,18 @@ namespace Geometry_Algorithm
                     if (mnode == endNode)
                         flag = false;
 
-                    tmpNode = mnode.Next;
-                    cellSpanList.Remove(mnode);
+                    tmpNode = mnode->next;
+                    solidSpanList->Remove(mnode);
                     mnode = tmpNode;
                 }
 
                 if(prevNode == null)
-                    cellSpanList.AddFirst(voxSpan);
+                    solidSpanList->AddFirst(voxSpan);
                 else
-                    cellSpanList.AddAfter(prevNode, voxSpan);
+                    solidSpanList->AddAfter(prevNode, voxSpan);
             }
         }
 
-        public int GetKey(int cellx, int cellz)
-        {
-            if (cellx < 0 || cellz < 0)
-                return -1;
-
-            return (cellx << 14) | cellz; 
-        }
-
-        public int[] GetCellIdxs(int key)
-        {
-            int[] idxs = new int[] { key >> 14, 0x3FFF & key };
-            return idxs;
-        }
-
+  
     }
 }

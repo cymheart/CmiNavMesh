@@ -64,7 +64,7 @@ namespace Geometry_Algorithm
         SimpleVector3 floorGridNormal = new SimpleVector3(0,1,0);
         bool isHorPlane = false;
 
-        unsafe SolidSpan** solidSpanGrids;
+        SolidSpanGroup solidSpanGroup;
 
         AABB aabb = new AABB();
         int xstartCell, xendCell;
@@ -75,14 +75,10 @@ namespace Geometry_Algorithm
         List<LineParam> zrowXYPlaneLineParamList = new List<LineParam>(2000);
         List<LineParam> xrowZYPlaneLineParamList = new List<LineParam>(2000);
 
-        public VoxTriFace(VoxSpace voxSpace, IntPtr solidSpanGrids)
+        public VoxTriFace(VoxSpace voxSpace, SolidSpanGroup solidSpanGroup)
         {
             this.voxSpace = voxSpace;
-
-            unsafe
-            {
-                this.solidSpanGrids = (SolidSpan**)solidSpanGrids;
-            }
+            this.solidSpanGroup = solidSpanGroup;
         }
 
 
@@ -622,8 +618,7 @@ namespace Geometry_Algorithm
 
                     int start = (int)Math.Floor(vertexs[0].y * voxSpace.invCellHeight);
                     int end = start + 1;
-                   // VoxBox voxBox = new VoxBox(x.ToString() + " " + z.ToString(), voxSpace, x, z, start, end);
-                  //  voxBoxList.Add(voxBox);
+                    solidSpanGroup.AppendVoxBox(x, z, start, end);
                 }
             }
         }
@@ -872,10 +867,7 @@ namespace Geometry_Algorithm
             int end = (int)Math.Ceiling(n);
             if (start == end) { end++; }
 
-
-
-           //  VoxBox voxBox = new VoxBox(cellx.ToString() +" " + cellz.ToString(), voxSpace, cellx, cellz, start, end);
-           //  voxBoxList.Add(voxBox);
+            solidSpanGroup.AppendVoxBox(cellx, cellz, start, end);
         }
 
     }

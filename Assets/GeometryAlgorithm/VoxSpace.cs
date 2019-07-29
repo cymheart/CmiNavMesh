@@ -35,7 +35,7 @@ namespace Geometry_Algorithm
         public Matrix worldToVoxSpace = Matrix.Eye(4);
         public Matrix voxSpaceToWorld = Matrix.Eye(4);
 
-        public unsafe SolidSpan** solidSpanGrids;
+        public unsafe SolidSpanList* solidSpanGrids;
 
         LinkedList<IntPtr> solidSpansList = new LinkedList<IntPtr>();
         LinkedListNode<IntPtr> curtSolidSpansNode;
@@ -57,7 +57,8 @@ namespace Geometry_Algorithm
         AABB spaceAABB = new AABB();
         int xstartCell, xendCell;
         int zstartCell, zendCell;
-
+        int cellxCount;
+        int cellzCount;
         public VoxSpace()
         {
             freeSolidSpanCount = preCreateSolidSpanCount;
@@ -66,10 +67,12 @@ namespace Geometry_Algorithm
         public void CreateSpaceGrids()
         {
             CalFloorGridIdxRange();
-
-            int cellxCount = xendCell - xstartCell;
-            int cellzCount = zendCell - zstartCell;
             CreateSoildSpanSpaceGrids(cellxCount, cellzCount);
+        }
+
+        public int GetFloorGridIdx(int x, int z)
+        {
+            return (z - zstartCell) * cellzCount + x - xstartCell;
         }
 
 
@@ -77,66 +80,57 @@ namespace Geometry_Algorithm
         {
             unsafe
             {
-                solidSpanGrids = (SolidSpan**)Marshal.AllocHGlobal(sizeof(SolidSpan*) * cellxCount * cellzCount);
+                solidSpanGrids = (SolidSpanList*)Marshal.AllocHGlobal(sizeof(SolidSpanList) * cellxCount * cellzCount);
             }
         }
 
 
-        public IntPtr GetSoildSpan()
+        unsafe public SolidSpan* GetSoildSpan()
         {
-            unsafe
+            if (freeSolidSpanCount == 0)
             {
-                if (freeSolidSpanCount == 0)
-                {
-                    SolidSpan* solidSpans = (SolidSpan*)Marshal.AllocHGlobal(sizeof(SolidSpan) * preCreateSolidSpanCount);
-                    solidSpansList.AddLast((IntPtr)solidSpans);
-                    curtSolidSpansNode = solidSpansList.Last;
-                    freeSolidSpanCount = preCreateSolidSpanCount;
-                }
-
-                SolidSpan* solidSpanPtr = (SolidSpan*)curtSolidSpansNode.Value;
-                solidSpanPtr += preCreateSolidSpanCount - freeSolidSpanCount;
-                freeSolidSpanCount--;
-                return (IntPtr)solidSpanPtr;
+                SolidSpan* solidSpans = (SolidSpan*)Marshal.AllocHGlobal(sizeof(SolidSpan) * preCreateSolidSpanCount);
+                solidSpansList.AddLast((IntPtr)solidSpans);
+                curtSolidSpansNode = solidSpansList.Last;
+                freeSolidSpanCount = preCreateSolidSpanCount;
             }
+
+            SolidSpan* solidSpanPtr = (SolidSpan*)curtSolidSpansNode.Value;
+            solidSpanPtr += preCreateSolidSpanCount - freeSolidSpanCount;
+            freeSolidSpanCount--;
+            return solidSpanPtr;
         }
 
-        IntPtr GetVertexs3()
+        unsafe SimpleVector3* GetVertexs3()
         {
-            unsafe
+            if (freeVertsCount == 0)
             {
-                if (freeVertsCount == 0)
-                {
-                    SimpleVector3* verts = (SimpleVector3*)Marshal.AllocHGlobal(sizeof(SimpleVector3) * preCreateVertsCount);
-                    vertsList.AddLast((IntPtr)verts);
-                    curtVertsNode = vertsList.Last;
-                    freeVertsCount = preCreateVertsCount;
-                }
-
-                SimpleVector3* vertPtr = (SimpleVector3*)curtVertsNode.Value;
-                vertPtr += preCreateSolidSpanCount - freeSolidSpanCount;
-                freeSolidSpanCount -= 3;
-                return (IntPtr)vertPtr;
+                SimpleVector3* verts = (SimpleVector3*)Marshal.AllocHGlobal(sizeof(SimpleVector3) * preCreateVertsCount);
+                vertsList.AddLast((IntPtr)verts);
+                curtVertsNode = vertsList.Last;
+                freeVertsCount = preCreateVertsCount;
             }
+
+            SimpleVector3* vertPtr = (SimpleVector3*)curtVertsNode.Value;
+            vertPtr += preCreateSolidSpanCount - freeSolidSpanCount;
+            freeSolidSpanCount -= 3;
+            return vertPtr;
         }
 
-        IntPtr GetTriAABB()
+        unsafe AABB* GetTriAABB()
         {
-            unsafe
+            if (freeVertsCount == 0)
             {
-                if (freeVertsCount == 0)
-                {
-                    AABB* aabbs = (AABB*)Marshal.AllocHGlobal(sizeof(AABB) * preCreateTriAABBCount);
-                    triAABBList.AddLast((IntPtr)aabbs);
-                    curtTriAABBNode = triAABBList.Last;
-                    freeTriAABBCount = preCreateTriAABBCount;
-                }
-
-                AABB* triAABBPtr = (AABB*)curtTriAABBNode.Value;
-                triAABBPtr += preCreateTriAABBCount - freeTriAABBCount;
-                freeTriAABBCount--;
-                return (IntPtr)triAABBPtr;
+                AABB* aabbs = (AABB*)Marshal.AllocHGlobal(sizeof(AABB) * preCreateTriAABBCount);
+                triAABBList.AddLast((IntPtr)aabbs);
+                curtTriAABBNode = triAABBList.Last;
+                freeTriAABBCount = preCreateTriAABBCount;
             }
+
+            AABB* triAABBPtr = (AABB*)curtTriAABBNode.Value;
+            triAABBPtr += preCreateTriAABBCount - freeTriAABBCount;
+            freeTriAABBCount--;
+            return triAABBPtr;
         }
 
 
@@ -144,8 +138,8 @@ namespace Geometry_Algorithm
         {
             unsafe
             {
-                SimpleVector3* vertexs = (SimpleVector3*)GetVertexs3();
-                AABB* aabb = (AABB*)GetTriAABB();
+                SimpleVector3* vertexs = GetVertexs3();
+                AABB* aabb = GetTriAABB();
 
                 vertexs[0].x = (float)triFaceVertex[0].Elements[0];
                 vertexs[0].y = (float)triFaceVertex[0].Elements[1];
@@ -203,6 +197,9 @@ namespace Geometry_Algorithm
             zendCell = (int)Math.Ceiling(n);
             if (zstartCell == zendCell) zendCell++;
 
+            //
+            cellxCount = xendCell - xstartCell;
+            cellzCount = zendCell - zstartCell;
         }
 
         /// <summary>
