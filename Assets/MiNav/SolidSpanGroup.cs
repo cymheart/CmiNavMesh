@@ -135,12 +135,6 @@ namespace MINAV
                     solidSpanList->floorCellIdxZ = floorCellIdxZ;
                 }
 
-                //if(idx == 115210)
-                //{
-                //    int a;
-                //    a = 3;
-                //}
-
                 AppendVoxBoxToSpanHeightList(solidSpanList, heightCellStartIdx, heightCellEndIdx);
             }
         }
@@ -203,8 +197,6 @@ namespace MINAV
             voxSpan->yendPos = yPosEnd;
             voxSpan->ystartCellIdx = voxStartIdx;
             voxSpan->yendCellIdx = voxEndIdx;
-           // solidSpanList->AddLast(voxSpan);
-            //return;
 
             if (endNode != null && endNode->next == startNode)
             {
