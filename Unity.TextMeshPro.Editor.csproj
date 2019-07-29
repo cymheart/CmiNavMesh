@@ -664,6 +664,7 @@
     <Compile Include="Packages\com.unity.textmeshpro\Scripts\Editor\TMPro_TexturePostProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\csc.rsp" />
     <None Include="Assets\gmcs.rsp" />
     <None Include="Assets\mcs.rsp" />
     <None Include="Assets\smcs.rsp" />

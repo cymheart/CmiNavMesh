@@ -21,13 +21,13 @@ namespace Geometry_Algorithm
 
             for(int i=0; i<voxBoxs.Length; i++)
             {
-                size.Set((float)voxSpace.cellSize,
-                    (float)(voxBoxs[i].GetHeightCellRangeCount() * voxSpace.cellHeight),
-                    (float)voxSpace.cellSize);
+                size.Set(voxSpace.cellSize,
+                    (voxBoxs[i].GetHeightCellRangeCount() * voxSpace.cellHeight),
+                    voxSpace.cellSize);
 
-                voxBoxs[i].CreateRealPosition();
-                Vector3 pos = new Vector3((float)voxBoxs[i].position.x, (float)voxBoxs[i].position.y, (float)voxBoxs[i].position.z);
-                vox = CreateVoxBoxMesh(voxBoxs[i].name, pos, size);
+                voxBoxs[i].CreateRealPosition(voxSpace);
+                Vector3 pos = new Vector3(voxBoxs[i].position.x, voxBoxs[i].position.y, voxBoxs[i].position.z);
+                vox = CreateVoxBoxMesh(null, pos, size);
                 voxList.Add(vox);
             }
         }

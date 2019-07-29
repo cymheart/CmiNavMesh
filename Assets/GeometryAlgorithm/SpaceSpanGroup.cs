@@ -44,7 +44,7 @@ namespace Geometry_Algorithm
 
     public class CellSpaceSpans
     {
-        public Vector3d[] rect;
+        public SimpleVector3[] rect;
         public List<SpaceSpan> spaceSpanList;
         public int region;
     }
@@ -108,7 +108,7 @@ namespace Geometry_Algorithm
             LinkedList<SolidSpan> solidSpanList;
             SpaceSpan spaceSpan;
             int[] cellIdxs;
-            Vector3d[] voxRect;
+            SimpleVector3[] voxRect;
             CellSpaceSpans cellSpaceSpans;
             List<SpaceSpan> spaceSpanList;
             double startpos;
