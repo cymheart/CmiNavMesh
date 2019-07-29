@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Geometry_Algorithm
+namespace MINAV
 {
 
     /// <summary>
@@ -78,10 +78,10 @@ namespace Geometry_Algorithm
 
         static int[] relativeDirMap = { 2, 3, 0, 1 };
 
-        VoxSpace voxSpace;
+        VoxelSpace voxSpace;
         Dictionary<int, CellSpaceSpans> spaceSpanDict = new Dictionary<int, CellSpaceSpans>();
 
-        public SpaceSpanGroup(VoxSpace voxSpace)
+        public SpaceSpanGroup(VoxelSpace voxSpace)
         {
             this.voxSpace = voxSpace;
             walkRadiusVoxCount = CalWalkRadiusVoxCount();

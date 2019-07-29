@@ -5,34 +5,11 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace Geometry_Algorithm
+namespace MINAV
 {
-    public struct SimpleVector3
+    public class VoxelTriangle
     {
-        public float x, y, z;
-        public SimpleVector3(float x, float y, float z)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-    }
-
-    public struct CellLineRange
-    {
-        public float start, end;
-    }
-
-    public struct LineParam
-    {
-        public float m, b;
-        public float ystart, yend;
-    }
-
-
-    public class VoxTriFace
-    {
-        VoxSpace voxSpace;
+        VoxelSpace voxSpace;
         readonly float esp = 0.0001f;
 
         SimpleVector3[] vertexs = new SimpleVector3[4];
@@ -66,7 +43,7 @@ namespace Geometry_Algorithm
 
         SolidSpanGroup solidSpanGroup;
 
-        AABB aabb = new AABB();
+        MiNavAABB aabb = new MiNavAABB();
         int xstartCell, xendCell;
         int zstartCell, zendCell;
 
@@ -75,26 +52,20 @@ namespace Geometry_Algorithm
         List<LineParam> zrowXYPlaneLineParamList = new List<LineParam>(2000);
         List<LineParam> xrowZYPlaneLineParamList = new List<LineParam>(2000);
 
-        public VoxTriFace(VoxSpace voxSpace, SolidSpanGroup solidSpanGroup)
+        public VoxelTriangle(VoxelSpace voxSpace, SolidSpanGroup solidSpanGroup)
         {
             this.voxSpace = voxSpace;
             this.solidSpanGroup = solidSpanGroup;
         }
 
 
-        public void TransTriFaceWorldVertexToVoxSpace(IntPtr triFaceVertex, IntPtr aabbPtr)
+        public unsafe void CreateVoxels(TriVertsInfo* info)
         {
-            unsafe
-            {
-                SimpleVector3* vertexsPtr = (SimpleVector3*)triFaceVertex;
-
-                vertexs[0] = vertexsPtr[0];
-                vertexs[1] = vertexsPtr[1];
-                vertexs[2] = vertexsPtr[2];
-                vertexs[3] = vertexsPtr[3];
-
-                aabb = *(AABB*)aabbPtr;
-            }
+            vertexs[0] = info->vert0;
+            vertexs[1] = info->vert1;
+            vertexs[2] = info->vert2;
+            vertexs[3] = info->vert0;
+            aabb = info->aabb;
 
             CalTriFaceNormal();
             CalFloorGridIdxRange();
@@ -572,7 +543,7 @@ namespace Geometry_Algorithm
                     floorCellRect[2].z += cellSize;
                     floorCellRect[3].z += cellSize;
 
-                    if (GetOverlapRelation(x, z) == OverlapRelation.NotOverlay)
+                    if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
                         continue;
 
                     CreateVoxBoxToList(x, z);
@@ -613,7 +584,7 @@ namespace Geometry_Algorithm
                     floorCellRect[2].z += cellSize;
                     floorCellRect[3].z += cellSize;
 
-                    if (GetOverlapRelationForHorPlane(x, z) == OverlapRelation.NotOverlay)
+                    if (GetOverlapRelationForHorPlane(x, z) == MiNavOverlapRelation.NotOverlay)
                         continue;
 
                     int start = (int)Math.Floor(vertexs[0].y * voxSpace.invCellHeight);
@@ -627,7 +598,7 @@ namespace Geometry_Algorithm
         /// 获取单元格与投影三角形的覆盖关系
         /// </summary>
         /// <returns></returns>
-        OverlapRelation GetOverlapRelation(int cellx, int cellz)
+        MiNavOverlapRelation GetOverlapRelation(int cellx, int cellz)
         {
             int idx = cellz - zstartCell;
             CellLineRange xa = zrowXRangeList[idx];
@@ -643,7 +614,7 @@ namespace Geometry_Algorithm
                 ((floorCellRect[0].z > za.end && floorCellRect[3].z > zb.end) ||
                 (floorCellRect[1].z < za.start && floorCellRect[2].z < zb.start)))
             {
-                return OverlapRelation.NotOverlay;
+                return MiNavOverlapRelation.NotOverlay;
             }
 
 
@@ -671,7 +642,7 @@ namespace Geometry_Algorithm
                 cellProjPoints[cellProjPtsCount++] = 
                     new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x * lineParamB.m + lineParamB.b, floorCellRect[2].z);
 
-                return OverlapRelation.FullOverlap;
+                return MiNavOverlapRelation.FullOverlap;
             }
 
             //
@@ -758,7 +729,7 @@ namespace Geometry_Algorithm
                 }
             }
 
-            return OverlapRelation.PartOverlay;
+            return MiNavOverlapRelation.PartOverlay;
         }
 
 
@@ -766,7 +737,7 @@ namespace Geometry_Algorithm
         /// 获取单元格与投影三角形的覆盖关系，针对水平平面
         /// </summary>
         /// <returns></returns>
-        OverlapRelation GetOverlapRelationForHorPlane(int cellx, int cellz)
+        MiNavOverlapRelation GetOverlapRelationForHorPlane(int cellx, int cellz)
         {
             int idx = cellz - zstartCell;
             CellLineRange xa = zrowXRangeList[idx];
@@ -782,7 +753,7 @@ namespace Geometry_Algorithm
                 ((floorCellRect[0].z > za.end && floorCellRect[3].z > zb.end) ||
                 (floorCellRect[1].z < za.start && floorCellRect[2].z < zb.start)))
             {
-                return OverlapRelation.NotOverlay;
+                return MiNavOverlapRelation.NotOverlay;
             }
 
             if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end &&
@@ -790,10 +761,10 @@ namespace Geometry_Algorithm
                floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end &&
                floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
             {
-                return OverlapRelation.FullOverlap;
+                return MiNavOverlapRelation.FullOverlap;
             }
 
-            return OverlapRelation.PartOverlay;
+            return MiNavOverlapRelation.PartOverlay;
         }
 
 

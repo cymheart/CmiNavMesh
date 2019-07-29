@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace Geometry_Algorithm
+namespace MINAV
 {
-    public class VoxSpace
+    public class VoxelSpace
     {
-        public Vector3d boundSize;
         public float cellSize = 0.5f;
         public float cellHeight = 0.01f;
         public float invCellSize = 1 / 0.5f;
@@ -38,28 +37,21 @@ namespace Geometry_Algorithm
         public unsafe SolidSpanList* solidSpanGrids;
 
         LinkedList<IntPtr> solidSpansList = new LinkedList<IntPtr>();
-        LinkedListNode<IntPtr> curtSolidSpansNode;
         int freeSolidSpanCount;
         const int preCreateSolidSpanCount = 100000;
 
         //
-        LinkedList<IntPtr> vertsList = new LinkedList<IntPtr>();
-        LinkedListNode<IntPtr> curtVertsNode;
+        LinkedList<IntPtr> triVertInfoList = new LinkedList<IntPtr>();
         int freeVertsCount;
-        const int preCreateVertsCount = 10000 * 3;
-
-        LinkedList<IntPtr> triAABBList = new LinkedList<IntPtr>();
-        LinkedListNode<IntPtr> curtTriAABBNode;
-        int freeTriAABBCount;
-        const int preCreateTriAABBCount = 10000;
+        const int preCreateVertsCount = 10000;
 
 
-        AABB spaceAABB = new AABB();
+        MiNavAABB spaceAABB = new MiNavAABB();
         int xstartCell, xendCell;
         int zstartCell, zendCell;
         int cellxCount;
         int cellzCount;
-        public VoxSpace()
+        public VoxelSpace()
         {
             freeSolidSpanCount = preCreateSolidSpanCount;
         }
@@ -70,18 +62,41 @@ namespace Geometry_Algorithm
             CreateSoildSpanSpaceGrids(cellxCount, cellzCount);
         }
 
+
+        public void CreateVoxels(SolidSpanGroup solidSpanGroup)
+        {
+            unsafe
+            {
+                VoxelTriangle voxTri = new VoxelTriangle(this, solidSpanGroup);
+                TriVertsInfo* info;
+                int count;
+                LinkedListNode<IntPtr> node = triVertInfoList.First;
+                for (; node != null; node = node.Next)
+                {
+                    info = (TriVertsInfo*)node.Value;
+
+                    if (node == triVertInfoList.Last)
+                        count = preCreateVertsCount - freeVertsCount;
+                    else
+                        count = preCreateVertsCount;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        voxTri.CreateVoxels(info + i);
+                    }
+                }
+            }
+        }
+
         public int GetFloorGridIdx(int x, int z)
         {
             return (z - zstartCell) * cellzCount + x - xstartCell;
         }
 
 
-        void CreateSoildSpanSpaceGrids(int cellxCount, int cellzCount)
+        unsafe void CreateSoildSpanSpaceGrids(int cellxCount, int cellzCount)
         {
-            unsafe
-            {
-                solidSpanGrids = (SolidSpanList*)Marshal.AllocHGlobal(sizeof(SolidSpanList) * cellxCount * cellzCount);
-            }
+            solidSpanGrids = (SolidSpanList*)Marshal.AllocHGlobal(sizeof(SolidSpanList) * cellxCount * cellzCount);
         }
 
 
@@ -91,46 +106,28 @@ namespace Geometry_Algorithm
             {
                 SolidSpan* solidSpans = (SolidSpan*)Marshal.AllocHGlobal(sizeof(SolidSpan) * preCreateSolidSpanCount);
                 solidSpansList.AddLast((IntPtr)solidSpans);
-                curtSolidSpansNode = solidSpansList.Last;
                 freeSolidSpanCount = preCreateSolidSpanCount;
             }
 
-            SolidSpan* solidSpanPtr = (SolidSpan*)curtSolidSpansNode.Value;
+            SolidSpan* solidSpanPtr = (SolidSpan*)solidSpansList.Last.Value;
             solidSpanPtr += preCreateSolidSpanCount - freeSolidSpanCount;
             freeSolidSpanCount--;
             return solidSpanPtr;
         }
 
-        unsafe SimpleVector3* GetVertexs3()
+        unsafe TriVertsInfo* GetTriInfo()
         {
             if (freeVertsCount == 0)
             {
-                SimpleVector3* verts = (SimpleVector3*)Marshal.AllocHGlobal(sizeof(SimpleVector3) * preCreateVertsCount);
-                vertsList.AddLast((IntPtr)verts);
-                curtVertsNode = vertsList.Last;
+                TriVertsInfo* vertsInfo = (TriVertsInfo*)Marshal.AllocHGlobal(sizeof(TriVertsInfo) * preCreateVertsCount);
+                triVertInfoList.AddLast((IntPtr)vertsInfo);
                 freeVertsCount = preCreateVertsCount;
             }
 
-            SimpleVector3* vertPtr = (SimpleVector3*)curtVertsNode.Value;
-            vertPtr += preCreateSolidSpanCount - freeSolidSpanCount;
-            freeSolidSpanCount -= 3;
-            return vertPtr;
-        }
-
-        unsafe AABB* GetTriAABB()
-        {
-            if (freeVertsCount == 0)
-            {
-                AABB* aabbs = (AABB*)Marshal.AllocHGlobal(sizeof(AABB) * preCreateTriAABBCount);
-                triAABBList.AddLast((IntPtr)aabbs);
-                curtTriAABBNode = triAABBList.Last;
-                freeTriAABBCount = preCreateTriAABBCount;
-            }
-
-            AABB* triAABBPtr = (AABB*)curtTriAABBNode.Value;
-            triAABBPtr += preCreateTriAABBCount - freeTriAABBCount;
-            freeTriAABBCount--;
-            return triAABBPtr;
+            TriVertsInfo* triVertsInfoPtr = (TriVertsInfo*)triVertInfoList.Last.Value;
+            triVertsInfoPtr += preCreateVertsCount - freeVertsCount;
+            freeSolidSpanCount--;
+            return triVertsInfoPtr;
         }
 
 
@@ -138,32 +135,34 @@ namespace Geometry_Algorithm
         {
             unsafe
             {
-                SimpleVector3* vertexs = GetVertexs3();
-                AABB* aabb = GetTriAABB();
+                TriVertsInfo* triInfo = GetTriInfo();
 
-                vertexs[0].x = (float)triFaceVertex[0].Elements[0];
-                vertexs[0].y = (float)triFaceVertex[0].Elements[1];
-                vertexs[0].z = (float)triFaceVertex[0].Elements[2];
 
-                aabb->maxX = vertexs[0].x; aabb->minX = vertexs[0].x;
-                aabb->maxZ = vertexs[0].z; aabb->minZ = vertexs[0].z;
-                aabb->maxY = vertexs[0].y; aabb->minY = vertexs[0].y;
+                MiNavAABB* aabb = &(triInfo->aabb);
 
-                for (int i = 1; i < triFaceVertex.Length; i++)
-                {
-                    vertexs[i].x = (float)triFaceVertex[i].Elements[0];
-                    vertexs[i].y = (float)triFaceVertex[i].Elements[1];
-                    vertexs[i].z = (float)triFaceVertex[i].Elements[2];
+                triInfo->vert0.x = (float)triFaceVertex[0].Elements[0];
+                triInfo->vert0.y = (float)triFaceVertex[0].Elements[1];
+                triInfo->vert0.z = (float)triFaceVertex[0].Elements[2];
+                aabb->maxX = triInfo->vert0.x; aabb->minX = triInfo->vert0.x;
+                aabb->maxZ = triInfo->vert0.z; aabb->minZ = triInfo->vert0.z;
+                aabb->maxY = triInfo->vert0.y; aabb->minY = triInfo->vert0.y;
 
-                    if (vertexs[i].x > aabb->maxX) { aabb->maxX = vertexs[i].x; }
-                    if (vertexs[i].x < aabb->minX) { aabb->minX = vertexs[i].x; }
-                    if (vertexs[i].z > aabb->maxZ) { aabb->maxZ = vertexs[i].z; }
-                    if (vertexs[i].z < aabb->minZ) { aabb->minZ = vertexs[i].z; }
-                }
 
-                vertexs[3].x = vertexs[0].x;
-                vertexs[3].y = vertexs[0].y;
-                vertexs[3].z = vertexs[0].z;
+                triInfo->vert1.x = (float)triFaceVertex[1].Elements[0];
+                triInfo->vert1.y = (float)triFaceVertex[1].Elements[1];
+                triInfo->vert1.z = (float)triFaceVertex[1].Elements[2];
+                if (triInfo->vert1.x > aabb->maxX) { aabb->maxX = triInfo->vert1.x; }
+                if (triInfo->vert1.x < aabb->minX) { aabb->minX = triInfo->vert1.x; }
+                if (triInfo->vert1.z > aabb->maxZ) { aabb->maxZ = triInfo->vert1.z; }
+                if (triInfo->vert1.z < aabb->minZ) { aabb->minZ = triInfo->vert1.z; }
+
+                triInfo->vert2.x = (float)triFaceVertex[2].Elements[0];
+                triInfo->vert2.y = (float)triFaceVertex[2].Elements[1];
+                triInfo->vert2.z = (float)triFaceVertex[2].Elements[2];
+                if (triInfo->vert2.x > aabb->maxX) { aabb->maxX = triInfo->vert2.x; }
+                if (triInfo->vert2.x < aabb->minX) { aabb->minX = triInfo->vert2.x; }
+                if (triInfo->vert2.z > aabb->maxZ) { aabb->maxZ = triInfo->vert2.z; }
+                if (triInfo->vert2.z < aabb->minZ) { aabb->minZ = triInfo->vert2.z; }
 
                 if (aabb->maxX > spaceAABB.maxX) { spaceAABB.maxX = aabb->maxX; }
                 if (aabb->minX < spaceAABB.minX) { spaceAABB.minX = aabb->minX; }

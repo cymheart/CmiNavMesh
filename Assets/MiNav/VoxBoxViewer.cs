@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Geometry_Algorithm
+namespace MINAV
 {
     public class VoxBoxViewer
     {
         List<GameObject> voxList = new List<GameObject>();
-        VoxSpace voxSpace;
+        VoxelSpace voxSpace;
 
-        public void AppendVoxBoxs(VoxBox[] voxBoxs, VoxSpace voxSpace)
+        public void AppendVoxBoxs(VoxBox[] voxBoxs, VoxelSpace voxSpace)
         {
             this.voxSpace = voxSpace;
 

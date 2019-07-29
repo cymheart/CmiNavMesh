@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Geometry_Algorithm
+namespace MINAV
 {
 
     /// <summary>
@@ -104,8 +104,13 @@ namespace Geometry_Algorithm
     /// </summary>
     public class SolidSpanGroup
     {
-        VoxSpace voxSpace;
+        VoxelSpace voxSpace;
         public unsafe SolidSpanList* solidSpanGrids;
+
+        public SolidSpanGroup(VoxelSpace voxSpace)
+        {
+            this.voxSpace = voxSpace;
+        }
 
         public void AppendVoxBox(
             int floorCellIdxX, int floorCellIdxZ,

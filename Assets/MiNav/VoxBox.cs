@@ -1,6 +1,6 @@
 ﻿using Mathd;
 
-namespace Geometry_Algorithm
+namespace MINAV
 {
     public struct VoxBox
     {
@@ -17,7 +17,7 @@ namespace Geometry_Algorithm
 
         public VoxBox(
             string name,
-            VoxSpace voxSpace,
+            VoxelSpace voxSpace,
             int floorCellIdxX, int floorCellIdxZ,
             int heightCellStartIdx, int heightCellEndIdx)
         {
@@ -32,7 +32,7 @@ namespace Geometry_Algorithm
 
         }
 
-        public void CreateRealPosition(VoxSpace voxSpace)
+        public void CreateRealPosition(VoxelSpace voxSpace)
         {
             position = voxSpace.GetFloorGridCellRectCenterPos(floorCellIdxX, floorCellIdxZ);
             position.y = (yPosStart + yPosEnd) / 2f;

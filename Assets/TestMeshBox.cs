@@ -5,32 +5,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using MINAV;
 
 public class TestMeshBox : MonoBehaviour {
-
-    // Use this for initialization
-    VoxTriFace voxTriFace;
 
     public List<GameObject> goList;
     public GameObject txta;
 
     void Start () {
-        VoxSpace voxSpace = new VoxSpace();
-        voxTriFace = new VoxTriFace(voxSpace);
-        VoxBoxViewer voxBoxViewer = new VoxBoxViewer();
-
-        if (goList == null)
-            return;
-
-        Transform tf;
+        VoxelSpace voxSpace = new VoxelSpace();
+        CalMeshVerts(voxSpace);
+        voxSpace.CreateSpaceGrids();
 
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
-        int count = 0;
-        int tcount = 0;
+        SolidSpanGroup solidSpanGroup = new SolidSpanGroup(voxSpace);
+        voxSpace.CreateVoxels(solidSpanGroup);
+        stopwatch.Stop();
 
+       // VoxBoxViewer voxBoxViewer = new VoxBoxViewer();
 
+    
+        long ms = stopwatch.ElapsedMilliseconds - 40;
+        txta.transform.GetComponent<Text>().text = "用时:" + ms + "毫秒, " + "vox数量:" + count + "," + tcount;
+
+        Debug.Log("用时:" + ms + "毫秒");
+        Debug.Log("voxel数量:" + 0 + "个");
+    }
+
+    void CalMeshVerts(VoxelSpace voxSpace)
+    {
+        Transform tf;
         for (int j = 0; j < goList[0].transform.childCount; j++)
         {
             tf = goList[0].transform.GetChild(j);
@@ -50,24 +56,15 @@ public class TestMeshBox : MonoBehaviour {
                 Vector3 v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[0]);
                 vectxs[0] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-                v =  mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
+                v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[1]);
                 vectxs[1] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-                v =  mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
+                v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
                 vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-                voxTriFace.Clear();
-                voxTriFace.TransTriFaceWorldVertexToVoxSpace(vectxs);
-               // voxBoxViewer.AppendVoxBoxs(voxTriFace.voxBoxList.ToArray(), voxSpace);
+                voxSpace.TransModelVertexs(vectxs);
             }
         }
-
-        stopwatch.Stop();
-        long ms = stopwatch.ElapsedMilliseconds - 40;
-        txta.transform.GetComponent<Text>().text = "用时:" + ms + "毫秒, " + "vox数量:" + count + "," + tcount;
-
-        Debug.Log("用时:" + ms + "毫秒");
-        Debug.Log("voxel数量:" + count + "个");
     }
 	
 	// Update is called once per frame
