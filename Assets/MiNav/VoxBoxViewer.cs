@@ -22,6 +22,10 @@ namespace MINAV
             unsafe
             {  
                 SolidSpanList* solidSpanGrids = solidSpanGroup.solidSpanGrids;
+
+                if (solidSpanGrids == null)
+                    return;
+
                 int gridCount = solidSpanGroup.gridCount;
                
                 Vector3 size = new Vector3();

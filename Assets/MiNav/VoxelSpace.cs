@@ -9,9 +9,9 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 3f;
+        public float cellSize = 0.3f;
         public float cellHeight = 0.02f;
-        public float invCellSize = 1 / 3f;
+        public float invCellSize = 1 / 0.3f;
         public float invCellHeight = 1 / 0.02f;
 
         /// <summary>
@@ -88,6 +88,33 @@ namespace MINAV
                 }
             }
         }
+
+        public void FreeSolidSpanGridsMemory()
+        {
+            unsafe
+            {
+                LinkedListNode<IntPtr> node = triVertInfoList.First;
+                for (; node != null; node = node.Next)
+                {
+                    Marshal.FreeHGlobal(node.Value);
+                }
+                triVertInfoList.Clear();
+
+                node = solidSpansList.First;
+                for (; node != null; node = node.Next)
+                {
+                    Marshal.FreeHGlobal(node.Value);
+                }
+                solidSpansList.Clear();
+
+                Marshal.FreeHGlobal((IntPtr)solidSpanGrids);
+                solidSpanGrids = null;
+
+            }
+        }
+
+
+
 
         public int GetFloorGridIdx(int x, int z)
         {
