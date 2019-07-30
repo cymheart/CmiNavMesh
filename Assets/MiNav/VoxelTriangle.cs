@@ -10,7 +10,7 @@ namespace MINAV
     public class VoxelTriangle
     {
         VoxelSpace voxSpace;
-        readonly float esp = 0.001f;
+        readonly float esp = 0.002f;
 
         SimpleVector3[] vertexs = new SimpleVector3[4];
 
@@ -31,7 +31,7 @@ namespace MINAV
         float[] a3 = new float[3];
         float[] b3 = new float[3];
 
-        SimpleVector3[] cellProjPoints = new SimpleVector3[10];
+        float[] cellProjYpos = new float[30];
         int cellProjPtsCount = 0;
 
         int[] vertCellX = new int[3];
@@ -68,28 +68,25 @@ namespace MINAV
             vertexs[3] = info->vert0;
             aabb = info->aabb;
 
-            CalTriFaceNormal();
-            CalFloorGridIdxRange();
-
-
-            //if(!(triFaceNormal.y > -esp && triFaceNormal.y < esp))
-            //{
-            //    if (xstartCell == -10089 && xendCell == -10083 &&
-            //   zstartCell == 10052 && zendCell == 10061)
-            //    {
-            //        int a;
-            //        a = 3;
-            //    }
-            //}
-
-
             CalTriVertsAtCells();
-
             if (isInSingleCell)
             {
                 CreateFloorGridProjTriFaceVoxBoxForInSingleCell();
                 return;
             }
+
+            //
+            CalTriFaceNormal();
+            CalFloorGridIdxRange();  
+
+            if(xstartCell == -25430 && xendCell == -25419 &&
+                zstartCell == 25479 && zendCell == 25490)
+            {
+                int a;
+                a = 3;
+            }
+
+
 
             CreateVertexsProjFloorSidesParams();
             CreateFloorCellLines();
@@ -311,8 +308,8 @@ namespace MINAV
                     if (m[i] == 0)
                         continue;
 
-                    if (!(z >= vertexs[i].z && z <= vertexs[i + 1].z) &&
-                        !(z >= vertexs[i + 1].z && z <= vertexs[i].z))
+                    if (!(z >= vertexs[i].z - esp && z <= vertexs[i + 1].z + esp) &&
+                        !(z >= vertexs[i + 1].z - esp && z <= vertexs[i].z + esp))
                         continue;
 
                     if (m[i] != 99999)
@@ -343,8 +340,8 @@ namespace MINAV
                     if (a[i] == 0)
                         continue;
 
-                    if (!(x >= vertexs[i].x && x <= vertexs[i + 1].x) &&
-                        !(x >= vertexs[i + 1].x && x <= vertexs[i].x))
+                    if (!(x >= vertexs[i].x - esp && x <= vertexs[i + 1].x + esp) &&
+                        !(x >= vertexs[i + 1].x - esp && x <= vertexs[i].x + esp))
                         continue;
 
                     if (a[i] != 99999)
@@ -387,8 +384,8 @@ namespace MINAV
                     if (a2[i] == 0)
                         continue;
 
-                    if (!(z >= vertexs[i].z && z <= vertexs[i + 1].z) &&
-                        !(z >= vertexs[i + 1].z && z <= vertexs[i].z))
+                    if (!(z >= vertexs[i].z - esp && z <= vertexs[i + 1].z + esp) &&
+                        !(z >= vertexs[i + 1].z - esp && z <= vertexs[i].z + esp))
                         continue;
 
                     if (a2[i] != 99999)
@@ -478,8 +475,8 @@ namespace MINAV
                     if (a3[i] == 0)
                         continue;
 
-                    if (!(x >= vertexs[i].x && x <= vertexs[i + 1].x) &&
-                        !(x >= vertexs[i + 1].x && x <= vertexs[i].x))
+                    if (!(x >= vertexs[i].x - esp && x <= vertexs[i + 1].x + esp) &&
+                        !(x >= vertexs[i + 1].x - esp && x <= vertexs[i].x + esp))
                         continue;
 
                     if (a3[i] != 99999)
@@ -580,50 +577,18 @@ namespace MINAV
 
                     int idx = voxSpace.GetFloorGridIdx(x, z);
 
-                    //if (triFaceNormal.y > -esp && triFaceNormal.y < esp)
-                    //{ 
-                    //    if (idx == 357)
-                    //    {
-                    //        if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
-                    //            continue;
+                 //   if (idx == 243609)
+                   // {
 
-                    //        CreateVoxBoxToList(x, z);
-                    //    }
-                    //}
+                        if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
+                            continue;
 
-
-                    //{
-                    //    if (!(triFaceNormal.y > -esp && triFaceNormal.y < esp))
-                    //    {
-                    //        tmpCount2++;
-
-                    //        if (tmpCount2 == 6)
-                    //        {
-                    //            int f;
-                    //            f = 6;
-                    //        }
-
-                    //        if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
-                    //                continue;
-                    //        tmpCount++;
-                    //        if (tmpCount == 4)
-                    //        {
-                    //            CreateVoxBoxToList(x, z);
-                    //        }
-
-                    //    }
-                    //}
-
-
-                    if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
-                        continue;
-
-                    CreateVoxBoxToList(x, z);
+                        CreateVoxBoxToList(x, z);
+                  //  }
 
                 }
             }
         }
-
 
         /// <summary>
         /// 生成地面所有网格投影到TriFace上的体素Box
@@ -669,9 +634,9 @@ namespace MINAV
 
         void CreateFloorGridProjTriFaceVoxBoxForInSingleCell()
         {
-            cellProjPoints[0] = new SimpleVector3(0, vertexs[0].y, 0);
-            cellProjPoints[1] = new SimpleVector3(0, vertexs[1].y, 0);
-            cellProjPoints[2] = new SimpleVector3(0, vertexs[2].y, 0);
+            cellProjYpos[0] = vertexs[0].y;
+            cellProjYpos[1] = vertexs[1].y;
+            cellProjYpos[2] = vertexs[2].y;
             cellProjPtsCount = 3;
 
             CreateVoxBoxToList(vertCellX[0], vertCellZ[0]);
@@ -713,17 +678,10 @@ namespace MINAV
                 lineParamA = zrowXYPlaneLineParamList[idx];
                 lineParamB = zrowXYPlaneLineParamList[idx + 1];
 
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
-
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x * lineParamA.m + lineParamA.b, floorCellRect[3].z);
-
-                cellProjPoints[cellProjPtsCount++] = 
-                    new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x * lineParamB.m + lineParamB.b, floorCellRect[1].z);
-
-                cellProjPoints[cellProjPtsCount++] = 
-                    new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x * lineParamB.m + lineParamB.b, floorCellRect[2].z);
+                cellProjYpos[cellProjPtsCount++] = floorCellRect[0].x * lineParamA.m + lineParamA.b;
+                cellProjYpos[cellProjPtsCount++] = floorCellRect[3].x * lineParamA.m + lineParamA.b;
+                cellProjYpos[cellProjPtsCount++] = floorCellRect[1].x * lineParamB.m + lineParamB.b;
+                cellProjYpos[cellProjPtsCount++] = floorCellRect[2].x * lineParamB.m + lineParamB.b;
 
                 return MiNavOverlapRelation.FullOverlap;
             }
@@ -736,45 +694,37 @@ namespace MINAV
 
             if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x <= xa.end + esp && lineParamA.m != 99999)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
+                cellProjYpos[cellProjPtsCount++] = floorCellRect[0].x * lineParamA.m + lineParamA.b;
             }
             if (floorCellRect[3].x >= xa.start - esp && floorCellRect[3].x <= xa.end + esp && lineParamA.m != 99999)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x * lineParamA.m + lineParamA.b, floorCellRect[3].z);
+                cellProjYpos[cellProjPtsCount++] = floorCellRect[3].x * lineParamA.m + lineParamA.b;
             }
             if (floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp && lineParamB.m != 99999)
             {    
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x * lineParamB.m + lineParamB.b, floorCellRect[1].z);
+                cellProjYpos[cellProjPtsCount++] = floorCellRect[1].x * lineParamB.m + lineParamB.b;
             }
             if (floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp && lineParamB.m != 99999)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x * lineParamB.m + lineParamB.b, floorCellRect[2].z);
+                cellProjYpos[cellProjPtsCount++] = floorCellRect[2].x * lineParamB.m + lineParamB.b;
             }
 
 
             if (xa.start >= floorCellRect[0].x - esp && xa.start <= floorCellRect[3].x + esp)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(xa.start, lineParamA.ystart, cellz * voxSpace.cellSize);
+                cellProjYpos[cellProjPtsCount++] = lineParamA.ystart;
             }
             if (xa.end >= floorCellRect[0].x - esp && xa.end <= floorCellRect[3].x + esp)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(xa.end, lineParamA.yend, cellz * voxSpace.cellSize);
+                cellProjYpos[cellProjPtsCount++] = lineParamA.yend;
             }
             if (xb.start >= floorCellRect[1].x - esp && xb.start <= floorCellRect[2].x + esp)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(xb.start, lineParamB.ystart, (cellz+1) * voxSpace.cellSize);
+                cellProjYpos[cellProjPtsCount++] = lineParamB.ystart;
             }
             if (xb.end >= floorCellRect[1].x - esp && xb.end <= floorCellRect[2].x + esp)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(xb.end, lineParamB.yend, (cellz + 1) * voxSpace.cellSize);
+                cellProjYpos[cellProjPtsCount++] = lineParamB.yend;
             }
 
 
@@ -784,30 +734,26 @@ namespace MINAV
             lineParamB = xrowZYPlaneLineParamList[idx + 1];
             if (za.start >= floorCellRect[0].z - esp && za.start <= floorCellRect[1].z + esp)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(cellx * voxSpace.cellSize, lineParamA.ystart, za.start);
+                cellProjYpos[cellProjPtsCount++] = lineParamA.ystart;
             }
             if (za.end >= floorCellRect[0].z - esp && za.end <= floorCellRect[1].z + esp)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3(cellx * voxSpace.cellSize, lineParamA.yend, za.end);
+                cellProjYpos[cellProjPtsCount++] = lineParamA.yend;
             }           
             if (zb.start >= floorCellRect[3].z - esp && zb.start <= floorCellRect[2].z + esp)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3((cellx+1) * voxSpace.cellSize, lineParamB.ystart, zb.start);
+                cellProjYpos[cellProjPtsCount++] = lineParamB.ystart;
             }
             if (zb.end >= floorCellRect[3].z - esp && zb.end <= floorCellRect[2].z + esp)
             {
-                cellProjPoints[cellProjPtsCount++] =
-                    new SimpleVector3((cellx + 1) * voxSpace.cellSize, lineParamB.yend, zb.end);
+                cellProjYpos[cellProjPtsCount++] = lineParamB.yend;
             }
 
             for (int i = 0; i < 3; i++)
             {
                 if (vertCellX[i] == cellx && vertCellZ[i] == cellz)
                 {
-                    cellProjPoints[cellProjPtsCount++] = vertexs[i];
+                    cellProjYpos[cellProjPtsCount++] = vertexs[i].y;
                     break;
                 }
             }
@@ -858,8 +804,12 @@ namespace MINAV
         /// <returns></returns>
         void CreateProjectionToTriFacePts(SimpleVector3[] pts, int count)
         {
-            for(int i=0; i<count; i++)
-                cellProjPoints[cellProjPtsCount++] = SolveCrossPoint(pts[i], floorGridNormal, vertexs[0], triFaceNormal);
+            SimpleVector3 pt;
+            for (int i = 0; i < count; i++)
+            {
+                pt = SolveCrossPoint(pts[i], floorGridNormal, vertexs[0], triFaceNormal);
+                cellProjYpos[cellProjPtsCount++] = pt.y;
+            }
         }
 
 
@@ -903,13 +853,13 @@ namespace MINAV
         void CreateVoxBoxToList(int cellx, int cellz)
         {
 
-            float minY = cellProjPoints[0].y, maxY = cellProjPoints[0].y;
+            float minY = cellProjYpos[0], maxY = cellProjYpos[0];
             for (int i = 1; i < cellProjPtsCount; i++)
             {
-                if (cellProjPoints[i].y > maxY)
-                    maxY = cellProjPoints[i].y;
-                else if (cellProjPoints[i].y < minY)
-                    minY = cellProjPoints[i].y;
+                if (cellProjYpos[i] > maxY)
+                    maxY = cellProjYpos[i];
+                else if (cellProjYpos[i] < minY)
+                    minY = cellProjYpos[i];
             }
 
             //
