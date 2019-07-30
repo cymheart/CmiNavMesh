@@ -69,6 +69,14 @@ namespace MINAV
 
             CalTriFaceNormal();
             CalFloorGridIdxRange();
+
+            if(xstartCell == -8474 && xendCell == -8469 &&
+                zstartCell == 8479 && zendCell == 8484)
+            {
+                int a;
+                a = 3;
+            }
+
             CalTriVertsAtCells();
             CreateVertexsProjFloorSidesParams();
             CreateFloorCellLines();
@@ -387,7 +395,8 @@ namespace MINAV
                     }
                     else if(min >= max - esp && min <= max + esp)
                     {
-                        invPlaneType = 1;
+                        _ystart = min;
+                        _yend = max;
                     }
                 }
 
@@ -400,10 +409,6 @@ namespace MINAV
                 {
                     _ystart = max;
                     _yend = min;
-                }
-                else
-                {
-                    _ystart = _yend = 0;
                 }
 
                 CellLineRange xa = zrowXRangeList[j - zstartCell];
@@ -474,7 +479,8 @@ namespace MINAV
                     }
                     else if (min >= max - esp && min <= max + esp)
                     {
-                        invPlaneType = 1;
+                        _ystart = min;
+                        _yend = max;
                     }
                 }
 
@@ -487,10 +493,6 @@ namespace MINAV
                 {
                     _ystart = max;
                     _yend = min;
-                }
-                else
-                {
-                    _ystart = _yend = 0;
                 }
 
                 CellLineRange xa = xcolZRangeList[j - xstartCell];
@@ -543,10 +545,29 @@ namespace MINAV
                     floorCellRect[2].z += cellSize;
                     floorCellRect[3].z += cellSize;
 
+                    int idx = voxSpace.GetFloorGridIdx(x, z);
+
+                    if (idx == 24924)
+                    {
+                        int a;
+                        a = 3;
+                        //cellProjPtsCount = 0;
+                        // CreateProjectionToTriFacePts(floorCellRect, 4);
+                    }
+
+
                     if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
                         continue;
 
+                    //if (idx == 24924)
+                    //{
+                        //cellProjPtsCount = 0;
+                       // CreateProjectionToTriFacePts(floorCellRect, 4);
+                    //}
+
+
                     CreateVoxBoxToList(x, z);
+                    
                 }
             }
         }

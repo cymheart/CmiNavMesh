@@ -197,6 +197,8 @@ namespace MINAV
             voxSpan->yendPos = yPosEnd;
             voxSpan->ystartCellIdx = voxStartIdx;
             voxSpan->yendCellIdx = voxEndIdx;
+            solidSpanList->AddLast(voxSpan);
+            return;
 
             if (endNode != null && endNode->next == startNode)
             {
