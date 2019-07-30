@@ -70,14 +70,20 @@ namespace MINAV
             CalTriFaceNormal();
             CalFloorGridIdxRange();
 
-            if(xstartCell == -8474 && xendCell == -8469 &&
-                zstartCell == 8479 && zendCell == 8484)
+           
+
+            if(triFaceNormal.y > -esp && triFaceNormal.y < esp)
             {
-                int a;
-                a = 3;
+                if (xstartCell == -8380 && xendCell == -8374 &&
+               zstartCell == 8465 && zendCell == 8469)
+                {
+                    int a;
+                    a = 3;
+                }
             }
 
-            CalTriVertsAtCells();
+
+                CalTriVertsAtCells();
             CreateVertexsProjFloorSidesParams();
             CreateFloorCellLines();
 
@@ -121,12 +127,11 @@ namespace MINAV
             float z = vec1.x * vec2.y - vec2.x * vec1.y;
             triFaceNormal = new SimpleVector3(x, y, z);      
             
-            if(triFaceNormal.x > -0.001 && triFaceNormal.x < 0.001 && 
-                triFaceNormal.z > -0.001 && triFaceNormal.z <0.001)
+            if(triFaceNormal.x > -esp && triFaceNormal.x < esp && 
+                triFaceNormal.z > -esp && triFaceNormal.z < esp)
             {
                 isHorPlane = true;
             }
-
         }
 
        
@@ -398,6 +403,11 @@ namespace MINAV
                         _ystart = min;
                         _yend = max;
                     }
+                    else
+                    {
+                        _ystart = 0;
+                        _yend = 0;
+                    }
                 }
 
                 if (invPlaneType == 1)
@@ -482,6 +492,11 @@ namespace MINAV
                         _ystart = min;
                         _yend = max;
                     }
+                    else
+                    {
+                        _ystart = 0;
+                        _yend = 0;
+                    }
                 }
 
                 if (invPlaneType == 1)
@@ -547,24 +562,15 @@ namespace MINAV
 
                     int idx = voxSpace.GetFloorGridIdx(x, z);
 
-                    if (idx == 24924)
-                    {
-                        int a;
-                        a = 3;
-                        //cellProjPtsCount = 0;
-                        // CreateProjectionToTriFacePts(floorCellRect, 4);
-                    }
+                    //if (triFaceNormal.y > -esp && triFaceNormal.y < esp && idx == 13462)
+                    //{
+
+
+                    //}
 
 
                     if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
                         continue;
-
-                    //if (idx == 24924)
-                    //{
-                        //cellProjPtsCount = 0;
-                       // CreateProjectionToTriFacePts(floorCellRect, 4);
-                    //}
-
 
                     CreateVoxBoxToList(x, z);
                     
@@ -672,44 +678,44 @@ namespace MINAV
             lineParamB = zrowXYPlaneLineParamList[idx + 1];
             cellProjPtsCount = 0;
 
-            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end)
+            if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x <= xa.end + esp && lineParamA.m != 99999)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(floorCellRect[0].x, floorCellRect[0].x * lineParamA.m + lineParamA.b, floorCellRect[0].z);
             }
-            if (floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end)
+            if (floorCellRect[3].x >= xa.start - esp && floorCellRect[3].x <= xa.end + esp && lineParamA.m != 99999)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(floorCellRect[3].x, floorCellRect[3].x * lineParamA.m + lineParamA.b, floorCellRect[3].z);
             }
-            if (floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end)
-            {
+            if (floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp && lineParamB.m != 99999)
+            {    
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(floorCellRect[1].x, floorCellRect[1].x * lineParamB.m + lineParamB.b, floorCellRect[1].z);
             }
-            if (floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
+            if (floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp && lineParamB.m != 99999)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(floorCellRect[2].x, floorCellRect[2].x * lineParamB.m + lineParamB.b, floorCellRect[2].z);
             }
 
 
-            if (xa.start >= floorCellRect[0].x && xa.start <= floorCellRect[3].x)
+            if (xa.start >= floorCellRect[0].x - esp && xa.start <= floorCellRect[3].x + esp)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(xa.start, lineParamA.ystart, cellz * voxSpace.cellSize);
             }
-            if (xa.end >= floorCellRect[0].x && xa.end <= floorCellRect[3].x)
+            if (xa.end >= floorCellRect[0].x - esp && xa.end <= floorCellRect[3].x + esp)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(xa.end, lineParamA.yend, cellz * voxSpace.cellSize);
             }
-            if (xb.start >= floorCellRect[1].x && xb.start <= floorCellRect[2].x)
+            if (xb.start >= floorCellRect[1].x - esp && xb.start <= floorCellRect[2].x + esp)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(xb.start, lineParamB.ystart, (cellz+1) * voxSpace.cellSize);
             }
-            if (xb.end >= floorCellRect[1].x && xb.end <= floorCellRect[2].x)
+            if (xb.end >= floorCellRect[1].x - esp && xb.end <= floorCellRect[2].x + esp)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(xb.end, lineParamB.yend, (cellz + 1) * voxSpace.cellSize);
@@ -720,22 +726,22 @@ namespace MINAV
             idx = cellx - xstartCell;
             lineParamA = xrowZYPlaneLineParamList[idx];
             lineParamB = xrowZYPlaneLineParamList[idx + 1];
-            if (za.start >= floorCellRect[0].z && za.start <= floorCellRect[1].z)
+            if (za.start >= floorCellRect[0].z - esp && za.start <= floorCellRect[1].z + esp)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(cellx * voxSpace.cellSize, lineParamA.ystart, za.start);
             }
-            if (za.end >= floorCellRect[0].z && za.end <= floorCellRect[1].z)
+            if (za.end >= floorCellRect[0].z - esp && za.end <= floorCellRect[1].z + esp)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3(cellx * voxSpace.cellSize, lineParamA.yend, za.end);
             }           
-            if (zb.start >= floorCellRect[3].z && zb.start <= floorCellRect[2].z)
+            if (zb.start >= floorCellRect[3].z - esp && zb.start <= floorCellRect[2].z + esp)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3((cellx+1) * voxSpace.cellSize, lineParamB.ystart, zb.start);
             }
-            if (zb.end >= floorCellRect[3].z && zb.end <= floorCellRect[2].z)
+            if (zb.end >= floorCellRect[3].z - esp && zb.end <= floorCellRect[2].z + esp)
             {
                 cellProjPoints[cellProjPtsCount++] =
                     new SimpleVector3((cellx + 1) * voxSpace.cellSize, lineParamB.yend, zb.end);
