@@ -54,7 +54,7 @@ namespace MINAV
                         yPosEnd = solidSpan->yendPos;
 
                         Vector3 pos = new Vector3(x, (yPosStart + yPosEnd) / 2f, z);
-                        vox = CreateVoxBoxMesh(i.ToString(), pos, size);
+                        vox = CreateVoxBoxMesh(null, pos, size);
                         voxList.Add(vox);
 
                     } 

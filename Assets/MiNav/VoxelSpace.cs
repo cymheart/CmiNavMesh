@@ -9,9 +9,9 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 0.5f;
+        public float cellSize = 0.2f;
         public float cellHeight = 0.02f;
-        public float invCellSize = 1 / 0.5f;
+        public float invCellSize = 1 / 0.2f;
         public float invCellHeight = 1 / 0.02f;
 
         /// <summary>
@@ -35,6 +35,8 @@ namespace MINAV
         public Matrix voxSpaceToWorld = Matrix.Eye(4);
 
         public unsafe SolidSpanList* solidSpanGrids;
+        public float[] cellxList;
+        public float[] cellzList;
 
         LinkedList<IntPtr> solidSpansList = new LinkedList<IntPtr>();
         int freeSolidSpanCount = 0;
@@ -128,6 +130,10 @@ namespace MINAV
             int size = sizeof(SolidSpanList) * gridCount;
             solidSpanGrids = (SolidSpanList*)Marshal.AllocHGlobal(size);
             cmemory.memset(solidSpanGrids, 0, size * sizeof(byte));
+
+            //
+            cellxList = new float[cellxCount + 1];
+            cellzList = new float[cellzCount + 1];
         }
 
 
