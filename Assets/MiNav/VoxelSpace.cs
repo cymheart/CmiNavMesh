@@ -9,9 +9,9 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 1f;
+        public float cellSize = 0.2f;
         public float cellHeight = 0.02f;
-        public float invCellSize = 1 / 1f;
+        public float invCellSize = 1 / 0.2f;
         public float invCellHeight = 1 / 0.02f;
 
         /// <summary>
@@ -314,10 +314,5 @@ namespace MINAV
             float yend = cellEndIdx * cellHeight;
             return new float[] { ystart, yend };
         }
-
-      
-
-       
-
     }
 }

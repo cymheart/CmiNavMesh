@@ -40,6 +40,7 @@ namespace MINAV
         SimpleVector3 triFaceNormal;
         SimpleVector3 floorGridNormal = new SimpleVector3(0,1,0);
         bool isHorPlane = false;
+        bool isInSingleCell = false;
 
         SolidSpanGroup solidSpanGroup;
 
@@ -70,20 +71,26 @@ namespace MINAV
             CalTriFaceNormal();
             CalFloorGridIdxRange();
 
-           
 
-            if(triFaceNormal.y > -esp && triFaceNormal.y < esp)
+            //if(!(triFaceNormal.y > -esp && triFaceNormal.y < esp))
+            //{
+            //    if (xstartCell == -10089 && xendCell == -10083 &&
+            //   zstartCell == 10052 && zendCell == 10061)
+            //    {
+            //        int a;
+            //        a = 3;
+            //    }
+            //}
+
+
+            CalTriVertsAtCells();
+
+            if (isInSingleCell)
             {
-                if (xstartCell == -8380 && xendCell == -8374 &&
-               zstartCell == 8465 && zendCell == 8469)
-                {
-                    int a;
-                    a = 3;
-                }
+                CreateFloorGridProjTriFaceVoxBoxForInSingleCell();
+                return;
             }
 
-
-                CalTriVertsAtCells();
             CreateVertexsProjFloorSidesParams();
             CreateFloorCellLines();
 
@@ -125,9 +132,11 @@ namespace MINAV
             float x = vec1.y * vec2.z - vec2.y * vec1.z;
             float y = vec1.z * vec2.x - vec2.z * vec1.x;
             float z = vec1.x * vec2.y - vec2.x * vec1.y;
-            triFaceNormal = new SimpleVector3(x, y, z);      
-            
-            if(triFaceNormal.x > -esp && triFaceNormal.x < esp && 
+            triFaceNormal = new SimpleVector3(x, y, z);
+
+            //
+            isHorPlane = false;
+            if (triFaceNormal.x > -esp && triFaceNormal.x < esp && 
                 triFaceNormal.z > -esp && triFaceNormal.z < esp)
             {
                 isHorPlane = true;
@@ -172,6 +181,14 @@ namespace MINAV
                 vertCellX[i] = (int)Math.Floor(cell);
                 cell = vertexs[i].z * voxSpace.invCellSize;
                 vertCellZ[i] = (int)Math.Floor(cell);
+            }
+
+            //
+            isInSingleCell = false;
+            if (vertCellX[0] == vertCellX[1] && vertCellX[0] == vertCellX[2] &&
+                vertCellZ[0] == vertCellZ[1] && vertCellZ[0] == vertCellZ[2])
+            {
+                isInSingleCell = true;
             }
         }
 
@@ -393,7 +410,8 @@ namespace MINAV
                     {
                         SimpleVector3 orgStart = new SimpleVector3(zrowXRangeList[j - zstartCell].start, 0, z);
                         orgStart = SolveCrossPoint(orgStart, floorGridNormal, vertexs[0], triFaceNormal);
-                        if (orgStart.y > min - esp && orgStart.y < min + esp)
+
+                        if (Math.Abs(orgStart.y - min) < Math.Abs(orgStart.y - max))
                             invPlaneType = 1;
                         else
                             invPlaneType = -1;
@@ -482,7 +500,8 @@ namespace MINAV
                     {
                         SimpleVector3 orgStart = new SimpleVector3(x, 0, xcolZRangeList[j - xstartCell].start);
                         orgStart = SolveCrossPoint(orgStart, floorGridNormal, vertexs[0], triFaceNormal);
-                        if (orgStart.y > min - esp && orgStart.y < min + esp)
+
+                        if(Math.Abs(orgStart.y - min) < Math.Abs(orgStart.y - max))
                             invPlaneType = 1;
                         else
                             invPlaneType = -1;
@@ -527,7 +546,6 @@ namespace MINAV
             }
         }
 
-
         /// <summary>
         /// 生成地面所有网格投影到TriFace上的体素Box
         /// </summary>
@@ -562,10 +580,38 @@ namespace MINAV
 
                     int idx = voxSpace.GetFloorGridIdx(x, z);
 
-                    //if (triFaceNormal.y > -esp && triFaceNormal.y < esp && idx == 13462)
+                    //if (triFaceNormal.y > -esp && triFaceNormal.y < esp)
+                    //{ 
+                    //    if (idx == 357)
+                    //    {
+                    //        if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
+                    //            continue;
+
+                    //        CreateVoxBoxToList(x, z);
+                    //    }
+                    //}
+
+
                     //{
+                    //    if (!(triFaceNormal.y > -esp && triFaceNormal.y < esp))
+                    //    {
+                    //        tmpCount2++;
 
+                    //        if (tmpCount2 == 6)
+                    //        {
+                    //            int f;
+                    //            f = 6;
+                    //        }
 
+                    //        if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
+                    //                continue;
+                    //        tmpCount++;
+                    //        if (tmpCount == 4)
+                    //        {
+                    //            CreateVoxBoxToList(x, z);
+                    //        }
+
+                    //    }
                     //}
 
 
@@ -573,7 +619,7 @@ namespace MINAV
                         continue;
 
                     CreateVoxBoxToList(x, z);
-                    
+
                 }
             }
         }
@@ -621,6 +667,16 @@ namespace MINAV
             }
         }
 
+        void CreateFloorGridProjTriFaceVoxBoxForInSingleCell()
+        {
+            cellProjPoints[0] = new SimpleVector3(0, vertexs[0].y, 0);
+            cellProjPoints[1] = new SimpleVector3(0, vertexs[1].y, 0);
+            cellProjPoints[2] = new SimpleVector3(0, vertexs[2].y, 0);
+            cellProjPtsCount = 3;
+
+            CreateVoxBoxToList(vertCellX[0], vertCellZ[0]);
+        }
+
         /// <summary>
         /// 获取单元格与投影三角形的覆盖关系
         /// </summary>
@@ -647,10 +703,10 @@ namespace MINAV
 
             LineParam lineParamA, lineParamB;
 
-            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x<= xa.end &&
-               floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end &&
-               floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end &&
-               floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
+            if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x<= xa.end + esp &&
+               floorCellRect[3].x >= xa.start - esp && floorCellRect[3].x <= xa.end + esp &&
+               floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp &&
+               floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp)
             {
                 cellProjPtsCount = 0;
                 idx = cellz - zstartCell;
@@ -783,10 +839,10 @@ namespace MINAV
                 return MiNavOverlapRelation.NotOverlay;
             }
 
-            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end &&
-               floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end &&
-               floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end &&
-               floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
+            if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x <= xa.end + esp &&
+               floorCellRect[3].x >= xa.start - esp && floorCellRect[3].x <= xa.end + esp &&
+               floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp &&
+               floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp)
             {
                 return MiNavOverlapRelation.FullOverlap;
             }
