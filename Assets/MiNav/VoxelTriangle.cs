@@ -704,6 +704,7 @@ namespace MINAV
                 cellProjYpos[cellProjPtsCount++] = lineParamB.yend;
             }
 
+            //
             for (int i = 0; i < 3; i++)
             {
                 if (vertCellX[i] == cellx && vertCellZ[i] == cellz)

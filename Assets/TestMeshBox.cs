@@ -25,9 +25,8 @@ public class TestMeshBox : MonoBehaviour {
 
         stopwatch.Stop();
 
-       // VoxBoxViewer voxBoxViewer = new VoxBoxViewer(voxSpace);
-       // voxBoxViewer.AppendVoxBoxs(solidSpanGroup);
-
+        VoxBoxViewer voxBoxViewer = new VoxBoxViewer(voxSpace);
+        voxBoxViewer.AppendVoxBoxs(solidSpanGroup);
 
 
         long ms = stopwatch.ElapsedMilliseconds;
