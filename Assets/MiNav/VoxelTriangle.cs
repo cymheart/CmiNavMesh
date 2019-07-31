@@ -577,14 +577,14 @@ namespace MINAV
 
                     int idx = voxSpace.GetFloorGridIdx(x, z);
 
-                 //   if (idx == 243609)
-                   // {
+                    if (idx == 243609)
+                    {
 
                         if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
                             continue;
 
                         CreateVoxBoxToList(x, z);
-                  //  }
+                    }
 
                 }
             }
