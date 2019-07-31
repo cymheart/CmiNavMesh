@@ -55,7 +55,6 @@ namespace MINAV
 
         public float[] cellxList;
         public float[] cellzList;
-
         public VoxelTriangle(VoxelSpace voxSpace, SolidSpanGroup solidSpanGroup)
         {
             this.voxSpace = voxSpace;
@@ -76,7 +75,7 @@ namespace MINAV
             CalTriVertsAtCells();
             if (isInSingleCell)
             {
-                CreateFloorGridProjTriFaceVoxBoxForInSingleCell();
+               // CreateFloorGridProjTriFaceVoxBoxForInSingleCell();
                 return;
             }
 
@@ -551,13 +550,15 @@ namespace MINAV
 
                 for (int z = zstartCell; z < zendCell; z++)
                 {
-                     floorCellRect[0].z = floorCellRect[3].z = cellzList[z - zstartCell];
-                     floorCellRect[1].z = floorCellRect[2].z = cellzList[z - zstartCell + 1];
+                    floorCellRect[0].z = floorCellRect[3].z = cellzList[z - zstartCell];
+                    floorCellRect[1].z = floorCellRect[2].z = cellzList[z - zstartCell + 1];
+
 
                     if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
                         continue;
 
                     CreateVoxBoxToList(x, z);
+
                 }
             }
         }
@@ -597,6 +598,7 @@ namespace MINAV
             CreateVoxBoxToList(vertCellX[0], vertCellZ[0]);
         }
 
+
         /// <summary>
         /// 获取单元格与投影三角形的覆盖关系
         /// </summary>
@@ -606,13 +608,13 @@ namespace MINAV
             int idx = cellz - zstartCell;
             CellLineRange xa = zrowXRangeList[idx];
             CellLineRange xb = zrowXRangeList[idx + 1];
-          
+
             idx = cellx - xstartCell;
             CellLineRange za = xcolZRangeList[idx];
             CellLineRange zb = xcolZRangeList[idx + 1];
-           
 
-            if (((floorCellRect[2].x < xb.start && floorCellRect[3].x < xa.start) || 
+
+            if (((floorCellRect[2].x < xb.start && floorCellRect[3].x < xa.start) ||
                 (floorCellRect[1].x > xb.end && floorCellRect[0].x > xa.end)) &&
                 ((floorCellRect[0].z > za.end && floorCellRect[3].z > zb.end) ||
                 (floorCellRect[1].z < za.start && floorCellRect[2].z < zb.start)))
@@ -623,7 +625,7 @@ namespace MINAV
 
             LineParam lineParamA, lineParamB;
 
-            if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x<= xa.end + esp &&
+            if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x <= xa.end + esp &&
                floorCellRect[3].x >= xa.start - esp && floorCellRect[3].x <= xa.end + esp &&
                floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp &&
                floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp)
@@ -637,6 +639,8 @@ namespace MINAV
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[3].x * lineParamA.m + lineParamA.b;
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[1].x * lineParamB.m + lineParamB.b;
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[2].x * lineParamB.m + lineParamB.b;
+
+
 
                 return MiNavOverlapRelation.FullOverlap;
             }
@@ -656,7 +660,7 @@ namespace MINAV
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[3].x * lineParamA.m + lineParamA.b;
             }
             if (floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp && lineParamB.m != 99999)
-            {    
+            {
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[1].x * lineParamB.m + lineParamB.b;
             }
             if (floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp && lineParamB.m != 99999)
@@ -694,7 +698,7 @@ namespace MINAV
             if (za.end >= floorCellRect[0].z - esp && za.end <= floorCellRect[1].z + esp)
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamA.yend;
-            }           
+            }
             if (zb.start >= floorCellRect[3].z - esp && zb.start <= floorCellRect[2].z + esp)
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamB.ystart;
@@ -716,7 +720,6 @@ namespace MINAV
 
             return MiNavOverlapRelation.PartOverlay;
         }
-
 
         /// <summary>
         /// 获取单元格与投影三角形的覆盖关系，针对水平平面
@@ -818,8 +821,8 @@ namespace MINAV
                     minY = cellProjYpos[i];
             }
 
-            //
-            float n = minY * voxSpace.invCellHeight;   
+
+            float n = minY * voxSpace.invCellHeight;
             int start = (int)Math.Floor(n);
 
             //yendCell

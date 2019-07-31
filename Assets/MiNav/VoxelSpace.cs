@@ -9,10 +9,10 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 0.6f;
-        public float cellHeight = 0.4f;
-        public float invCellSize = 1 / 0.6f;
-        public float invCellHeight = 1 / 0.4f;
+        public float cellSize = 0.1f;
+        public float cellHeight = 0.1f;
+        public float invCellSize = 1 / 0.1f;
+        public float invCellHeight = 1 / 0.1f;
 
         /// <summary>
         /// 求点pa从坐标系A转换到另一个坐标系B后点的坐标位置pb，转换原理:
