@@ -10,7 +10,7 @@ namespace MINAV
     public class VoxelTriangle
     {
         VoxelSpace voxSpace;
-        readonly float esp = 0.002f;
+        readonly float esp = 0.001f;
 
         SimpleVector3[] vertexs = new SimpleVector3[4];
 
@@ -53,10 +53,15 @@ namespace MINAV
         List<LineParam> zrowXYPlaneLineParamList = new List<LineParam>(2000);
         List<LineParam> xrowZYPlaneLineParamList = new List<LineParam>(2000);
 
+        public float[] cellxList;
+        public float[] cellzList;
+
         public VoxelTriangle(VoxelSpace voxSpace, SolidSpanGroup solidSpanGroup)
         {
             this.voxSpace = voxSpace;
             this.solidSpanGroup = solidSpanGroup;
+            cellxList = voxSpace.cellxList;
+            cellzList = voxSpace.cellzList;
         }
 
 
@@ -78,16 +83,6 @@ namespace MINAV
             //
             CalTriFaceNormal();
             CalFloorGridIdxRange();  
-
-            if(xstartCell == -25430 && xendCell == -25419 &&
-                zstartCell == 25479 && zendCell == 25490)
-            {
-                int a;
-                a = 3;
-            }
-
-
-
             CreateVertexsProjFloorSidesParams();
             CreateFloorCellLines();
 
@@ -292,15 +287,17 @@ namespace MINAV
             zrowXRangeList.Clear();
             xcolZRangeList.Clear();
 
-            float cellSize = voxSpace.cellSize;    
-            float z = zstartCell * cellSize - cellSize;
+            float cellSize = voxSpace.cellSize;
+            float z;
             float x;
             float min, max;
             CellLineRange cellLineRange;
 
             for (int j = zstartCell; j <= zendCell; j++)
             {
-                z += cellSize;
+                z = j * cellSize;
+                cellzList[j - zstartCell] = z;
+
                 min = 999999; max = -999999;
 
                 for (int i=0; i<3; i++)
@@ -329,10 +326,11 @@ namespace MINAV
 
 
             //
-            x = xstartCell * cellSize - cellSize;
             for (int j = xstartCell; j <= xendCell; j++)
             {
-                x += cellSize;
+                x = j * cellSize;
+                cellxList[j - xstartCell] = x;
+
                 min = 999999; max = -999999;
 
                 for (int i = 0; i < 3; i++)
@@ -367,8 +365,7 @@ namespace MINAV
 
             float y;
             int invPlaneType = 0;
-            float cellSize = voxSpace.cellSize;
-            float z = zstartCell * cellSize - cellSize;
+            float z;
             float min, max;
             float m1, n;
             LineParam lineParam;
@@ -376,7 +373,7 @@ namespace MINAV
 
             for (int j = zstartCell; j <= zendCell; j++)
             {
-                z += cellSize;
+                z = cellzList[j - zstartCell];
                 min = 999999; max = -999999;
 
                 for (int i = 0; i < 3; i++)
@@ -458,8 +455,7 @@ namespace MINAV
 
             float y;
             int invPlaneType = 0;
-            float cellSize = voxSpace.cellSize;
-            float x = xstartCell * cellSize - cellSize;
+            float x;
             float min, max;
             float m1, n;
             LineParam lineParam;
@@ -467,7 +463,7 @@ namespace MINAV
 
             for (int j = xstartCell; j <= xendCell; j++)
             {
-                x += cellSize;
+                x = cellxList[j - xstartCell];
                 min = 999999; max = -999999;
 
                 for (int i = 0; i < 3; i++)
@@ -548,44 +544,20 @@ namespace MINAV
         /// </summary>
         void CreateFloorGridProjTriFaceVoxBox()
         {
-            float cellSize = voxSpace.cellSize;
-            float xStart = xstartCell * cellSize;
-            float zStart = zstartCell * cellSize;
-            floorCellRect[0].x = xStart - cellSize;
-            floorCellRect[1].x = xStart - cellSize;
-            floorCellRect[2].x = xStart;
-            floorCellRect[3].x = xStart;
-
             for (int x = xstartCell; x < xendCell; x++)
             {
-                floorCellRect[0].x += cellSize;
-                floorCellRect[1].x += cellSize;
-                floorCellRect[2].x += cellSize;
-                floorCellRect[3].x += cellSize;
-
-                floorCellRect[0].z = zStart - cellSize;
-                floorCellRect[1].z = zStart;
-                floorCellRect[2].z = zStart;
-                floorCellRect[3].z = zStart - cellSize;
+                 floorCellRect[1].x = floorCellRect[0].x = cellxList[x - xstartCell];
+                 floorCellRect[3].x = floorCellRect[2].x = cellxList[x - xstartCell + 1];
 
                 for (int z = zstartCell; z < zendCell; z++)
                 {
-                    floorCellRect[0].z += cellSize;
-                    floorCellRect[1].z += cellSize;
-                    floorCellRect[2].z += cellSize;
-                    floorCellRect[3].z += cellSize;
+                     floorCellRect[0].z = floorCellRect[3].z = cellzList[z - zstartCell];
+                     floorCellRect[1].z = floorCellRect[2].z = cellzList[z - zstartCell + 1];
 
-                    int idx = voxSpace.GetFloorGridIdx(x, z);
+                    if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
+                        continue;
 
-                    if (idx == 243609)
-                    {
-
-                        if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
-                            continue;
-
-                        CreateVoxBoxToList(x, z);
-                    }
-
+                    CreateVoxBoxToList(x, z);
                 }
             }
         }
@@ -595,32 +567,15 @@ namespace MINAV
         /// </summary>
         void CreateFloorGridProjTriFaceVoxBoxForHorPlane()
         {
-            float cellSize = voxSpace.cellSize;
-            float xStart = xstartCell * cellSize;
-            float zStart = zstartCell * cellSize;
-            floorCellRect[0].x = xStart - cellSize;
-            floorCellRect[1].x = xStart - cellSize;
-            floorCellRect[2].x = xStart;
-            floorCellRect[3].x = xStart;
-
             for (int x = xstartCell; x < xendCell; x++)
             {
-                floorCellRect[0].x += cellSize;
-                floorCellRect[1].x += cellSize;
-                floorCellRect[2].x += cellSize;
-                floorCellRect[3].x += cellSize;
-
-                floorCellRect[0].z = zStart - cellSize;
-                floorCellRect[1].z = zStart;
-                floorCellRect[2].z = zStart;
-                floorCellRect[3].z = zStart - cellSize;
+                floorCellRect[1].x = floorCellRect[0].x = cellxList[x - xstartCell];
+                floorCellRect[3].x = floorCellRect[2].x = cellxList[x - xstartCell + 1];
 
                 for (int z = zstartCell; z < zendCell; z++)
                 {
-                    floorCellRect[0].z += cellSize;
-                    floorCellRect[1].z += cellSize;
-                    floorCellRect[2].z += cellSize;
-                    floorCellRect[3].z += cellSize;
+                    floorCellRect[0].z = floorCellRect[3].z = cellzList[z - zstartCell];
+                    floorCellRect[1].z = floorCellRect[2].z = cellzList[z - zstartCell + 1];
 
                     if (GetOverlapRelationForHorPlane(x, z) == MiNavOverlapRelation.NotOverlay)
                         continue;
