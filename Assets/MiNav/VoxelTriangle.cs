@@ -127,8 +127,8 @@ namespace MINAV
 
             //
             isHorPlane = false;
-            if (triFaceNormal.x > -esp && triFaceNormal.x < esp && 
-                triFaceNormal.z > -esp && triFaceNormal.z < esp)
+            if (triFaceNormal.x > -0.01 && triFaceNormal.x < 0.01 && 
+                triFaceNormal.z > -0.01 && triFaceNormal.z < 0.01)
             {
                 isHorPlane = true;
             }

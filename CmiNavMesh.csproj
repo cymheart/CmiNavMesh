@@ -13,12 +13,14 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectGenerator>VSTU</UnityProjectGenerator>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.6.3p4</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -115,6 +117,7 @@
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorMatrixComputation.cs" />
     <Compile Include="Assets\MiNav\MiNavTypes.cs" />
     <Compile Include="Assets\MiNav\SolidSpanGroup.cs" />
+    <Compile Include="Assets\MiNav\SpaceSpanGroupx.cs" />
     <Compile Include="Assets\MiNav\SpaceSpanGroup.cs" />
     <Compile Include="Assets\MiNav\Tools\cmemory.cs" />
     <Compile Include="Assets\MiNav\VoxBoxViewer.cs" />

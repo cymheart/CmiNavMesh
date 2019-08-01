@@ -26,6 +26,7 @@ namespace MINAV
         public float minZ, maxZ;
         public float minY, maxY;
     }
+
     public struct SimpleVector3
     {
         public float x, y, z;

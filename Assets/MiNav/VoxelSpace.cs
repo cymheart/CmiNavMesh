@@ -9,8 +9,8 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 0.1f;
-        public float cellHeight = 0.1f;
+        public float cellSize = 0.3f;
+        public float cellHeight = 0.2f;
         public float invCellSize;
         public float invCellHeight;
 
@@ -35,6 +35,7 @@ namespace MINAV
         public Matrix voxSpaceToWorld = Matrix.Eye(4);
 
         public unsafe SolidSpanList* solidSpanGrids;
+        public unsafe SolidSpanList* spaceSpanGrids;
         public float[] cellxList;
         public float[] cellzList;
 
