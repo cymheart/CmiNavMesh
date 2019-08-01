@@ -9,10 +9,10 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 0.63f;
-        public float cellHeight = 0.02f;
-        public float invCellSize = 1 / 0.63f;
-        public float invCellHeight = 1 / 0.02f;
+        public float cellSize = 0.3f;
+        public float cellHeight = 0.2f;
+        public float invCellSize;
+        public float invCellHeight;
 
         /// <summary>
         /// 求点pa从坐标系A转换到另一个坐标系B后点的坐标位置pb，转换原理:
@@ -35,6 +35,7 @@ namespace MINAV
         public Matrix voxSpaceToWorld = Matrix.Eye(4);
 
         public unsafe SolidSpanList* solidSpanGrids;
+        public unsafe SolidSpanList* spaceSpanGrids;
         public float[] cellxList;
         public float[] cellzList;
 
@@ -57,6 +58,8 @@ namespace MINAV
         public int gridCount;
         public VoxelSpace()
         {
+            invCellSize = 1 / cellSize;
+            invCellHeight = 1 / cellHeight;
         }
 
         public void CreateSpaceGrids()

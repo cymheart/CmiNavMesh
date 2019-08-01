@@ -95,17 +95,10 @@
     <Compile Include="Assets\GeometryAlgorithm\GeometryAlgorithmTypes.cs" />
     <Compile Include="Assets\GeometryAlgorithm\Mathd\Vector2d.cs" />
     <Compile Include="Assets\GeometryAlgorithm\Mathd\Vector3d.cs" />
-    <Compile Include="Assets\MiNav\Tools\cmemory.cs" />
-    <Compile Include="Assets\MiNav\MiNavTypes.cs" />
     <Compile Include="Assets\GeometryAlgorithm\Poly.cs" />
     <Compile Include="Assets\GeometryAlgorithm\PolyBoolean.cs" />
     <Compile Include="Assets\GeometryAlgorithm\PolyConvertToSimplePoly.cs" />
     <Compile Include="Assets\GeometryAlgorithm\PolySplitTriangles.cs" />
-    <Compile Include="Assets\MiNav\SolidSpanGroup.cs" />
-    <Compile Include="Assets\MiNav\SpaceSpanGroup.cs" />
-    <Compile Include="Assets\MiNav\VoxBoxViewer.cs" />
-    <Compile Include="Assets\MiNav\VoxelSpace.cs" />
-    <Compile Include="Assets\MiNav\VoxelTriangle.cs" />
     <Compile Include="Assets\LinearAlgebra\Complex.cs" />
     <Compile Include="Assets\LinearAlgebra\LinearEquations\ConjugateGradient.cs" />
     <Compile Include="Assets\LinearAlgebra\LinearEquations\GaussElimination.cs" />
@@ -122,6 +115,14 @@
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\Vector.cs" />
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorComputation.cs" />
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorMatrixComputation.cs" />
+    <Compile Include="Assets\MiNav\MiNavTypes.cs" />
+    <Compile Include="Assets\MiNav\SolidSpanGroup.cs" />
+    <Compile Include="Assets\MiNav\SpaceSpanGroupx.cs" />
+    <Compile Include="Assets\MiNav\SpaceSpanGroup.cs" />
+    <Compile Include="Assets\MiNav\Tools\cmemory.cs" />
+    <Compile Include="Assets\MiNav\VoxBoxViewer.cs" />
+    <Compile Include="Assets\MiNav\VoxelSpace.cs" />
+    <Compile Include="Assets\MiNav\VoxelTriangle.cs" />
     <Compile Include="Assets\TestMeshBox.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
