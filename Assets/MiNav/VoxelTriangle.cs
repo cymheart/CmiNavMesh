@@ -75,7 +75,7 @@ namespace MINAV
             CalTriVertsAtCells();
             if (isInSingleCell)
             {
-               // CreateFloorGridProjTriFaceVoxBoxForInSingleCell();
+                CreateFloorGridProjTriFaceVoxBoxForInSingleCell();
                 return;
             }
 
@@ -553,7 +553,6 @@ namespace MINAV
                     floorCellRect[0].z = floorCellRect[3].z = cellzList[z - zstartCell];
                     floorCellRect[1].z = floorCellRect[2].z = cellzList[z - zstartCell + 1];
 
-
                     if (GetOverlapRelation(x, z) == MiNavOverlapRelation.NotOverlay)
                         continue;
 
@@ -625,10 +624,10 @@ namespace MINAV
 
             LineParam lineParamA, lineParamB;
 
-            if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x <= xa.end + esp &&
-               floorCellRect[3].x >= xa.start - esp && floorCellRect[3].x <= xa.end + esp &&
-               floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp &&
-               floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp)
+            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end &&
+               floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end &&
+               floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end &&
+               floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
             {
                 cellProjPtsCount = 0;
                 idx = cellz - zstartCell;
@@ -651,37 +650,37 @@ namespace MINAV
             lineParamB = zrowXYPlaneLineParamList[idx + 1];
             cellProjPtsCount = 0;
 
-            if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x <= xa.end + esp && lineParamA.m != 99999)
+            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end && lineParamA.m != 99999)
             {
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[0].x * lineParamA.m + lineParamA.b;
             }
-            if (floorCellRect[3].x >= xa.start - esp && floorCellRect[3].x <= xa.end + esp && lineParamA.m != 99999)
+            if (floorCellRect[3].x >= xa.start  && floorCellRect[3].x <= xa.end && lineParamA.m != 99999)
             {
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[3].x * lineParamA.m + lineParamA.b;
             }
-            if (floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp && lineParamB.m != 99999)
+            if (floorCellRect[1].x >= xb.start  && floorCellRect[1].x <= xb.end && lineParamB.m != 99999)
             {
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[1].x * lineParamB.m + lineParamB.b;
             }
-            if (floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp && lineParamB.m != 99999)
+            if (floorCellRect[2].x >= xb.start  && floorCellRect[2].x <= xb.end && lineParamB.m != 99999)
             {
                 cellProjYpos[cellProjPtsCount++] = floorCellRect[2].x * lineParamB.m + lineParamB.b;
             }
 
 
-            if (xa.start >= floorCellRect[0].x - esp && xa.start <= floorCellRect[3].x + esp)
+            if (xa.start >= floorCellRect[0].x && xa.start <= floorCellRect[3].x )
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamA.ystart;
             }
-            if (xa.end >= floorCellRect[0].x - esp && xa.end <= floorCellRect[3].x + esp)
+            if (xa.end >= floorCellRect[0].x && xa.end <= floorCellRect[3].x )
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamA.yend;
             }
-            if (xb.start >= floorCellRect[1].x - esp && xb.start <= floorCellRect[2].x + esp)
+            if (xb.start >= floorCellRect[1].x && xb.start <= floorCellRect[2].x)
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamB.ystart;
             }
-            if (xb.end >= floorCellRect[1].x - esp && xb.end <= floorCellRect[2].x + esp)
+            if (xb.end >= floorCellRect[1].x  && xb.end <= floorCellRect[2].x)
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamB.yend;
             }
@@ -691,19 +690,19 @@ namespace MINAV
             idx = cellx - xstartCell;
             lineParamA = xrowZYPlaneLineParamList[idx];
             lineParamB = xrowZYPlaneLineParamList[idx + 1];
-            if (za.start >= floorCellRect[0].z - esp && za.start <= floorCellRect[1].z + esp)
+            if (za.start >= floorCellRect[0].z && za.start <= floorCellRect[1].z)
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamA.ystart;
             }
-            if (za.end >= floorCellRect[0].z - esp && za.end <= floorCellRect[1].z + esp)
+            if (za.end >= floorCellRect[0].z && za.end <= floorCellRect[1].z)
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamA.yend;
             }
-            if (zb.start >= floorCellRect[3].z - esp && zb.start <= floorCellRect[2].z + esp)
+            if (zb.start >= floorCellRect[3].z && zb.start <= floorCellRect[2].z )
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamB.ystart;
             }
-            if (zb.end >= floorCellRect[3].z - esp && zb.end <= floorCellRect[2].z + esp)
+            if (zb.end >= floorCellRect[3].z && zb.end <= floorCellRect[2].z)
             {
                 cellProjYpos[cellProjPtsCount++] = lineParamB.yend;
             }
@@ -744,15 +743,7 @@ namespace MINAV
                 return MiNavOverlapRelation.NotOverlay;
             }
 
-            if (floorCellRect[0].x >= xa.start - esp && floorCellRect[0].x <= xa.end + esp &&
-               floorCellRect[3].x >= xa.start - esp && floorCellRect[3].x <= xa.end + esp &&
-               floorCellRect[1].x >= xb.start - esp && floorCellRect[1].x <= xb.end + esp &&
-               floorCellRect[2].x >= xb.start - esp && floorCellRect[2].x <= xb.end + esp)
-            {
-                return MiNavOverlapRelation.FullOverlap;
-            }
-
-            return MiNavOverlapRelation.PartOverlay;
+            return MiNavOverlapRelation.FullOverlap;  
         }
 
 

@@ -11,8 +11,8 @@ namespace MINAV
     {
         public float cellSize = 0.1f;
         public float cellHeight = 0.1f;
-        public float invCellSize = 1 / 0.1f;
-        public float invCellHeight = 1 / 0.1f;
+        public float invCellSize;
+        public float invCellHeight;
 
         /// <summary>
         /// 求点pa从坐标系A转换到另一个坐标系B后点的坐标位置pb，转换原理:
@@ -57,6 +57,8 @@ namespace MINAV
         public int gridCount;
         public VoxelSpace()
         {
+            invCellSize = 1 / cellSize;
+            invCellHeight = 1 / cellHeight;
         }
 
         public void CreateSpaceGrids()
