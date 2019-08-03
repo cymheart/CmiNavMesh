@@ -9,8 +9,8 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 0.5f;
-        public float cellHeight = 0.2f;
+        public float cellSize = 0.1f;
+        public float cellHeight = 0.1f;
         public float invCellSize;
         public float invCellHeight;
 
