@@ -33,7 +33,7 @@ public class TestMeshBox : MonoBehaviour {
         stopwatch.Stop();
 
        // VoxBoxViewer voxBoxViewer = new VoxBoxViewer(voxSpace);
-      //  voxBoxViewer.AppendVoxBoxs(solidSpanGroup);
+       // voxBoxViewer.AppendVoxBoxs(solidSpanGroup);
 
         long ms = stopwatch.ElapsedMilliseconds;
         txta.transform.GetComponent<Text>().text = "用时:" + ms + "毫秒, " + "vox数量:" + 0 + "," + 0;

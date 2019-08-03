@@ -47,6 +47,7 @@ namespace MINAV
     {
         public float m, b;
         public float ystart, yend;
+        public float offsety;
     }
 
     public unsafe struct TriVertsInfo
