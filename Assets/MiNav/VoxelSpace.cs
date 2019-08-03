@@ -9,7 +9,7 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 0.3f;
+        public float cellSize = 0.5f;
         public float cellHeight = 0.2f;
         public float invCellSize;
         public float invCellHeight;
@@ -49,11 +49,11 @@ namespace MINAV
         const int preCreateVertsCount = 10000;
 
 
-        MiNavAABB spaceAABB = new MiNavAABB() { minX = 1, maxX = -1 };
-        int xstartCell, xendCell;
-        int zstartCell, zendCell;
-        int cellxCount;
-        int cellzCount;
+        public MiNavAABB spaceAABB = new MiNavAABB() { minX = 1, maxX = -1 };
+        public int xstartCell, xendCell;
+        public int zstartCell, zendCell;
+        public int cellxCount;
+        public int cellzCount;
 
         public int gridCount;
         public VoxelSpace()
@@ -137,6 +137,17 @@ namespace MINAV
             //
             cellxList = new float[cellxCount + 1];
             cellzList = new float[cellzCount + 1];
+
+
+            for (int i = zstartCell; i <= zendCell; i++)
+            {
+                cellzList[i - zstartCell] = i * cellSize;
+            }
+
+            for (int i = xstartCell; i <= xendCell; i++)
+            {
+                cellxList[i - xstartCell] = i * cellSize;
+            }
         }
 
 
@@ -258,6 +269,7 @@ namespace MINAV
         /// <returns></returns>
         public SimpleVector3[] GetFloorGridCellRect(int xIdxCell, int zIdxCell)
         {
+
             float xStart = xIdxCell * cellSize;
             float xEnd = xStart + cellSize;
 

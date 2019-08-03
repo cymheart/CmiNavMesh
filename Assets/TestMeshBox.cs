@@ -21,15 +21,12 @@ public class TestMeshBox : MonoBehaviour {
     {
         VoxelSpace voxSpace = new VoxelSpace();
         CalMeshVerts(voxSpace);
-        voxSpace.CreateSpaceGrids();
 
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
         voxSpace.CreateSpaceGrids();
         SolidSpanGroup solidSpanGroup = new SolidSpanGroup(voxSpace);
-
-
 
         voxSpace.CreateVoxels(solidSpanGroup);
 

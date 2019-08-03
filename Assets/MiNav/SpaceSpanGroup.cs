@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 //        /// 0:可通行
 //        /// 1:不可通行
 //        /// </summary>
-//        public int type ;
+//        public int type;
 
 //        /// <summary>
 //        /// 所属区域编号
@@ -46,8 +46,10 @@ using System.Runtime.InteropServices;
 
 //    public unsafe struct SpaceSpanList
 //    {
-//        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.Struct)]
-//        public SimpleVector3* rect;
+//        public SimpleVector3 v0;
+//        public SimpleVector3 v1;
+//        public SimpleVector3 v2;
+//        public SimpleVector3 v3;
 //        public int region;
 //        public SpaceSpan* first;
 //        public SpaceSpan* last;
@@ -131,17 +133,17 @@ using System.Runtime.InteropServices;
 //        /// <summary>
 //        /// 最小角色行走高度
 //        /// </summary>
-//        double minWalkHeight = 1f;
+//        float minWalkHeight = 1f;
 
 //        /// <summary>
 //        /// 最小跨步高度
 //        /// </summary>
-//        double minStepHeight = 0.1f;
+//        float minStepHeight = 0.1f;
 
 //        /// <summary>
 //        /// 角色行走半径
 //        /// </summary>
-//        double walkRadius = 0.4f;
+//        float walkRadius = 0.4f;
 
 //        /// <summary>
 //        /// 角色行走半径占据多少个voxSpanBox
@@ -188,7 +190,7 @@ using System.Runtime.InteropServices;
 
 //            foreach (var item in soildSpanDict)
 //            {
-//               // cellIdxs = solidSpanGroup.GetCellIdxs(item.Key);
+//                // cellIdxs = solidSpanGroup.GetCellIdxs(item.Key);
 //                voxRect = voxSpace.GetFloorGridCellRect(cellIdxs[0], cellIdxs[1]);
 
 //                solidSpanList = item.Value;
@@ -246,7 +248,7 @@ using System.Runtime.InteropServices;
 
 //                //neiDirIdx以当前span为中心,按左手顺时针: 0←  1↑  2→  3↓
 //                for (int neiDirIdx = 0; neiDirIdx < 4; neiDirIdx++)
-//                {          
+//                {
 //                    neiKey = GetNeiKey(spanIdx, neiDirIdx);
 //                    if (neiKey != -1)
 //                        neiSpaceList = spaceSpanDict[neiKey].spaceSpanList;
@@ -375,7 +377,7 @@ using System.Runtime.InteropServices;
 //        /// <param name="limitStartPosY"></param>
 //        /// <param name="limitEndPosY"></param>
 //        void SetNotWalkSpans(
-//            int spanCellX, int spanCellZ, 
+//            int spanCellX, int spanCellZ,
 //            double limitStartPosY, double limitEndPosY)
 //        {
 //            int key = GetKey(spanCellX, spanCellZ);
@@ -384,14 +386,14 @@ using System.Runtime.InteropServices;
 //            List<SpaceSpan> spaceSpanList = spaceSpanDict[key].spaceSpanList;
 //            SpaceSpan span, neiSpan;
 
-//            for(int i=0; i<spaceSpanList.Count; i++)
+//            for (int i = 0; i < spaceSpanList.Count; i++)
 //            {
 //                span = spaceSpanList[i];
 
-//                if(span.type == 1)
+//                if (span.type == 1)
 //                    continue;
 
-//                if (span.startPos > limitEndPosY ||            
+//                if (span.startPos > limitEndPosY ||
 //                    span.endPos < limitStartPosY)
 //                    continue;
 
@@ -483,7 +485,7 @@ using System.Runtime.InteropServices;
 
 //        int GetNeiKey(int[] spanIdx, int dirIdx)
 //        {
-//            switch(dirIdx)
+//            switch (dirIdx)
 //            {
 //                case 0: return GetKey(spanIdx[0] - 1, spanIdx[1]);
 //                case 1: return GetKey(spanIdx[0], spanIdx[1] + 1);

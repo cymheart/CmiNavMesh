@@ -90,6 +90,7 @@
     <Compile Include="Assets\MiNav\MiNavTypes.cs" />
     <Compile Include="Assets\MiNav\SolidSpanGroup.cs" />
     <Compile Include="Assets\MiNav\SpaceSpanGroup.cs" />
+    <Compile Include="Assets\MiNav\SpaceSpanGroupx.cs" />
     <Compile Include="Assets\MiNav\Tools\cmemory.cs" />
     <Compile Include="Assets\MiNav\VoxBoxViewer.cs" />
     <Compile Include="Assets\MiNav\VoxelSpace.cs" />
