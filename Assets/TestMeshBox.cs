@@ -23,16 +23,16 @@ public class TestMeshBox : MonoBehaviour {
 
     public void Click()
     {
-        IntPtr voxSpace = ExportFunc.CreateVoxelSpace();
+        IntPtr voxSpace = VoxelSpaceCPlus.CreateVoxelSpace();
         CalMeshVerts2(voxSpace);
 
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
 
-        ExportFunc.SetCellSize(voxSpace, 0.1f, 0.1f);
-        ExportFunc.CreateSpaceGrids(voxSpace);
-        IntPtr solidSpanGroup = ExportFunc.CreateSolidSpanGroup(voxSpace);
-        ExportFunc.CreateVoxels(voxSpace, solidSpanGroup);
+        VoxelSpaceCPlus.SetCellSize(voxSpace, 0.1f, 0.1f);
+        VoxelSpaceCPlus.CreateSpaceGrids(voxSpace);
+        IntPtr solidSpanGroup = SolidSpanGroupCPlus.CreateSolidSpanGroup(voxSpace);
+        VoxelSpaceCPlus.CreateVoxels(voxSpace, solidSpanGroup);
 
         stopwatch.Stop();
 
@@ -96,7 +96,7 @@ public class TestMeshBox : MonoBehaviour {
                 };
 
 
-                ExportFunc.TransModelVertexs(voxSpace, vs, vs1, vs2);
+                VoxelSpaceCPlus.TransModelVertexs(voxSpace, vs, vs1, vs2);
             }
         }
     }

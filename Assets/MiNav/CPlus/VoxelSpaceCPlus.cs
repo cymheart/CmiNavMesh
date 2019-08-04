@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MINAV
 {
-    public class ExportFunc
+    public class VoxelSpaceCPlus
     {
         [DllImport("MiNavMeshPlus")]
         public static extern IntPtr CreateVoxelSpace();

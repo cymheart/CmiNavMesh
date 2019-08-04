@@ -10,7 +10,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{A28B4853-12E8-F153-E8A1-26330BC2DD48}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -87,7 +88,8 @@
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\Vector.cs" />
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorComputation.cs" />
     <Compile Include="Assets\LinearAlgebra\VectorAlgebra\VectorMatrixComputation.cs" />
-    <Compile Include="Assets\MiNav\ExportFunc.cs" />
+    <Compile Include="Assets\MiNav\CPlus\SolidSpanGroupCPlus.cs" />
+    <Compile Include="Assets\MiNav\CPlus\VoxelSpaceCPlus.cs" />
     <Compile Include="Assets\MiNav\MiNavTypes.cs" />
     <Compile Include="Assets\MiNav\SolidSpanGroup.cs" />
     <Compile Include="Assets\MiNav\SpaceSpanGroup.cs" />

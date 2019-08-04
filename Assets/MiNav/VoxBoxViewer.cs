@@ -19,15 +19,15 @@ namespace MINAV
 
         public unsafe void AppendVoxBoxs(IntPtr voxelSpace, IntPtr solidSpanGroup)
         {
-            SolidSpanList* solidSpanGrids = (SolidSpanList*)ExportFunc.GetSolidSpanGrids(solidSpanGroup);
+            SolidSpanList* solidSpanGrids = (SolidSpanList*)SolidSpanGroupCPlus.GetSolidSpanGrids(solidSpanGroup);
 
             if (solidSpanGrids == null)
                 return;
 
-            float cellSize = ExportFunc.GetCellSize(voxelSpace);
-            float cellHeight = ExportFunc.GetCellHeight(voxelSpace);
+            float cellSize = VoxelSpaceCPlus.GetCellSize(voxelSpace);
+            float cellHeight = VoxelSpaceCPlus.GetCellHeight(voxelSpace);
 
-            int gridCount = ExportFunc.GetGridCount(solidSpanGroup);
+            int gridCount = SolidSpanGroupCPlus.GetGridCount(solidSpanGroup);
 
             Vector3 size = new Vector3();
             GameObject vox;
