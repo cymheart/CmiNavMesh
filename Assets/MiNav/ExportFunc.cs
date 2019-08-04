@@ -9,12 +9,6 @@ namespace MINAV
 {
     public class ExportFunc
     {
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SimpleVector3c
-        {
-            public float x, y, z;
-        };
-
         [DllImport("MiNavMeshPlus")]
         public static extern IntPtr CreateVoxelSpace();
 
@@ -42,9 +36,9 @@ namespace MINAV
         [DllImport("MiNavMeshPlus")]
         public static extern void TransModelVertexs(
             IntPtr voxelSpace,
-            SimpleVector3c vert0,
-            SimpleVector3c vert1,
-            SimpleVector3c vert2);
+            SimpleVector3 vert0,
+            SimpleVector3 vert1,
+            SimpleVector3 vert2);
 
         [DllImport("MiNavMeshPlus")]
         public static extern IntPtr CreateSolidSpanGroup(IntPtr voxSpace);

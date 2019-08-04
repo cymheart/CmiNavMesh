@@ -8,6 +8,9 @@ Temp
 ProjectSettings
 Packages
 Logs
+x64
+Release
+Debug
 
 [http] 
 postBuffer = 524288000

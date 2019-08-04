@@ -17,15 +17,15 @@ namespace MINAV
             this.voxSpace = voxSpace;
         }
 
-        public unsafe void AppendVoxBoxs(IntPtr solidSpanGroup)
+        public unsafe void AppendVoxBoxs(IntPtr voxelSpace, IntPtr solidSpanGroup)
         {
             SolidSpanList* solidSpanGrids = (SolidSpanList*)ExportFunc.GetSolidSpanGrids(solidSpanGroup);
 
             if (solidSpanGrids == null)
                 return;
 
-            float cellSize = 0.3f;
-            float cellHeight = 0.1f;
+            float cellSize = ExportFunc.GetCellSize(voxelSpace);
+            float cellHeight = ExportFunc.GetCellHeight(voxelSpace);
 
             int gridCount = ExportFunc.GetGridCount(solidSpanGroup);
 

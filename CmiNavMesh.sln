@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
+VisualStudioVersion = 15.0.28307.757
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{A28B4853-12E8-F153-E8A1-26330BC2DD48}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MiNavMeshPlus", "MiNavMeshPlus\MiNavMeshPlus.vcxproj", "{A6506597-B51A-4485-9905-F7983E64D1D3}"
@@ -15,12 +17,13 @@ Global
 		{A28B4853-12E8-F153-E8A1-26330BC2DD48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A28B4853-12E8-F153-E8A1-26330BC2DD48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A28B4853-12E8-F153-E8A1-26330BC2DD48}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6506597-B51A-4485-9905-F7983E64D1D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6506597-B51A-4485-9905-F7983E64D1D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6506597-B51A-4485-9905-F7983E64D1D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6506597-B51A-4485-9905-F7983E64D1D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6506597-B51A-4485-9905-F7983E64D1D3}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{A6506597-B51A-4485-9905-F7983E64D1D3}.Release|Any CPU.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {08C8E2DA-D760-433B-94B0-717BA1225067}
 	EndGlobalSection
 EndGlobal

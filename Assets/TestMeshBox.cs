@@ -37,7 +37,7 @@ public class TestMeshBox : MonoBehaviour {
         stopwatch.Stop();
 
        // VoxBoxViewer voxBoxViewer = new VoxBoxViewer(null);
-       // voxBoxViewer.AppendVoxBoxs(solidSpanGroup);
+       // voxBoxViewer.AppendVoxBoxs(voxSpace, solidSpanGroup);
 
         long ms = stopwatch.ElapsedMilliseconds;
         txta.transform.GetComponent<Text>().text = "用时:" + ms + "毫秒, " + "vox数量:" + 0 + "," + 0;
@@ -74,21 +74,21 @@ public class TestMeshBox : MonoBehaviour {
                 v = mf.transform.localToWorldMatrix.MultiplyPoint(vects[2]);
                 vectxs[2] = new Vector(new double[] { v.x, v.y, v.z, 1 }, VectorType.Column);
 
-                ExportFunc.SimpleVector3c vs = new ExportFunc.SimpleVector3c()
+                SimpleVector3 vs = new SimpleVector3()
                 {
                     x = (float)vectxs[0].Elements[0],
                     y = (float)vectxs[0].Elements[1],
                     z = (float)vectxs[0].Elements[2]
                 };
 
-                ExportFunc.SimpleVector3c vs1 = new ExportFunc.SimpleVector3c()
+                SimpleVector3 vs1 = new SimpleVector3()
                 {
                     x = (float)vectxs[1].Elements[0],
                     y = (float)vectxs[1].Elements[1],
                     z = (float)vectxs[1].Elements[2]
                 };
 
-                ExportFunc.SimpleVector3c vs2 = new ExportFunc.SimpleVector3c()
+                SimpleVector3 vs2 = new SimpleVector3()
                 {
                     x = (float)vectxs[2].Elements[0],
                     y = (float)vectxs[2].Elements[1],
