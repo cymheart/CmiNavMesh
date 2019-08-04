@@ -9,7 +9,7 @@ namespace MINAV
 {
     public class VoxelSpace
     {
-        public float cellSize = 0.1f;
+        public float cellSize = 1f;
         public float cellHeight = 0.1f;
         public float invCellSize;
         public float invCellHeight;
@@ -156,6 +156,7 @@ namespace MINAV
             if (freeSolidSpanCount == 0)
             {
                 SolidSpan* solidSpans = (SolidSpan*)Marshal.AllocHGlobal(sizeof(SolidSpan) * preCreateSolidSpanCount);
+                cmemory.memset(solidSpans, 0, sizeof(SolidSpan) * preCreateSolidSpanCount);
                 solidSpansList.AddLast((IntPtr)solidSpans);
                 freeSolidSpanCount = preCreateSolidSpanCount;
             }
@@ -182,7 +183,7 @@ namespace MINAV
         }
 
 
-        public void TransModelVertexs(Vector[] triFaceVertex)
+        public void TransModelVertexs(SimpleVector3[] verts)
         {
             unsafe
             {
@@ -190,25 +191,19 @@ namespace MINAV
 
                 MiNavAABB* aabb = &(triInfo->aabb);
 
-                triInfo->vert0.x = (float)triFaceVertex[0].Elements[0];
-                triInfo->vert0.y = (float)triFaceVertex[0].Elements[1];
-                triInfo->vert0.z = (float)triFaceVertex[0].Elements[2];
+                triInfo->vert0 = verts[0];
                 aabb->maxX = triInfo->vert0.x; aabb->minX = triInfo->vert0.x;
                 aabb->maxZ = triInfo->vert0.z; aabb->minZ = triInfo->vert0.z;
                 aabb->maxY = triInfo->vert0.y; aabb->minY = triInfo->vert0.y;
 
 
-                triInfo->vert1.x = (float)triFaceVertex[1].Elements[0];
-                triInfo->vert1.y = (float)triFaceVertex[1].Elements[1];
-                triInfo->vert1.z = (float)triFaceVertex[1].Elements[2];
+                triInfo->vert1 = verts[1];
                 if (triInfo->vert1.x > aabb->maxX) { aabb->maxX = triInfo->vert1.x; }
                 if (triInfo->vert1.x < aabb->minX) { aabb->minX = triInfo->vert1.x; }
                 if (triInfo->vert1.z > aabb->maxZ) { aabb->maxZ = triInfo->vert1.z; }
                 if (triInfo->vert1.z < aabb->minZ) { aabb->minZ = triInfo->vert1.z; }
 
-                triInfo->vert2.x = (float)triFaceVertex[2].Elements[0];
-                triInfo->vert2.y = (float)triFaceVertex[2].Elements[1];
-                triInfo->vert2.z = (float)triFaceVertex[2].Elements[2];
+                triInfo->vert2 = verts[2];
                 if (triInfo->vert2.x > aabb->maxX) { aabb->maxX = triInfo->vert2.x; }
                 if (triInfo->vert2.x < aabb->minX) { aabb->minX = triInfo->vert2.x; }
                 if (triInfo->vert2.z > aabb->maxZ) { aabb->maxZ = triInfo->vert2.z; }

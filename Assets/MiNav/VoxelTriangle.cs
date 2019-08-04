@@ -609,8 +609,27 @@ namespace MINAV
             CellLineRange za = xcolZRangeList[idx];
             CellLineRange zb = xcolZRangeList[idx + 1];
 
+            if(floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end &&
+               floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end)
+            {
+                if (floorCellRect[0].x >= xb.start && floorCellRect[0].x <= xb.end &&
+                 floorCellRect[3].x >= xb.start && floorCellRect[3].x <= xb.end)
+                {
+                    LineParam paramA, paramB;
+                    idx = cellz - zstartCell;
+                    paramA = zrowXYPlaneLineParamList[idx];
+                    paramB = zrowXYPlaneLineParamList[idx + 1];
 
-            if (((floorCellRect[3].x < xb.start && floorCellRect[3].x < xa.start) ||
+                    cellProjYpos[0] = floorCellRect[0].x * paramA.m + paramA.b;
+                    cellProjYpos[1] = cellProjYpos[0] + paramA.offsety;
+                    cellProjYpos[2] = floorCellRect[0].x * paramB.m + paramB.b;
+                    cellProjYpos[3] = cellProjYpos[2] + paramB.offsety;
+                    cellProjPtsCount = 4;
+
+                    return MiNavOverlapRelation.FullOverlap;
+                }
+            }
+            else if (((floorCellRect[3].x < xb.start && floorCellRect[3].x < xa.start) ||
                 (floorCellRect[0].x > xb.end && floorCellRect[0].x > xa.end)) &&
                 ((floorCellRect[0].z > za.end && floorCellRect[0].z > zb.end) ||
                 (floorCellRect[1].z < za.start && floorCellRect[1].z < zb.start)))
@@ -618,31 +637,12 @@ namespace MINAV
                 return MiNavOverlapRelation.NotOverlay;
             }
 
-
-            LineParam lineParamA, lineParamB;
-
-            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end &&
-               floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end &&
-               floorCellRect[0].x >= xb.start && floorCellRect[0].x <= xb.end &&
-               floorCellRect[3].x >= xb.start && floorCellRect[3].x <= xb.end)
-            {
-                idx = cellz - zstartCell;
-                lineParamA = zrowXYPlaneLineParamList[idx];
-                lineParamB = zrowXYPlaneLineParamList[idx + 1];
-
-                cellProjYpos[0] = floorCellRect[0].x * lineParamA.m + lineParamA.b;
-                cellProjYpos[1] = cellProjYpos[0] + lineParamA.offsety;
-                cellProjYpos[2] = floorCellRect[0].x * lineParamB.m + lineParamB.b;
-                cellProjYpos[3] = cellProjYpos[2] + lineParamB.offsety;
-                cellProjPtsCount = 4;
-
-                return MiNavOverlapRelation.FullOverlap;
-            }
+          
 
             //
             idx = cellz - zstartCell;
-            lineParamA = zrowXYPlaneLineParamList[idx];
-            lineParamB = zrowXYPlaneLineParamList[idx + 1];
+            LineParam lineParamA = zrowXYPlaneLineParamList[idx];
+            LineParam lineParamB = zrowXYPlaneLineParamList[idx + 1];
             cellProjPtsCount = 0;
             if (floorCellRect[0].x >= xa.start  && floorCellRect[0].x <= xa.end && lineParamA.m != 99999)
             {
@@ -681,151 +681,21 @@ namespace MINAV
 
 
             //
-            idx = cellx - xstartCell;
-            lineParamA = xrowZYPlaneLineParamList[idx];
-            lineParamB = xrowZYPlaneLineParamList[idx + 1];
             if (za.start >= floorCellRect[0].z  && za.start <= floorCellRect[1].z )
             {
-                cellProjYpos[cellProjPtsCount++] = lineParamA.ystart;
+                cellProjYpos[cellProjPtsCount++] = xrowZYPlaneLineParamList[cellx - xstartCell].ystart;
             }
             if (za.end >= floorCellRect[0].z  && za.end <= floorCellRect[1].z )
             {
-                cellProjYpos[cellProjPtsCount++] = lineParamA.yend;
+                cellProjYpos[cellProjPtsCount++] = xrowZYPlaneLineParamList[cellx - xstartCell].yend;
             }
             if (zb.start >= floorCellRect[0].z  && zb.start <= floorCellRect[1].z)
             {
-                cellProjYpos[cellProjPtsCount++] = lineParamB.ystart;
+                cellProjYpos[cellProjPtsCount++] = xrowZYPlaneLineParamList[cellx - xstartCell + 1].ystart;
             }
             if (zb.end >= floorCellRect[0].z  && zb.end <= floorCellRect[1].z )
             {
-                cellProjYpos[cellProjPtsCount++] = lineParamB.yend;
-            }
-
-            //
-            for (int i = 0; i < 3; i++)
-            {
-                if (vertCellX[i] == cellx && vertCellZ[i] == cellz)
-                {
-                    cellProjYpos[cellProjPtsCount++] = vertexs[i].y;
-                    break;
-                }
-            }
-
-            return MiNavOverlapRelation.PartOverlay;
-        }
-
-
-        MiNavOverlapRelation GetOverlapRelation2(int cellx, int cellz)
-        {
-            int idx = cellz - zstartCell;
-            CellLineRange xa = zrowXRangeList[idx];
-            CellLineRange xb = zrowXRangeList[idx + 1];
-
-            idx = cellx - xstartCell;
-            CellLineRange za = xcolZRangeList[idx];
-            CellLineRange zb = xcolZRangeList[idx + 1];
-
-
-            if (((floorCellRect[2].x < xb.start && floorCellRect[3].x < xa.start) ||
-                (floorCellRect[1].x > xb.end && floorCellRect[0].x > xa.end)) &&
-                ((floorCellRect[0].z > za.end && floorCellRect[3].z > zb.end) ||
-                (floorCellRect[1].z < za.start && floorCellRect[2].z < zb.start)))
-            {
-                return MiNavOverlapRelation.NotOverlay;
-            }
-
-
-            LineParam lineParamA, lineParamB;
-
-            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end &&
-               floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end &&
-               floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end &&
-               floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end)
-            {
-                idx = cellz - zstartCell;
-                lineParamA = zrowXYPlaneLineParamList[idx];
-                lineParamB = zrowXYPlaneLineParamList[idx + 1];
-
-                cellProjYpos[0] = floorCellRect[0].x * lineParamA.m + lineParamA.b;
-                cellProjYpos[1] = cellProjYpos[0] + lineParamA.offsety;
-                cellProjYpos[2] = floorCellRect[1].x * lineParamB.m + lineParamB.b;
-                cellProjYpos[3] = cellProjYpos[2] + lineParamB.offsety;
-                cellProjPtsCount = 4;
-
-                return MiNavOverlapRelation.FullOverlap;
-            }
-
-            //
-            idx = cellz - zstartCell;
-            lineParamA = zrowXYPlaneLineParamList[idx];
-            lineParamB = zrowXYPlaneLineParamList[idx + 1];
-            cellProjPtsCount = 0;
-            if (floorCellRect[0].x >= xa.start && floorCellRect[0].x <= xa.end && lineParamA.m != 99999)
-            {
-                cellProjYpos[cellProjPtsCount++] = floorCellRect[0].x * lineParamA.m + lineParamA.b;
-            }
-            if (floorCellRect[3].x >= xa.start && floorCellRect[3].x <= xa.end && lineParamA.m != 99999)
-            {
-                // if (cellProjPtsCount == 1)
-                //     cellProjYpos[cellProjPtsCount++] = cellProjYpos[0] + lineParamA.offsety;
-                // else
-                cellProjYpos[cellProjPtsCount++] = floorCellRect[3].x * lineParamA.m + lineParamA.b;
-            }
-            if (floorCellRect[1].x >= xb.start && floorCellRect[1].x <= xb.end && lineParamB.m != 99999)
-            {
-                cellProjYpos[cellProjPtsCount++] = floorCellRect[1].x * lineParamB.m + lineParamB.b;
-            }
-            if (floorCellRect[2].x >= xb.start && floorCellRect[2].x <= xb.end && lineParamB.m != 99999)
-            {
-                //  if (cellProjPtsCount == 1 || cellProjPtsCount == 3)
-                // {
-                //   float a = cellProjYpos[cellProjPtsCount - 1];
-                //   cellProjYpos[cellProjPtsCount++] = a + lineParamB.offsety;
-                // }
-                // else
-                // {
-                cellProjYpos[cellProjPtsCount++] = floorCellRect[2].x * lineParamB.m + lineParamB.b;
-                //  }
-            }
-
-
-            if (xa.start >= floorCellRect[0].x && xa.start <= floorCellRect[3].x)
-            {
-                cellProjYpos[cellProjPtsCount++] = lineParamA.ystart;
-            }
-            if (xa.end >= floorCellRect[0].x && xa.end <= floorCellRect[3].x)
-            {
-                cellProjYpos[cellProjPtsCount++] = lineParamA.yend;
-            }
-            if (xb.start >= floorCellRect[1].x && xb.start <= floorCellRect[2].x)
-            {
-                cellProjYpos[cellProjPtsCount++] = lineParamB.ystart;
-            }
-            if (xb.end >= floorCellRect[1].x && xb.end <= floorCellRect[2].x)
-            {
-                cellProjYpos[cellProjPtsCount++] = lineParamB.yend;
-            }
-
-
-            //
-            idx = cellx - xstartCell;
-            lineParamA = xrowZYPlaneLineParamList[idx];
-            lineParamB = xrowZYPlaneLineParamList[idx + 1];
-            if (za.start >= floorCellRect[0].z && za.start <= floorCellRect[1].z)
-            {
-                cellProjYpos[cellProjPtsCount++] = lineParamA.ystart;
-            }
-            if (za.end >= floorCellRect[0].z && za.end <= floorCellRect[1].z)
-            {
-                cellProjYpos[cellProjPtsCount++] = lineParamA.yend;
-            }
-            if (zb.start >= floorCellRect[3].z && zb.start <= floorCellRect[2].z)
-            {
-                cellProjYpos[cellProjPtsCount++] = lineParamB.ystart;
-            }
-            if (zb.end >= floorCellRect[3].z && zb.end <= floorCellRect[2].z)
-            {
-                cellProjYpos[cellProjPtsCount++] = lineParamB.yend;
+                cellProjYpos[cellProjPtsCount++] = xrowZYPlaneLineParamList[cellx - xstartCell + 1].yend;
             }
 
             //

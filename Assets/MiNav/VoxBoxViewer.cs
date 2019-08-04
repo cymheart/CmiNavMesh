@@ -17,6 +17,54 @@ namespace MINAV
             this.voxSpace = voxSpace;
         }
 
+        public unsafe void AppendVoxBoxs(IntPtr solidSpanGroup)
+        {
+            SolidSpanList* solidSpanGrids = (SolidSpanList*)ExportFunc.GetSolidSpanGrids(solidSpanGroup);
+
+            if (solidSpanGrids == null)
+                return;
+
+            float cellSize = 0.3f;
+            float cellHeight = 0.1f;
+
+            int gridCount = ExportFunc.GetGridCount(solidSpanGroup);
+
+            Vector3 size = new Vector3();
+            GameObject vox;
+            float yPosStart, yPosEnd;
+
+            for (int i = 0; i < gridCount; i++)
+            {
+                if (solidSpanGrids[i].first == null)
+                    continue;
+
+                float x = solidSpanGrids[i].floorCellIdxX * cellSize;
+                float z = solidSpanGrids[i].floorCellIdxZ * cellSize;
+
+                x = (x + cellSize + x) / 2;
+                z = (z + cellSize + z) / 2;
+
+                SolidSpan* solidSpan = solidSpanGrids[i].first;
+                for (; solidSpan != null; solidSpan = solidSpan->next)
+                {
+
+                    size.Set(
+                        cellSize,
+                        ((solidSpan->yendCellIdx - solidSpan->ystartCellIdx) * cellHeight),
+                        cellSize);
+
+                    yPosStart = solidSpan->ystartPos;
+                    yPosEnd = solidSpan->yendPos;
+
+                    Vector3 pos = new Vector3(x, (yPosStart + yPosEnd) / 2f, z);
+                    vox = CreateVoxBoxMesh(null, pos, size);
+                    voxList.Add(vox);
+
+                }
+            }
+        }
+
+
         public void AppendVoxBoxs(SolidSpanGroup solidSpanGroup)
         {
             unsafe

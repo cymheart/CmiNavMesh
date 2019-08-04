@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{a4738e43-52d3-4316-ac3e-7c6fdb0a40fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="core\源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="caller">
+      <UniqueIdentifier>{fe7f760a-6119-4641-8944-2207fe3a4e4f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\MiNavTypes.h">
+      <Filter>core\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\SolidSpanGroup.h">
+      <Filter>core\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\VoxelSpace.h">
+      <Filter>core\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\VoxelTriangle.h">
+      <Filter>core\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="caller\SolidSpanGroupCaller.h">
+      <Filter>caller</Filter>
+    </ClInclude>
+    <ClInclude Include="caller\VoxelSpaceCaller.h">
+      <Filter>caller</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="core\SolidSpanGroup.cpp">
+      <Filter>core\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\VoxelSpace.cpp">
+      <Filter>core\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\VoxelTriangle.cpp">
+      <Filter>core\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="caller\VoxelSpaceCaller.cpp">
+      <Filter>caller</Filter>
+    </ClCompile>
+    <ClCompile Include="caller\SolidSpanGroupCaller.cpp">
+      <Filter>caller</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
