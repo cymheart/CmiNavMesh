@@ -12,6 +12,7 @@ SolidSpanGroup::~SolidSpanGroup()
 
 }
 
+//test
 void SolidSpanGroup::AppendVoxBox(
 	int floorCellIdxX, int floorCellIdxZ,
 	int heightCellStartIdx, int heightCellEndIdx)

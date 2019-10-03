@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28307.757
+VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{A28B4853-12E8-F153-E8A1-26330BC2DD48}"
 EndProject
@@ -24,6 +24,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {08C8E2DA-D760-433B-94B0-717BA1225067}
+		SolutionGuid = {62995948-1969-41AE-B756-5C45C50A458B}
 	EndGlobalSection
 EndGlobal
